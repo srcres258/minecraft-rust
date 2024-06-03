@@ -15,3 +15,14 @@ pub struct Application<'a> {
     config: Config,
     is_pop_state: bool
 }
+//
+// impl<'a> Application<'a> {
+//     pub fn new(config: Config) -> Self {
+//         BlockDatabase::get();
+//
+//     }
+//
+//     pub fn push_state(&mut self, config: Config) {
+//         self.states.push(Box::new())
+//     }
+// }

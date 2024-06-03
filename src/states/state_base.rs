@@ -1,4 +1,5 @@
 use sfml::window::Event;
+use crate::renderer::render_master::RenderMaster;
 
 pub trait StateBase {
     fn handle_event(&self, event: Event);

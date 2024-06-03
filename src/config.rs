@@ -1,10 +1,11 @@
 /// @brief Default configuration for program.
+#[derive(Copy, Clone)]
 pub struct Config {
-    window_x: i32,
-    window_y: i32,
-    is_fullscreen: bool,
-    render_distance: i32, // Set initial RD low to prevent long load times
-    fov: i32
+    pub window_x: i32,
+    pub window_y: i32,
+    pub is_fullscreen: bool,
+    pub render_distance: i32, // Set initial RD low to prevent long load times
+    pub fov: i32
 }
 
 impl Default for Config {

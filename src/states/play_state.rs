@@ -1,9 +1,12 @@
 use crate::application::Application;
+use crate::input::keyboard::Keyboard;
+use crate::player::player::Player;
+use crate::world::world::World;
 
 pub struct StatePlay<'a, 'b> {
-    application: &'a Application<'b>,
+    application: &'b Application<'a>,
     keyboard: Keyboard,
-    player: Player,
+    player: Player<'a>,
     world: World,
     fps_counter: FPSCounter
 }
