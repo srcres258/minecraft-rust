@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use crate::block::block_id::BlockId;
+use crate::world::block::block_id::BlockId;
 
 pub enum ID {
     Nothing,

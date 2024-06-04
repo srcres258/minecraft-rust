@@ -1,11 +1,13 @@
 extern crate nalgebra_glm as glm;
 
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::entity::Entity;
 
-pub struct Camera<'a> {
-    wrapped_obj: Entity,
+pub struct Camera {
+    pub wrapped_obj: Entity,
     
-    p_entity: &'a Entity,
+    p_entity: Option<Rc<RefCell<Entity>>>,
 
     frustum: ViewFrustum,
 

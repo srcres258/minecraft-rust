@@ -9,8 +9,9 @@ pub mod config;
 pub mod input;
 pub mod player;
 pub mod item;
-pub mod block;
 pub mod world;
+pub mod util;
+pub mod maths;
 
 fn main() {
     println!("Hello, world!");

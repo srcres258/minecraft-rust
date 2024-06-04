@@ -10,7 +10,7 @@ pub struct World {
     chunk_manager: ChunkManager,
 
     events: Vec<Box<dyn IWorldEvent>>,
-    chunk_updates: HashMap<Vector3i, Arc<ChunkSection>>,
+    chunk_updates: HashMap<Vector3i, Arc<Mutex<ChunkSection>>>,
 
     is_running: Mutex<bool>,
     chunk_load_threads: Vec<Thread>,
