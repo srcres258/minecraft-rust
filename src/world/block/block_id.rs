@@ -16,6 +16,10 @@ pub enum BlockId {
     DeadShrub = 11
 }
 
+impl BlockId {
+    pub const NUM_TYPES: usize = 12;
+}
+
 impl TryFrom<i32> for BlockId {
     type Error = ();
 

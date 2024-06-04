@@ -1,3 +1,5 @@
+#![feature(generic_const_exprs)]
+
 pub mod application;
 pub mod states;
 pub mod context;
@@ -12,6 +14,8 @@ pub mod item;
 pub mod world;
 pub mod util;
 pub mod maths;
+pub mod mesh;
+mod model;
 
 fn main() {
     println!("Hello, world!");
