@@ -2,8 +2,8 @@ use gl::types::GLuint;
 
 #[derive(Copy, Clone, Default)]
 pub struct RenderInfo {
-    vao: GLuint,
-    indices_count: GLuint
+    pub vao: GLuint,
+    pub indices_count: GLuint
 }
 
 impl RenderInfo {

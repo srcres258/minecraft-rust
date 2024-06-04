@@ -8,7 +8,7 @@ use crate::world::world_constants::CHUNK_SIZE;
 
 pub trait IChunk {
     fn get_block(&self, x: i32, y: i32, z: i32) -> ChunkBlock;
-    fn set_block(&self, x: i32, y: i32, z: i32, block: ChunkBlock);
+    fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock);
 }
 
 /// @brief A chunk, in other words, a large arrangement of blocks.
