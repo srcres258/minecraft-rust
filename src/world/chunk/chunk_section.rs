@@ -1,6 +1,7 @@
 extern crate nalgebra_glm as glm;
 
 use std::cell::RefCell;
+use std::slice::Iter;
 use std::rc::Rc;
 use sfml::system::Vector3i;
 use crate::physics::aabb::AABB;
@@ -105,8 +106,8 @@ impl ChunkSection {
         //todo
     }
     
-    pub fn begin(&self) -> &ChunkBlock {
-        &self.blocks[0]
+    pub fn iter(&self) -> Iter<'_, ChunkBlock> {
+        self.blocks.iter()
     }
 
     fn to_world_position(&self, x: i32, y: i32, z: i32) -> Vector3i {

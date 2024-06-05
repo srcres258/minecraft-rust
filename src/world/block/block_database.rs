@@ -11,6 +11,7 @@ lazy_static! {
 
 /// @brief Singleton class that determines status and ID of blocks as a whole.
 pub struct BlockDatabase {
+    pub texture_atlas: TextureAtlas,
     blocks: [Box<dyn BlockType>; BlockId::NUM_TYPES]
 }
 

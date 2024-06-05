@@ -4,12 +4,14 @@ use sfml::system::Vector2i;
 use crate::world::block::block_id::BlockId;
 
 /// @brief Allocates meshes to cubes and non-cube entities.
+#[derive(Eq, PartialEq)]
 pub enum BlockMeshType {
     Cube = 0,
     X = 1
 }
 
 /// @brief Allocates shader behavior to groups of blocks.
+#[derive(Eq, PartialEq)]
 pub enum BlockShaderType {
     Chunk = 0,
     Liquid = 1,

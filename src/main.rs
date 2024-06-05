@@ -15,7 +15,8 @@ pub mod world;
 pub mod util;
 pub mod maths;
 pub mod mesh;
-mod model;
+pub mod model;
+pub mod texture;
 
 fn main() {
     println!("Hello, world!");
