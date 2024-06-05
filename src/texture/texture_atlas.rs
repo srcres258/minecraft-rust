@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::ptr;
 use gl::types::{GLfloat, GLuint};
 use sfml::graphics::Image;
@@ -75,10 +74,10 @@ impl TextureAtlas {
     pub fn get_texture(&self, coords: &Vector2i) -> [GLfloat; 8] {
         let x_min = coords.x as f32 * INDV_TEX_SIZE + 0.5 * PIXEL_SIZE;
         let y_min = coords.y as f32 * INDV_TEX_SIZE + 0.5 * PIXEL_SIZE;
-        
+
         let x_max = x_min + INDV_TEX_SIZE - PIXEL_SIZE;
         let y_max = y_min + INDV_TEX_SIZE - PIXEL_SIZE;
-        
+
         [x_max, y_max, x_min, y_max, x_min, y_min, x_max, y_min]
     }
 }
