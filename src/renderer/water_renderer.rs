@@ -3,7 +3,6 @@ use crate::camera::Camera;
 use crate::gl::gl_functions;
 use crate::renderer::render_info::RenderInfo;
 use crate::shaders::water_shader::WaterShader;
-use crate::world::block::block_database::BlockDatabase;
 use crate::world::chunk::chunk_mesh::ChunkMesh;
 
 /// @brief Renderer specifically targeting water and handling shader behaviors.
