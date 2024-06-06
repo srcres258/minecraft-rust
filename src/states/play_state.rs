@@ -10,8 +10,8 @@ pub struct StatePlay<'a> {
     application: Rc<RefCell<Application>>,
     
     keyboard: Keyboard,
-    player: Player<'a>,
-    world: World,
+    player: Rc<RefCell<Player<'a>>>,
+    world: Rc<RefCell<World>>,
     
     fps_counter: FPSCounter<'a>
 }

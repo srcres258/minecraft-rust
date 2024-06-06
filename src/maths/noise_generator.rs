@@ -2,12 +2,12 @@ use crate::world::world_constants::{CHUNK_SIZE, WATER_LEVEL};
 
 #[derive(Copy, Clone, Default)]
 pub struct NoiseParameters {
-    octaves: i32,
-    amplitude: i32,
-    smoothness: i32,
-    height_offset: i32,
+    pub octaves: i32,
+    pub amplitude: i32,
+    pub smoothness: i32,
+    pub height_offset: i32,
 
-    roughness: f64
+    pub roughness: f64
 }
 
 /// @brief Perlin noise generator used in construction of chunks and chunk blocks.
@@ -73,6 +73,10 @@ impl NoiseGenerator {
             + self.noise_parameters.height_offset as f64;
 
         if val > 0.0 { val } else { 1.0 } // Compare if value is greater than 0
+    }
+
+    pub fn set_parameters(&mut self, params: NoiseParameters) {
+        self.noise_parameters = params;
     }
 
     /// @brief Gets Noise through n which acts as a seed number.

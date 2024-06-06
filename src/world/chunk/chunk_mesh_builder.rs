@@ -4,6 +4,7 @@ use crate::world::block::block_data::{BlockDataHolder, BlockMeshType, BlockShade
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
+use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_mesh::{ChunkMesh, ChunkMeshCollection};
 use crate::world::chunk::chunk_section::ChunkSection;
 use crate::world::world_constants::{CHUNK_SIZE, CHUNK_VOLUME};
@@ -154,7 +155,12 @@ impl<'a> ChunkMeshBuilder<'a> {
         texture_coords: &Vector2i,
         block_position: &Vector3i
     ) {
-        let tex_coords = todo!();
+        let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
+
+        self.p_active_mesh.unwrap().add_face(X_FACE_1, tex_coords, &self.p_chunk.get_location(),
+                                             block_position, LIGHT_X);
+        self.p_active_mesh.unwrap().add_face(X_FACE_2, tex_coords, &self.p_chunk.get_location(),
+                                             block_position, LIGHT_X);
     }
 
     fn try_add_face_to_mesh(
@@ -165,7 +171,17 @@ impl<'a> ChunkMeshBuilder<'a> {
         block_facing: &Vector3i,
         cardinal_light: GLfloat
     ) {
-        //todo
+        if self.should_make_face(block_facing, self.p_block_data.unwrap()) {
+            let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
+
+            self.p_active_mesh.unwrap().add_face(
+                block_face,
+                tex_coords,
+                &self.p_chunk.get_location(),
+                block_position,
+                cardinal_light
+            );
+        }
     }
 
     fn should_make_face(
@@ -173,11 +189,32 @@ impl<'a> ChunkMeshBuilder<'a> {
         block_position: &Vector3i,
         block_data: &BlockDataHolder
     ) -> bool {
-        //todo
+        let block = self.p_chunk.get_block(block_position.x, block_position.y, block_position.z);
+        let data = block.get_data();
+
+        if block.id == BlockId::Air as _ {
+            true
+        } else if !data.is_opaque && data.id != self.p_block_data.unwrap().id {
+            true
+        } else {
+            false
+        }
     }
 
-    fn should_make_layer(&self, y: i32) -> bool {
-        //todo
+    fn should_make_layer(&mut self, y: i32) -> bool {
+        let adj_is_solid = |dx, dz| {
+            let sect = self.p_chunk.get_adjacent(dx, dz);
+            sect.get_layer(y).is_all_solid()
+        };
+        
+        !self.p_chunk.get_layer(y).is_all_solid() ||
+            self.p_chunk.get_layer(y + 1).is_all_solid() ||
+            self.p_chunk.get_layer(y - 1).is_all_solid() ||
+            
+            !adj_is_solid(1, 0) ||
+            !adj_is_solid(0, 1) ||
+            !adj_is_solid(-1, 0) ||
+            !adj_is_solid(0, -1)
     }
 }
 

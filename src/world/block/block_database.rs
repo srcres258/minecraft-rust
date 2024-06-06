@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use lazy_static::lazy_static;
+use crate::texture::texture_atlas::TextureAtlas;
 use crate::world::block::block_data::BlockData;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::block_types::block_type::{BlockType, DefaultBlock};
@@ -17,6 +18,7 @@ pub struct BlockDatabase {
 
 impl BlockDatabase {
     fn new() -> Self {
+        let texture_atlas = TextureAtlas::new("DefaultPack");
         let blocks = [
             Box::new(DefaultBlock::new("Air")),
             Box::new(DefaultBlock::new("Grass")),
@@ -31,7 +33,7 @@ impl BlockDatabase {
             Box::new(DefaultBlock::new("Rose")),
             Box::new(DefaultBlock::new("DeadShrub"))
         ];
-        Self { blocks }
+        Self { texture_atlas, blocks }
     }
 
     pub fn get() -> &'static Self {

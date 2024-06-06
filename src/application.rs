@@ -4,7 +4,7 @@ use crate::context::Context;
 use crate::renderer::render_master::RenderMaster;
 use crate::states::state_base::StateBase;
 
-static mut TIME_ELAPSED: f32 = 0.0;
+pub static mut TIME_ELAPSED: f32 = 0.0;
 
 /// @brief The main game application itself.
 pub struct Application {

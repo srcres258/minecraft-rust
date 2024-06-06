@@ -1,6 +1,7 @@
 pub type BlockType = u8;
 
 /// @brief Known block ID types used in game.
+#[derive(Eq, PartialEq, Copy, Clone)]
 pub enum BlockId {
     Air = 0,
     Grass = 1,
@@ -39,5 +40,11 @@ impl TryFrom<i32> for BlockId {
             x if x == BlockId::DeadShrub as i32 => Ok(BlockId::DeadShrub),
             _ => Err(())
         }
+    }
+}
+
+impl Default for BlockId {
+    fn default() -> Self {
+        Self::Air
     }
 }

@@ -13,12 +13,7 @@ pub struct Entity {
 
 impl Entity {
     pub fn new() -> Self {
-        Self {
-            position: glm::vec3(0.0, 0.0, 0.0),
-            rotation: glm::vec3(0.0, 0.0, 0.0),
-            velocity: glm::vec3(0.0, 0.0, 0.0),
-            box_aabb: AABB::new(&glm::vec3(0.0, 0.0, 0.0))
-        }
+        Self::default()
     }
 
     pub fn new_ex_1(pos: &glm::TVec3<f32>, rot: &glm::TVec3<f32>) -> Self {
@@ -40,6 +35,17 @@ impl Entity {
             rotation: *rot,
             velocity: glm::vec3(0.0, 0.0, 0.0),
             box_aabb: AABB::new(box_aabb)
+        }
+    }
+}
+
+impl Default for Entity {
+    fn default() -> Self {
+        Self {
+            position: glm::vec3(0.0, 0.0, 0.0),
+            rotation: glm::vec3(0.0, 0.0, 0.0),
+            velocity: glm::vec3(0.0, 0.0, 0.0),
+            box_aabb: AABB::new(&glm::vec3(0.0, 0.0, 0.0))
         }
     }
 }

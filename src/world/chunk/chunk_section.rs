@@ -8,6 +8,7 @@ use crate::physics::aabb::AABB;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
+use crate::world::chunk::chunk_mesh_builder::ChunkMeshBuilder;
 use crate::world::world::World;
 use crate::world::world_constants::{CHUNK_AREA, CHUNK_SIZE, CHUNK_VOLUME};
 
@@ -21,7 +22,7 @@ pub struct ChunkSection {
     layers: [Layer; CHUNK_SIZE],
 
     meshes: ChunkMeshCollection,
-    aabb: AABB,
+    pub aabb: AABB,
     location: Vector3i,
 
     p_world: Rc<RefCell<World>>,
@@ -80,7 +81,9 @@ impl ChunkSection {
     }
     
     pub fn make_mesh(&mut self) {
-        //todo
+        ChunkMeshBuilder::new(self, &self.meshes).build_mesh();
+        self.has_mesh = true;
+        self.has_buffered_mesh = false;
     }
     
     pub fn buffer_mesh(&mut self) {
@@ -91,10 +94,15 @@ impl ChunkSection {
     }
     
     pub fn get_layer(&self, y: i32) -> &Layer {
-        //todo
+        if y == -1 {
+            //todo
+        }
     }
     
     pub fn get_adjacent(&mut self, dx: i32, dz: i32) -> &ChunkSection {
+        let new_x = self.location.x + dx;
+        let new_z = self.location.z + dz;
+
         //todo
     }
     
@@ -103,7 +111,13 @@ impl ChunkSection {
     }
     
     pub fn delete_meshes(&mut self) {
-        //todo
+        if self.has_mesh {
+            self.has_buffered_mesh = false;
+            self.has_mesh = false;
+            self.meshes.solid_mesh.delete_data();
+            self.meshes.water_mesh.delete_data();
+            self.meshes.flora_mesh.delete_data();
+        }
     }
     
     pub fn iter(&self) -> Iter<'_, ChunkBlock> {
@@ -131,21 +145,21 @@ impl IChunk for ChunkSection {
     fn get_block(&self, x: i32, y: i32, z: i32) -> ChunkBlock {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            return todo!();
+            return self.p_world.borrow().get_block(location.x, location.y, location.z);
         }
 
-        self.blocks[Self::get_index(x, y, z)]
+        self.blocks[Self::get_index(x, y, z) as usize]
     }
 
     fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock) {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            //todo
+            self.p_world.borrow_mut().set_block(location.x, location.y, location.z, block);
             return;
         }
 
-        self.layers[y].update(block);
+        self.layers[y as usize].update(block);
 
-        self.blocks[Self::get_index(x, y, z)] = block;
+        self.blocks[Self::get_index(x, y, z) as usize] = block;
     }
 }

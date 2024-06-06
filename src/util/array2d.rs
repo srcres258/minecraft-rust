@@ -1,3 +1,4 @@
+#[derive(Default)]
 pub struct Array2D<T: Ord, const WIDTH: usize> {
     array: [T; WIDTH * WIDTH]
 }

@@ -1,8 +1,13 @@
 extern crate nalgebra_glm as glm;
 
+use std::cell::RefCell;
+use std::rc::Rc;
 use sfml::graphics::Text;
+use crate::entity::Entity;
 
 pub struct Player<'a> {
+    pub wrapped_obj: Rc<RefCell<Entity>>,
+
     is_on_ground: bool,
     is_flying: bool,
     is_sneak: bool,
