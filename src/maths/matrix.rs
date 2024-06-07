@@ -19,11 +19,11 @@ pub fn make_model_matrix(entity: &Entity) -> glm::TMat4<f32> {
 pub fn make_view_matrix(camera: &Camera) -> glm::TMat4<f32> {
     let mut matrix = glm::diagonal4x4(&glm::vec4(1.0f32, 1.0, 1.0, 1.0));
 
-    matrix = glm::rotate(&matrix, camera.wrapped_obj.rotation.x.to_radians(), &glm::vec3(1.0, 0.0, 0.0));
-    matrix = glm::rotate(&matrix, camera.wrapped_obj.rotation.y.to_radians(), &glm::vec3(0.0, 1.0, 0.0));
-    matrix = glm::rotate(&matrix, camera.wrapped_obj.rotation.z.to_radians(), &glm::vec3(1.0, 0.0, 1.0));
+    matrix = glm::rotate(&matrix, camera.wrapped_obj.lock().unwrap().rotation.x.to_radians(), &glm::vec3(1.0, 0.0, 0.0));
+    matrix = glm::rotate(&matrix, camera.wrapped_obj.lock().unwrap().rotation.y.to_radians(), &glm::vec3(0.0, 1.0, 0.0));
+    matrix = glm::rotate(&matrix, camera.wrapped_obj.lock().unwrap().rotation.z.to_radians(), &glm::vec3(1.0, 0.0, 1.0));
 
-    matrix = glm::translate(&matrix, &(-camera.wrapped_obj.position));
+    matrix = glm::translate(&matrix, &(-camera.wrapped_obj.lock().unwrap().position));
 
     matrix
 }

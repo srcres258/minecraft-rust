@@ -108,7 +108,8 @@ impl BlockData {
             .expect(format!("Unable to open block file: {}!", file_name).as_str()));
         let mut state = DecodingState::Vacant;
         for line in in_file.lines() {
-            let line = line.unwrap().trim();
+            let line = line.unwrap();
+            let line = line.trim();
             if state == DecodingState::Vacant {
                 match line {
                     "TexTop" => state = DecodingState::TexTop,

@@ -41,7 +41,7 @@ pub struct World {
 const CHUNK_LOAD_THREADS_COUNT: usize = 1;
 
 impl World {
-    pub fn new(camera: &Camera, config: &Config, player: &mut Player) -> Arc<Mutex<Self>> {
+    pub fn new(camera: Arc<Mutex<Camera>>, config: &Config, player: &mut Player) -> Arc<Mutex<Self>> {
         let result = Self {
             chunk_manager: None,
             events: Vec::new(),
@@ -61,9 +61,10 @@ impl World {
         for _ in 0..CHUNK_LOAD_THREADS_COUNT {
             thread::sleep(Duration::from_millis(200));
             let obj = result.clone();
+            let cam = camera.clone();
             result.lock().unwrap().chunk_load_threads.push(
                 thread::spawn(move || {
-                    obj.lock().unwrap().load_chunks(camera);
+                    obj.lock().unwrap().load_chunks(&cam.lock().unwrap());
                 })
             );
         }
@@ -132,7 +133,7 @@ impl World {
         //todo
     }
 
-    pub fn add_event(&mut self, event: Box<dyn IWorldEvent>) {
+    pub fn add_event(&mut self, event: Box<dyn IWorldEvent + Send>) {
         self.events.push(event);
     }
 

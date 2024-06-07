@@ -4,6 +4,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use sfml::graphics::Text;
 use crate::entity::Entity;
+use crate::input::toggle_key::ToggleKey;
+use crate::item::item_stack::ItemStack;
 
 pub struct Player<'a> {
     pub wrapped_obj: Rc<RefCell<Entity>>,

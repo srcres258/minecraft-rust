@@ -16,7 +16,7 @@ impl<'a> PlayerDigEvent<'a> {
     pub fn new(
         button: Button,
         location: glm::TVec3<f32>,
-        player: &Player
+        player: &'a Player<'_>
     ) -> Self {
         Self {
             button_press: button,
