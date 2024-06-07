@@ -1,14 +1,12 @@
 use std::cell::RefCell;
+use std::ptr;
 use std::rc::Rc;
-use lazy_static::lazy_static;
 use crate::texture::texture_atlas::TextureAtlas;
 use crate::world::block::block_data::BlockData;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::block_types::block_type::{BlockType, DefaultBlock};
 
-lazy_static! {
-    static ref INSTANCE: BlockDatabase = BlockDatabase::new();
-}
+static mut INSTANCE_PTR: *mut BlockDatabase = ptr::null_mut();
 
 /// @brief Singleton class that determines status and ID of blocks as a whole.
 pub struct BlockDatabase {
@@ -19,7 +17,7 @@ pub struct BlockDatabase {
 impl BlockDatabase {
     fn new() -> Self {
         let texture_atlas = TextureAtlas::new("DefaultPack");
-        let blocks = [
+        let blocks: [Box<dyn BlockType>; 12] = [
             Box::new(DefaultBlock::new("Air")),
             Box::new(DefaultBlock::new("Grass")),
             Box::new(DefaultBlock::new("Dirt")),
@@ -37,14 +35,23 @@ impl BlockDatabase {
     }
 
     pub fn get() -> &'static Self {
-        &INSTANCE
+        unsafe {
+            if INSTANCE_PTR == ptr::null_mut() {
+                // Allocate the instance on heap memory,
+                // then leak it to get the raw pointer.
+                let instance = Box::new(BlockDatabase::new());
+                INSTANCE_PTR = Box::leak(instance);
+            }
+
+            &*INSTANCE_PTR
+        }
     }
 
     pub fn get_block(&self, id: BlockId) -> &dyn BlockType {
-        self.blocks[id as _]
+        self.blocks[id as usize].as_ref()
     }
 
     pub fn get_data(&self, id: BlockId) -> Rc<RefCell<BlockData>> {
-        self.blocks[id as _].data()
+        self.blocks[id as usize].data()
     }
 }

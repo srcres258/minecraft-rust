@@ -43,40 +43,40 @@ impl ViewFrustum {
     /// @param mat
     pub fn update(&mut self, mat: &glm::TMat4<f32>) {
         // left
-        self.planes[Planes::Left].normal.x = mat[(0, 3)] + mat[(0, 0)];
-        self.planes[Planes::Left].normal.y = mat[(1, 3)] + mat[(1, 0)];
-        self.planes[Planes::Left].normal.z = mat[(2, 3)] + mat[(2, 0)];
-        self.planes[Planes::Left].distance_to_origin = mat[(3, 3)] + mat[(3, 0)];
+        self.planes[Planes::Left as usize].normal.x = mat[(0, 3)] + mat[(0, 0)];
+        self.planes[Planes::Left as usize].normal.y = mat[(1, 3)] + mat[(1, 0)];
+        self.planes[Planes::Left as usize].normal.z = mat[(2, 3)] + mat[(2, 0)];
+        self.planes[Planes::Left as usize].distance_to_origin = mat[(3, 3)] + mat[(3, 0)];
 
         // right
-        self.planes[Planes::Right].normal.x = mat[(0, 3)] - mat[(0, 0)];
-        self.planes[Planes::Right].normal.y = mat[(1, 3)] - mat[(1, 0)];
-        self.planes[Planes::Right].normal.z = mat[(2, 3)] - mat[(2, 0)];
-        self.planes[Planes::Right].distance_to_origin = mat[(3, 3)] - mat[(3, 0)];
+        self.planes[Planes::Right as usize].normal.x = mat[(0, 3)] - mat[(0, 0)];
+        self.planes[Planes::Right as usize].normal.y = mat[(1, 3)] - mat[(1, 0)];
+        self.planes[Planes::Right as usize].normal.z = mat[(2, 3)] - mat[(2, 0)];
+        self.planes[Planes::Right as usize].distance_to_origin = mat[(3, 3)] - mat[(3, 0)];
 
         // bottom
-        self.planes[Planes::Bottom].normal.x = mat[(0, 3)] + mat[(0, 1)];
-        self.planes[Planes::Bottom].normal.y = mat[(1, 3)] + mat[(1, 1)];
-        self.planes[Planes::Bottom].normal.z = mat[(2, 3)] + mat[(2, 1)];
-        self.planes[Planes::Bottom].distance_to_origin = mat[(3, 3)] + mat[(3, 1)];
+        self.planes[Planes::Bottom as usize].normal.x = mat[(0, 3)] + mat[(0, 1)];
+        self.planes[Planes::Bottom as usize].normal.y = mat[(1, 3)] + mat[(1, 1)];
+        self.planes[Planes::Bottom as usize].normal.z = mat[(2, 3)] + mat[(2, 1)];
+        self.planes[Planes::Bottom as usize].distance_to_origin = mat[(3, 3)] + mat[(3, 1)];
 
         // top
-        self.planes[Planes::Top].normal.x = mat[(0, 3)] - mat[(0, 1)];
-        self.planes[Planes::Top].normal.y = mat[(1, 3)] - mat[(1, 1)];
-        self.planes[Planes::Top].normal.z = mat[(2, 3)] - mat[(2, 1)];
-        self.planes[Planes::Top].distance_to_origin = mat[(3, 3)] - mat[(3, 1)];
+        self.planes[Planes::Top as usize].normal.x = mat[(0, 3)] - mat[(0, 1)];
+        self.planes[Planes::Top as usize].normal.y = mat[(1, 3)] - mat[(1, 1)];
+        self.planes[Planes::Top as usize].normal.z = mat[(2, 3)] - mat[(2, 1)];
+        self.planes[Planes::Top as usize].distance_to_origin = mat[(3, 3)] - mat[(3, 1)];
 
         // near
-        self.planes[Planes::Near].normal.x = mat[(0, 3)] + mat[(0, 2)];
-        self.planes[Planes::Near].normal.y = mat[(1, 3)] + mat[(1, 2)];
-        self.planes[Planes::Near].normal.z = mat[(2, 3)] + mat[(2, 2)];
-        self.planes[Planes::Near].distance_to_origin = mat[(3, 3)] + mat[(3, 2)];
+        self.planes[Planes::Near as usize].normal.x = mat[(0, 3)] + mat[(0, 2)];
+        self.planes[Planes::Near as usize].normal.y = mat[(1, 3)] + mat[(1, 2)];
+        self.planes[Planes::Near as usize].normal.z = mat[(2, 3)] + mat[(2, 2)];
+        self.planes[Planes::Near as usize].distance_to_origin = mat[(3, 3)] + mat[(3, 2)];
 
         // far
-        self.planes[Planes::Near].normal.x = mat[(0, 3)] + mat[(0, 3)];
-        self.planes[Planes::Near].normal.y = mat[(1, 3)] + mat[(1, 3)];
-        self.planes[Planes::Near].normal.z = mat[(2, 3)] + mat[(2, 3)];
-        self.planes[Planes::Near].distance_to_origin = mat[(3, 3)] + mat[(3, 3)];
+        self.planes[Planes::Near as usize].normal.x = mat[(0, 3)] + mat[(0, 3)];
+        self.planes[Planes::Near as usize].normal.y = mat[(1, 3)] + mat[(1, 3)];
+        self.planes[Planes::Near as usize].normal.z = mat[(2, 3)] + mat[(2, 3)];
+        self.planes[Planes::Near as usize].distance_to_origin = mat[(3, 3)] + mat[(3, 3)];
 
         for plane in self.planes.iter_mut() {
             let length = glm::length(&plane.normal);

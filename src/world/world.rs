@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::thread::{JoinHandle, Thread};
 use std::time::Duration;
+use nalgebra_glm::IVec3;
 use sfml::system::Vector3i;
 use sfml::window::Key;
 use crate::camera::Camera;
@@ -25,8 +26,8 @@ use crate::world::event::world_event::IWorldEvent;
 pub struct World {
     chunk_manager: Option<ChunkManager>,
 
-    events: Vec<Box<dyn IWorldEvent>>,
-    chunk_updates: HashMap<Vector3i, Arc<Mutex<ChunkSection>>>,
+    events: Vec<Box<dyn IWorldEvent + Send>>,
+    chunk_updates: HashMap<IVec3, Arc<Mutex<ChunkSection>>>,
 
     is_running: Mutex<bool>,
     chunk_load_threads: Vec<JoinHandle<()>>,
@@ -52,7 +53,7 @@ impl World {
             player_spawn_point: Default::default()
         };
         let result = Arc::new(Mutex::new(result));
-        result.lock().unwrap().chunk_load_threads.chunk_manager = Some(ChunkManager::new(result.clone()));
+        result.lock().unwrap().chunk_manager = Some(ChunkManager::new(result.clone()));
 
         result.lock().unwrap().set_spawn_point();
         player.wrapped_obj.borrow_mut().position = result.lock().unwrap().player_spawn_point;
@@ -110,7 +111,9 @@ impl World {
     }
 
     pub fn update_chunk(&mut self, block_x: i32, block_y: i32, block_z: i32) {
-        //todo
+        let add_chunk_to_update_batch = |key, section| {
+            self.chunk_updates.insert(key, section);
+        };
     }
 
     pub fn render_world(&self, master: &RenderMaster, camera: &Camera) {

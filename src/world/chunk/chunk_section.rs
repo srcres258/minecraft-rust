@@ -3,6 +3,7 @@ extern crate nalgebra_glm as glm;
 use std::cell::RefCell;
 use std::slice::Iter;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 use sfml::system::Vector3i;
 use crate::physics::aabb::AABB;
 use crate::world::block::chunk_block::ChunkBlock;
@@ -18,14 +19,14 @@ pub struct Layer {
 }
 
 pub struct ChunkSection {
-    blocks: [ChunkBlock; CHUNK_VOLUME],
+    pub(crate) blocks: [ChunkBlock; CHUNK_VOLUME],
     layers: [Layer; CHUNK_SIZE],
 
-    meshes: ChunkMeshCollection,
+    pub(crate) meshes: ChunkMeshCollection,
     pub aabb: AABB,
-    location: Vector3i,
+    pub(crate) location: Vector3i,
 
-    p_world: Rc<RefCell<World>>,
+    p_world: Arc<Mutex<World>>,
 
     has_mesh: bool,
     has_buffered_mesh: bool
@@ -33,7 +34,7 @@ pub struct ChunkSection {
 
 impl Layer {
     pub fn update(&mut self, c: ChunkBlock) {
-        if c.get_data().is_opaque {
+        if c.get_data().borrow().block_data().is_opaque {
             self.solid_block_count -= 1;
         } else {
             self.solid_block_count += 1;
@@ -48,10 +49,10 @@ impl Layer {
 impl ChunkSection {
     pub fn new(
         location: Vector3i,
-        world: Rc<RefCell<World>>
+        world: Arc<Mutex<World>>
     ) -> Self {
         let mut result = Self {
-            blocks: Default::default(),
+            blocks: [ChunkBlock::default(); CHUNK_VOLUME],
             layers: Default::default(),
             meshes: Default::default(),
             aabb: AABB::new(&glm::vec3(CHUNK_SIZE as _, CHUNK_SIZE as _, CHUNK_SIZE as _)),
@@ -81,7 +82,7 @@ impl ChunkSection {
     }
     
     pub fn make_mesh(&mut self) {
-        ChunkMeshBuilder::new(self, &self.meshes).build_mesh();
+        ChunkMeshBuilder::new(self).build_mesh();
         self.has_mesh = true;
         self.has_buffered_mesh = false;
     }
@@ -99,7 +100,7 @@ impl ChunkSection {
         }
     }
     
-    pub fn get_adjacent(&mut self, dx: i32, dz: i32) -> &ChunkSection {
+    pub fn get_adjacent(&self, dx: i32, dz: i32) -> &ChunkSection {
         let new_x = self.location.x + dx;
         let new_z = self.location.z + dz;
 
@@ -145,7 +146,7 @@ impl IChunk for ChunkSection {
     fn get_block(&self, x: i32, y: i32, z: i32) -> ChunkBlock {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            return self.p_world.borrow().get_block(location.x, location.y, location.z);
+            return self.p_world.lock().unwrap().get_block(location.x, location.y, location.z);
         }
 
         self.blocks[Self::get_index(x, y, z) as usize]
@@ -154,7 +155,7 @@ impl IChunk for ChunkSection {
     fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock) {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            self.p_world.borrow_mut().set_block(location.x, location.y, location.z, block);
+            self.p_world.lock().unwrap().set_block(location.x, location.y, location.z, block);
             return;
         }
 

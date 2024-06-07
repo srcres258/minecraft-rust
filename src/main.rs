@@ -1,5 +1,3 @@
-#![feature(generic_const_exprs)]
-
 pub mod application;
 pub mod states;
 pub mod context;

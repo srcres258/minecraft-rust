@@ -19,8 +19,8 @@ use crate::world::world_constants::{CHUNK_SIZE, WATER_LEVEL};
 
 /// @brief Generates chunks based on perlin noise and recognizable MC parameters.
 pub struct ClassicOverWorldGenerator {
-    height_map: Array2D<i32, CHUNK_SIZE>,
-    biome_map: Array2D<i32, { CHUNK_SIZE + 1 }>,
+    height_map: Array2D<i32>,
+    biome_map: Array2D<i32>,
 
     random: Random,
 
@@ -207,8 +207,8 @@ impl ClassicOverWorldGenerator {
 impl Default for ClassicOverWorldGenerator {
     fn default() -> Self {
         Self {
-            height_map: Default::default(),
-            biome_map: Default::default(),
+            height_map: Array2D::new(CHUNK_SIZE),
+            biome_map: Array2D::new(CHUNK_SIZE + 1),
             random: Default::default(),
             grass_biome: GrasslandBiome::new(SEED.clone()),
             temperate_forest: TemperateForestBiome::new(SEED.clone()),

@@ -1,4 +1,6 @@
-use crate::world::block::block_data::BlockDataHolder;
+use std::cell::RefCell;
+use std::rc::Rc;
+use crate::world::block::block_data::{BlockData, BlockDataHolder};
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::{BlockId, BlockType};
 
@@ -16,10 +18,8 @@ impl ChunkBlock {
         Self { id: id as BlockType }
     }
     
-    pub fn get_data(&self) -> &BlockDataHolder {
+    pub fn get_data(&self) -> Rc<RefCell<BlockData>> {
         BlockDatabase::get()
-            .get_data(BlockId::try_from(self.id as _).unwrap())
-            .borrow()
-            .block_data()
+            .get_data(BlockId::try_from(self.id as i32).unwrap())
     }
 }

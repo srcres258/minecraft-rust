@@ -1,19 +1,18 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use gl::types::GLfloat;
 use sfml::system::{Vector2i, Vector3i};
-use crate::world::block::block_data::{BlockDataHolder, BlockMeshType, BlockShaderType};
+use crate::world::block::block_data::{BlockData, BlockDataHolder, BlockMeshType, BlockShaderType};
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
-use crate::world::chunk::chunk_mesh::{ChunkMesh, ChunkMeshCollection};
+use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
 use crate::world::chunk::chunk_section::ChunkSection;
 use crate::world::world_constants::{CHUNK_SIZE, CHUNK_VOLUME};
 
 pub struct ChunkMeshBuilder<'a> {
-    p_chunk: &'a ChunkSection,
-    p_meshes: &'a ChunkMeshCollection,
-    p_block_data: Option<&'a BlockDataHolder>,
-    p_active_mesh: Option<&'a ChunkMesh>
+    p_chunk: &'a mut ChunkSection
 }
 
 #[derive(Copy, Clone, Default)]
@@ -43,20 +42,16 @@ const LIGHT_BOT: GLfloat = 0.4;
 
 impl<'a> ChunkMeshBuilder<'a> {
     pub fn new(
-        chunk: &ChunkSection,
-        meshes: &ChunkMeshCollection
+        chunk: &'a mut ChunkSection
     ) -> Self {
         Self {
-            p_chunk: chunk,
-            p_meshes: meshes,
-            p_block_data: None,
-            p_active_mesh: None
+            p_chunk: chunk
         }
     }
 
     pub fn build_mesh(&mut self) {
         let mut directions = AdjacentBlockPositions::default();
-        let mut block_iter = self.p_chunk.iter();
+        let mut block_iter = self.p_chunk.blocks.iter();
         for i in 0..CHUNK_VOLUME {
             let x = i % CHUNK_SIZE;
             let y = i / (CHUNK_SIZE * CHUNK_SIZE);
@@ -69,139 +64,271 @@ impl<'a> ChunkMeshBuilder<'a> {
             let block = block_iter.next().unwrap();
 
             let position = Vector3i::new(x as _, y as _, z as _);
-            self.set_active_mesh(block);
 
             if block.id == BlockId::Air as _ {
                 continue;
             }
 
-            self.p_block_data = Some(block.get_data());
-            let data = self.p_block_data.unwrap();
+            let p_block_data = block.get_data();
+            let data = p_block_data.clone();
 
-            if data.mesh_type == BlockMeshType::X {
-                self.add_x_block_to_mesh(&data.tex_top_coord, &position);
+            if data.borrow().block_data().mesh_type == BlockMeshType::X {
+                Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.borrow().block_data().tex_top_coord, &position);
             }
 
             directions.update(x as _, y as _, z as _);
 
+            // let should_make_face = |p_block_data: Rc<RefCell<BlockData>>,
+            //                         block_position: &Vector3i,
+            //                         _block_data: &BlockDataHolder| {
+            //     let block = self.p_chunk.get_block(block_position.x, block_position.y, block_position.z);
+            //     let data = block.get_data();
+            //
+            //     if block.id == BlockId::Air as _ {
+            //         true
+            //     } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+            //         true
+            //     } else {
+            //         false
+            //     }
+            // };
             // Up/ Down
             if self.p_chunk.get_location().y != 0 || y != 0 {
-                self.try_add_face_to_mesh(
+                let smf = {
+                    let block = self.p_chunk.get_block(directions.down.x, directions.down.y, directions.down.z);
+                    let data = block.get_data();
+
+                    if block.id == BlockId::Air as _ {
+                        true
+                    } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                        true
+                    } else {
+                        false
+                    }
+                };
+                Self::try_add_face_to_mesh(
+                    smf,
+                    self.p_chunk.location,
+                    &mut self.p_chunk.meshes,
+                    block,
                     BOTTOM_FACE,
-                    &data.tex_bottom_coord,
+                    &data.borrow().block_data().tex_bottom_coord,
                     &position,
-                    &directions.down,
                     LIGHT_BOT
                 );
             }
-            self.try_add_face_to_mesh(
+            let smf = {
+                let block = self.p_chunk.get_block(directions.up.x, directions.up.y, directions.up.z);
+                let data = block.get_data();
+
+                if block.id == BlockId::Air as _ {
+                    true
+                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    true
+                } else {
+                    false
+                }
+            };
+            Self::try_add_face_to_mesh(
+                smf,
+                self.p_chunk.location,
+                &mut self.p_chunk.meshes,
+                block,
                 TOP_FACE,
-                &data.tex_top_coord,
+                &data.borrow().block_data().tex_top_coord,
                 &position,
-                &directions.up,
                 LIGHT_TOP
             );
 
             // Left/ Right
-            self.try_add_face_to_mesh(
+            let smf = {
+                let block = self.p_chunk.get_block(directions.left.x, directions.left.y, directions.left.z);
+                let data = block.get_data();
+
+                if block.id == BlockId::Air as _ {
+                    true
+                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    true
+                } else {
+                    false
+                }
+            };
+            Self::try_add_face_to_mesh(
+                smf,
+                self.p_chunk.location,
+                &mut self.p_chunk.meshes,
+                block,
                 LEFT_FACE,
-                &data.tex_side_coord,
+                &data.borrow().block_data().tex_side_coord,
                 &position,
-                &directions.left,
                 LIGHT_X
             );
-            self.try_add_face_to_mesh(
+            let smf = {
+                let block = self.p_chunk.get_block(directions.right.x, directions.right.y, directions.right.z);
+                let data = block.get_data();
+
+                if block.id == BlockId::Air as _ {
+                    true
+                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    true
+                } else {
+                    false
+                }
+            };
+            Self::try_add_face_to_mesh(
+                smf,
+                self.p_chunk.location,
+                &mut self.p_chunk.meshes,
+                block,
                 RIGHT_FACE,
-                &data.tex_side_coord,
+                &data.borrow().block_data().tex_side_coord,
                 &position,
-                &directions.right,
                 LIGHT_X
             );
 
             // Front/ Back
-            self.try_add_face_to_mesh(
-                FRONT_FACE,
-                &data.tex_side_coord,
-                &position,
-                &directions.front,
-                LIGHT_Z
-            );
-            self.try_add_face_to_mesh(
-                BACK_FACE,
-                &data.tex_side_coord,
-                &position,
-                &directions.back,
-                LIGHT_Z
-            );
-        }
-    }
+            let smf = {
+                let block = self.p_chunk.get_block(directions.front.x, directions.front.y, directions.front.z);
+                let data = block.get_data();
 
-    fn set_active_mesh(&mut self, block: &ChunkBlock) {
-        match block.get_data().shader_type {
-            BlockShaderType::Chunk => {
-                self.p_active_mesh = Some(&self.p_meshes.solid_mesh);
-            }
-            BlockShaderType::Liquid => {
-                self.p_active_mesh = Some(&self.p_meshes.water_mesh);
-            }
-            BlockShaderType::Flora => {
-                self.p_active_mesh = Some(&self.p_meshes.flora_mesh);
-            }
+                if block.id == BlockId::Air as _ {
+                    true
+                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    true
+                } else {
+                    false
+                }
+            };
+            Self::try_add_face_to_mesh(
+                smf,
+                self.p_chunk.location,
+                &mut self.p_chunk.meshes,
+                block,
+                FRONT_FACE,
+                &data.borrow().block_data().tex_side_coord,
+                &position,
+                LIGHT_Z
+            );
+            let smf = {
+                let block = self.p_chunk.get_block(directions.back.x, directions.back.y, directions.back.z);
+                let data = block.get_data();
+
+                if block.id == BlockId::Air as _ {
+                    true
+                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    true
+                } else {
+                    false
+                }
+            };
+            Self::try_add_face_to_mesh(
+                smf,
+                self.p_chunk.location,
+                &mut self.p_chunk.meshes,
+                block,
+                BACK_FACE,
+                &data.borrow().block_data().tex_side_coord,
+                &position,
+                LIGHT_Z
+            );
         }
     }
 
     fn add_x_block_to_mesh(
-        &mut self,
+        meshes: &mut ChunkMeshCollection,
+        location: Vector3i,
+        block: &ChunkBlock,
         texture_coords: &Vector2i,
         block_position: &Vector3i
     ) {
         let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
 
-        self.p_active_mesh.unwrap().add_face(X_FACE_1, tex_coords, &self.p_chunk.get_location(),
-                                             block_position, LIGHT_X);
-        self.p_active_mesh.unwrap().add_face(X_FACE_2, tex_coords, &self.p_chunk.get_location(),
-                                             block_position, LIGHT_X);
+        match block.get_data().borrow().block_data().shader_type {
+            BlockShaderType::Chunk => {
+                meshes.solid_mesh.add_face(X_FACE_1, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+                meshes.solid_mesh.add_face(X_FACE_2, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+            }
+            BlockShaderType::Liquid => {
+                meshes.water_mesh.add_face(X_FACE_1, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+                meshes.water_mesh.add_face(X_FACE_2, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+            }
+            BlockShaderType::Flora => {
+                meshes.flora_mesh.add_face(X_FACE_1, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+                meshes.flora_mesh.add_face(X_FACE_2, tex_coords, &location,
+                                                        block_position, LIGHT_X);
+            }
+        }
     }
 
     fn try_add_face_to_mesh(
-        &mut self,
+        should_make_face: bool,
+        location: Vector3i,
+        meshes: &mut ChunkMeshCollection,
+        block: &ChunkBlock,
         block_face: [GLfloat; 12],
         texture_coords: &Vector2i,
         block_position: &Vector3i,
-        block_facing: &Vector3i,
         cardinal_light: GLfloat
     ) {
-        if self.should_make_face(block_facing, self.p_block_data.unwrap()) {
+        if should_make_face {
             let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
 
-            self.p_active_mesh.unwrap().add_face(
-                block_face,
-                tex_coords,
-                &self.p_chunk.get_location(),
-                block_position,
-                cardinal_light
-            );
+            match block.get_data().borrow().block_data().shader_type {
+                BlockShaderType::Chunk => {
+                    meshes.solid_mesh.add_face(
+                        block_face,
+                        tex_coords,
+                        &location,
+                        block_position,
+                        cardinal_light
+                    );
+                }
+                BlockShaderType::Liquid => {
+                    meshes.water_mesh.add_face(
+                        block_face,
+                        tex_coords,
+                        &location,
+                        block_position,
+                        cardinal_light
+                    );
+                }
+                BlockShaderType::Flora => {
+                    meshes.flora_mesh.add_face(
+                        block_face,
+                        tex_coords,
+                        &location,
+                        block_position,
+                        cardinal_light
+                    );
+                }
+            }
         }
     }
 
     fn should_make_face(
         &self,
+        p_block_data: Rc<RefCell<BlockData>>,
         block_position: &Vector3i,
-        block_data: &BlockDataHolder
+        _block_data: &BlockDataHolder
     ) -> bool {
         let block = self.p_chunk.get_block(block_position.x, block_position.y, block_position.z);
         let data = block.get_data();
 
         if block.id == BlockId::Air as _ {
             true
-        } else if !data.is_opaque && data.id != self.p_block_data.unwrap().id {
+        } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
             true
         } else {
             false
         }
     }
 
-    fn should_make_layer(&mut self, y: i32) -> bool {
+    fn should_make_layer(&self, y: i32) -> bool {
         let adj_is_solid = |dx, dz| {
             let sect = self.p_chunk.get_adjacent(dx, dz);
             sect.get_layer(y).is_all_solid()

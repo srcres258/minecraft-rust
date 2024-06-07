@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 use sfml::system::{Vector2i, Vector3i};
 use sfml::window::Key::P;
 use crate::camera::Camera;
@@ -20,10 +21,10 @@ pub trait IChunk {
 /// @brief A chunk, in other words, a large arrangement of blocks.
 pub struct Chunk {
     chunks: Vec<ChunkSection>,
-    highest_blocks: Array2D<i32, CHUNK_SIZE>,
+    highest_blocks: Array2D<i32>,
     location: Vector2i,
 
-    p_world: Rc<RefCell<World>>,
+    p_world: Arc<Mutex<World>>,
 
     is_loaded: bool,
 
@@ -31,10 +32,10 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub fn new(world: Rc<RefCell<World>>, location: Vector2i) -> Self {
+    pub fn new(world: Arc<Mutex<World>>, location: Vector2i) -> Self {
         let mut result = Self {
             chunks: Vec::new(),
-            highest_blocks: Array2D::default(),
+            highest_blocks: Array2D::new(CHUNK_SIZE),
             location,
             p_world: world.clone(),
             is_loaded: false,
@@ -171,7 +172,7 @@ impl IChunk for Chunk {
         if y == *self.highest_blocks.get(x as _, z as _) {
             let mut high_block = self.get_block(x, y, z);
             y -= 1;
-            while !high_block.get_data().is_opaque {
+            while !high_block.get_data().borrow().block_data().is_opaque {
                 high_block = self.get_block(x, y, z);
                 y -= 1;
             }
