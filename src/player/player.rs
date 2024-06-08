@@ -1,5 +1,6 @@
 extern crate nalgebra_glm as glm;
 
+use std::ops::{Deref, DerefMut};
 use std::ptr;
 use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::SfBox;
@@ -347,5 +348,19 @@ impl<'a> Default for Player<'a> {
         result.pos_print.set_position(Vector2f::new(20., 20. * 6. + 100.));
 
         result
+    }
+}
+
+impl<'a> Deref for Player<'a> {
+    type Target = Entity;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl<'a> DerefMut for Player<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
     }
 }

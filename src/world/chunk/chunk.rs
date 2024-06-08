@@ -92,6 +92,14 @@ impl Chunk {
         }
     }
 
+    pub fn get_section_mut(&mut self, index: i32) -> &mut ChunkSection {
+        if index >= self.chunks.len() as i32 || index < 0 {
+            &mut self.error_section
+        } else {
+            &mut self.chunks[index as usize]
+        }
+    }
+
     pub fn get_location(&self) -> Vector2i {
         self.location
     }

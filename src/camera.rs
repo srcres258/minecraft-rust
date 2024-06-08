@@ -1,5 +1,6 @@
 extern crate nalgebra_glm as glm;
 
+use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, Mutex};
 use crate::config::Config;
 use crate::entity::Entity;
@@ -7,7 +8,7 @@ use crate::maths::frustum::ViewFrustum;
 use crate::maths::matrix;
 
 pub struct Camera {
-    pub wrapped_obj: Arc<Mutex<Entity>>,
+    pub base: Entity,
     
     p_entity: Option<Arc<Mutex<Entity>>>,
 
@@ -27,7 +28,7 @@ impl Camera {
         let projection_matrix = matrix::make_projection_matrix(&config);
 
         Self {
-            wrapped_obj: Arc::new(Mutex::new(obj)),
+            base: obj,
             p_entity: None,
             frustum: ViewFrustum::default(),
             projection_matrix,
@@ -38,7 +39,7 @@ impl Camera {
     }
 
     pub fn update(&mut self) {
-        let mut wrapped_obj = self.wrapped_obj.lock().unwrap();
+        let wrapped_obj = &mut self.base;
         let p_entity = self.p_entity.as_ref().unwrap().lock().unwrap();
         wrapped_obj.position = glm::vec3(p_entity.position.x, p_entity.position.y + 0.6, p_entity.position.z);
         wrapped_obj.rotation = p_entity.rotation;
@@ -66,5 +67,19 @@ impl Camera {
 
     pub fn get_frustum(&self) -> &ViewFrustum {
         &self.frustum
+    }
+}
+
+impl Deref for Camera {
+    type Target = Entity;
+
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
+}
+
+impl DerefMut for Camera {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
     }
 }
