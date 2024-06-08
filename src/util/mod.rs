@@ -5,6 +5,7 @@ pub mod fps_counter;
 pub mod array2d;
 pub mod random;
 pub mod file_util;
+pub mod unsafe_cell_wrapper;
 
 pub fn ivec3_to_vector3i(ivec3: IVec3) -> Vector3i {
     Vector3i::new(ivec3.x, ivec3.y, ivec3.z)

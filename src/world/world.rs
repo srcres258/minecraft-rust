@@ -13,6 +13,7 @@ use crate::input::toggle_key::ToggleKey;
 use crate::maths::vector2xz::VectorXZ;
 use crate::player::player::Player;
 use crate::renderer::render_master::RenderMaster;
+use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_manager::ChunkManager;
@@ -38,7 +39,7 @@ pub struct World {
 const CHUNK_LOAD_THREADS_COUNT: usize = 1;
 
 impl World {
-    pub fn new(camera: Arc<Mutex<Camera>>, config: &Config, player: &mut Player) -> Arc<Mutex<Self>> {
+    pub fn new(camera: Arc<Mutex<Camera>>, config: &Config, player: &mut Player) -> Arc<UnsafeCellWrapper<Self>> {
         let result = Self {
             chunk_manager: None,
             events: Vec::new(),
@@ -49,21 +50,23 @@ impl World {
             render_distance: config.render_distance,
             player_spawn_point: Default::default()
         };
-        let result = Arc::new(Mutex::new(result));
-        result.lock().unwrap().chunk_manager = Some(ChunkManager::new(result.clone()));
+        let result = Arc::new(UnsafeCellWrapper::new(result));
+        unsafe {
+            (*result.get()).chunk_manager = Some(ChunkManager::new(result.clone()));
 
-        result.lock().unwrap().set_spawn_point();
-        player.wrapped_obj.borrow_mut().position = result.lock().unwrap().player_spawn_point;
+            (*result.get()).set_spawn_point();
+            player.wrapped_obj.borrow_mut().position = (*result.get()).player_spawn_point;
 
-        for _ in 0..CHUNK_LOAD_THREADS_COUNT {
-            thread::sleep(Duration::from_millis(200));
-            let obj = result.clone();
-            let cam = camera.clone();
-            result.lock().unwrap().chunk_load_threads.push(
-                thread::spawn(move || {
-                    obj.lock().unwrap().load_chunks(&cam.lock().unwrap());
-                })
-            );
+            for _ in 0..CHUNK_LOAD_THREADS_COUNT {
+                thread::sleep(Duration::from_millis(200));
+                let obj = result.clone();
+                let cam = camera.clone();
+                (*result.get()).chunk_load_threads.push(
+                    thread::spawn(move || {
+                        (*obj.get()).load_chunks(&cam.lock().unwrap());
+                    })
+                );
+            }
         }
 
         result
@@ -92,7 +95,7 @@ impl World {
 
     // loads chunks
     // make chunk meshes
-    pub fn update(&mut self, camera: &Camera) {
+    pub fn update(&mut self, _camera: &Camera) {
         let mut key = ToggleKey::new(Key::C);
 
         if key.is_key_pressed() {
@@ -119,6 +122,10 @@ impl World {
     }
 
     pub fn get_chunk_manager(&self) -> &ChunkManager {
+        //todo
+    }
+
+    pub fn get_chunk_manager_mut(&mut self) -> &mut ChunkManager {
         //todo
     }
 

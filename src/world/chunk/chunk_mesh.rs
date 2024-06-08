@@ -42,7 +42,7 @@ impl ChunkMesh {
         // Vertex: The current vertex in the "blockFace" vector, 4 vertex in total
         // hence "< 4" Index: X, Y, Z
         let mut index = 0;
-        for i in 0..4 {
+        for _ in 0..4 {
             vertices.push(block_face[index] + (chunk_position.x * CHUNK_SIZE as i32
                 + block_position.x) as f32);
             index += 1;

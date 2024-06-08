@@ -1,8 +1,9 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use sfml::system::Vector2i;
 use crate::camera::Camera;
 use crate::maths::vector2xz::VectorXZ;
+use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::chunk::chunk::Chunk;
 use crate::world::generation::classic_over_world_generator::ClassicOverWorldGenerator;
 use crate::world::generation::terrain_generator::TerrainGenerator;
@@ -15,11 +16,11 @@ pub struct ChunkManager {
     chunks: ChunkMap,
     terrain_generator: Box<dyn TerrainGenerator + Send>,
 
-    world: Arc<Mutex<World>>
+    world: Arc<UnsafeCellWrapper<World>>
 }
 
 impl ChunkManager {
-    pub fn new(world: Arc<Mutex<World>>) -> Self {
+    pub fn new(world: Arc<UnsafeCellWrapper<World>>) -> Self {
         Self {
             chunks: HashMap::new(),
             terrain_generator: Box::new(ClassicOverWorldGenerator::new()),

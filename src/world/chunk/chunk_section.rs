@@ -1,9 +1,10 @@
 extern crate nalgebra_glm as glm;
 
 use std::slice::Iter;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use sfml::system::Vector3i;
 use crate::physics::aabb::AABB;
+use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
@@ -24,7 +25,7 @@ pub struct ChunkSection {
     pub aabb: AABB,
     pub(crate) location: Vector3i,
 
-    p_world: Arc<Mutex<World>>,
+    p_world: Arc<UnsafeCellWrapper<World>>,
 
     has_mesh: bool,
     has_buffered_mesh: bool
@@ -47,7 +48,7 @@ impl Layer {
 impl ChunkSection {
     pub fn new(
         location: Vector3i,
-        world: Arc<Mutex<World>>
+        world: Arc<UnsafeCellWrapper<World>>
     ) -> Self {
         let mut result = Self {
             blocks: [ChunkBlock::default(); CHUNK_VOLUME],
@@ -92,9 +93,25 @@ impl ChunkSection {
         self.has_buffered_mesh = true;
     }
     
-    pub fn get_layer(&self, y: i32) -> &Layer {
+    pub fn exec_on_layer<R>(&self, y: i32, func: impl FnOnce(&Layer) -> R) -> R {
+        let p_world;
+        unsafe {
+            p_world = &mut *self.p_world.get();
+        }
         if y == -1 {
-            //todo
+            p_world
+                .get_chunk_manager_mut()
+                .get_chunk(self.location.x, self.location.z)
+                .get_section(self.location.y - 1)
+                .exec_on_layer(CHUNK_SIZE as i32 - 1, func)
+        } else if y == CHUNK_SIZE as i32 {
+            p_world
+                .get_chunk_manager_mut()
+                .get_chunk(self.location.x, self.location.z)
+                .get_section(self.location.y + 1)
+                .exec_on_layer(0, func)
+        } else {
+            func(&self.layers[y as usize])
         }
     }
     
@@ -144,7 +161,10 @@ impl IChunk for ChunkSection {
     fn get_block(&self, x: i32, y: i32, z: i32) -> ChunkBlock {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            return self.p_world.lock().unwrap().get_block(location.x, location.y, location.z);
+            unsafe {
+                let p_world = &mut *self.p_world.get();
+                return p_world.get_block(location.x, location.y, location.z);
+            }
         }
 
         self.blocks[Self::get_index(x, y, z) as usize]
@@ -153,7 +173,10 @@ impl IChunk for ChunkSection {
     fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock) {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
-            self.p_world.lock().unwrap().set_block(location.x, location.y, location.z, block);
+            unsafe {
+                let p_world = &mut *self.p_world.get();
+                p_world.set_block(location.x, location.y, location.z, block);
+            }
             return;
         }
 

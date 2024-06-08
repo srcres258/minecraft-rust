@@ -331,12 +331,12 @@ impl<'a> ChunkMeshBuilder<'a> {
     fn should_make_layer(&self, y: i32) -> bool {
         let adj_is_solid = |dx, dz| {
             let sect = self.p_chunk.get_adjacent(dx, dz);
-            sect.get_layer(y).is_all_solid()
+            sect.exec_on_layer(y, |it| it.is_all_solid())
         };
         
-        !self.p_chunk.get_layer(y).is_all_solid() ||
-            self.p_chunk.get_layer(y + 1).is_all_solid() ||
-            self.p_chunk.get_layer(y - 1).is_all_solid() ||
+        !self.p_chunk.exec_on_layer(y, |it| it.is_all_solid()) ||
+            self.p_chunk.exec_on_layer(y + 1, |it| it.is_all_solid()) ||
+            self.p_chunk.exec_on_layer(y - 1, |it| it.is_all_solid()) ||
             
             !adj_is_solid(1, 0) ||
             !adj_is_solid(0, 1) ||

@@ -1,8 +1,9 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use sfml::system::{Vector2i, Vector3i};
 use crate::camera::Camera;
 use crate::renderer::render_master::RenderMaster;
 use crate::util::array2d::Array2D;
+use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_section::ChunkSection;
@@ -21,7 +22,7 @@ pub struct Chunk {
     highest_blocks: Array2D<i32>,
     location: Vector2i,
 
-    p_world: Arc<Mutex<World>>,
+    p_world: Arc<UnsafeCellWrapper<World>>,
 
     is_loaded: bool,
 
@@ -29,7 +30,7 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub fn new(world: Arc<Mutex<World>>, location: Vector2i) -> Self {
+    pub fn new(world: Arc<UnsafeCellWrapper<World>>, location: Vector2i) -> Self {
         let mut result = Self {
             chunks: Vec::new(),
             highest_blocks: Array2D::new(CHUNK_SIZE),
@@ -56,7 +57,7 @@ impl Chunk {
         *self.highest_blocks.get(x as _, z as _)
     }
 
-    pub fn draw_chunks(&mut self, renderer: &RenderMaster, camera: &Camera) {
+    pub fn draw_chunks(&mut self, renderer: &mut RenderMaster, camera: &Camera) {
         for chunk in self.chunks.iter_mut() {
             if chunk.has_mesh() {
                 if !chunk.has_buffered() {
@@ -64,7 +65,7 @@ impl Chunk {
                 }
 
                 if camera.get_frustum().is_box_in_frustum(chunk.aabb) {
-                    //todo
+                    renderer.draw_chunk(chunk);
                 }
             }
         }
