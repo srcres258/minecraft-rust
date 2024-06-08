@@ -99,14 +99,12 @@ impl ChunkSection {
             p_world = &mut *self.p_world.get();
         }
         if y == -1 {
-            p_world
-                .get_chunk_manager_mut()
+            p_world.get_chunk_manager_mut()
                 .get_chunk(self.location.x, self.location.z)
                 .get_section(self.location.y - 1)
                 .exec_on_layer(CHUNK_SIZE as i32 - 1, func)
         } else if y == CHUNK_SIZE as i32 {
-            p_world
-                .get_chunk_manager_mut()
+            p_world.get_chunk_manager_mut()
                 .get_chunk(self.location.x, self.location.z)
                 .get_section(self.location.y + 1)
                 .exec_on_layer(0, func)
@@ -119,7 +117,11 @@ impl ChunkSection {
         let new_x = self.location.x + dx;
         let new_z = self.location.z + dz;
 
-        //todo
+        unsafe {
+            (*self.p_world.get()).get_chunk_manager_mut()
+                .get_chunk(new_x, new_z)
+                .get_section(self.location.y)
+        }
     }
     
     pub fn get_meshes(&self) -> &ChunkMeshCollection {
