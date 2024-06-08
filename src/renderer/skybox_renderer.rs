@@ -6,7 +6,6 @@ use crate::shaders::skybox_shader::SkyboxShader;
 use crate::texture::cube_texture::CubeTexture;
 
 /// @brief Renderer that specifically draws the skybox and entities outside player reach.
-#[derive(Default)]
 pub struct SkyboxRenderer {
     sky_cube: Model,
     shader: SkyboxShader,
@@ -14,8 +13,25 @@ pub struct SkyboxRenderer {
 }
 
 impl SkyboxRenderer {
-    pub fn new() -> Self {
-        let mut result = Self::default();
+    pub fn render(&self, camera: &Camera) {
+        self.shader.base.use_program();
+        self.sky_cube.bind_vao();
+        self.cube_texture.bind_texture();
+        
+        self.shader.load_view_matrix(&camera.get_view_matrix());
+        self.shader.load_projection_matrix(&camera.get_proj_matrix());
+        
+        gl_functions::draw_elements(self.sky_cube.get_indices_count());
+    }
+}
+
+impl Default for SkyboxRenderer {
+    fn default() -> Self {
+        let mut result = Self {
+            sky_cube: Default::default(),
+            shader: Default::default(),
+            cube_texture: Default::default()
+        };
 
         const SIZE: GLfloat = 500.;
         let vertex_coords = vec![
@@ -121,7 +137,7 @@ impl SkyboxRenderer {
         result.sky_cube.gen_vao();
         result.sky_cube.add_vbo(3, &vertex_coords);
         result.sky_cube.add_ebo(&indices);
-        
+
         result.cube_texture.load_from_files([
             "dm",
             "dm",
@@ -132,16 +148,5 @@ impl SkyboxRenderer {
         ]);
 
         result
-    }
-    
-    pub fn render(&self, camera: &Camera) {
-        self.shader.base.use_program();
-        self.sky_cube.bind_vao();
-        self.cube_texture.bind_texture();
-        
-        self.shader.load_view_matrix(&camera.get_view_matrix());
-        self.shader.load_projection_matrix(&camera.get_proj_matrix());
-        
-        gl_functions::draw_elements(self.sky_cube.get_indices_count());
     }
 }

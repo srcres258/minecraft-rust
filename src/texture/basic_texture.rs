@@ -1,4 +1,3 @@
-use std::ptr;
 use gl::types::GLuint;
 use sfml::graphics::Image;
 
@@ -22,6 +21,7 @@ impl BasicTexture {
             gl::BindTexture(gl::TEXTURE_2D, self.id);
 
             let pixel_data = i.pixel_data();
+            let pixel_data_vec = Vec::from(pixel_data);
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
@@ -31,7 +31,7 @@ impl BasicTexture {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                ptr::addr_of!(pixel_data) as _
+                pixel_data_vec.as_ptr() as _
             );
 
             gl::GenerateMipmap(gl::TEXTURE_2D);

@@ -1,4 +1,3 @@
-use std::ptr;
 use gl::types::{GLenum, GLuint};
 use sfml::graphics::Image;
 
@@ -30,6 +29,7 @@ impl CubeTexture {
                 let height = image.size().y;
 
                 let pixel_data = image.pixel_data();
+                let pixel_data_vec = Vec::from(pixel_data);
                 gl::TexImage2D(
                     param,
                     0,
@@ -39,7 +39,7 @@ impl CubeTexture {
                     0,
                     gl::RGBA,
                     gl::UNSIGNED_BYTE,
-                    ptr::addr_of!(pixel_data) as _
+                    pixel_data_vec.as_ptr() as _
                 );
             }
 
