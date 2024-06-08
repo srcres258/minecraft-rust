@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::SfBox;
 use sfml::system::{Clock, Vector2f};
@@ -36,10 +37,13 @@ impl<'a> FPSCounter<'a> {
         result.text.set_outline_color(Color::BLACK);
         result.text.set_outline_thickness(2.0);
 
-        result.text.set_font(&result.font);
         result.text.set_character_size(25);
 
         result
+    }
+    
+    pub fn init(&'a mut self) {
+        self.text.set_font(&self.font);
     }
 
     pub fn update(&mut self) {
