@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use crate::world::block::block_id::BlockId;
 
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ID {
     Nothing,
     Grass,
