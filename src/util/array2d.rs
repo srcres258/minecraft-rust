@@ -21,12 +21,18 @@ pub struct Array2D<T: Ord + Clone> {
     width: usize
 }
 
-impl<T: Ord + Clone> Array2D<T> {
+impl<T: Ord + Clone + Default> Array2D<T> {
     pub fn new(width: usize) -> Self {
-        Self {
+        let mut result = Self {
             array: Vec::with_capacity(width * width),
             width
+        };
+        
+        for _ in 0 .. width * width {
+            result.array.push(T::default());
         }
+        
+        result
     }
 
     pub fn get(&self, x: usize, z: usize) -> &T {

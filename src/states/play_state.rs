@@ -1,6 +1,6 @@
 extern crate nalgebra_glm as glm;
 
-use std::cell::RefCell;
+use std::cell::UnsafeCell;
 use std::ptr;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -24,7 +24,7 @@ use crate::world::world::World;
 
 /// @brief Active game playing state, not associated with game menus.
 pub struct StatePlay<'a> {
-    application: Rc<RefCell<Application>>,
+    application: Rc<UnsafeCell<Application>>,
     
     keyboard: Keyboard,
     player: Player<'a>,
@@ -40,7 +40,7 @@ static mut DRAW_GUI: bool = false;
 static mut DRAW_KEY_PTR: *mut ToggleKey = ptr::null_mut();
 
 impl<'a> StatePlay<'a> {
-    pub fn new(application: Rc<RefCell<Application>>, config: Config) -> Self {
+    pub fn new(application: Rc<UnsafeCell<Application>>, config: Config) -> Self {
         let mut result = Self {
             application: Rc::clone(&application),
             keyboard: Keyboard::new(),
@@ -48,9 +48,11 @@ impl<'a> StatePlay<'a> {
             world: None,
             fps_counter: FPSCounter::new()
         };
-        result.world = Some(World::new(application.borrow().camera(), &config, &mut result.player));
+        unsafe {
+            result.world = Some(World::new((*application.get()).camera(), &config, &mut result.player));
 
-        application.borrow().camera().lock().unwrap().hook_entity(&result.player.base);
+            (*application.get()).camera().lock().unwrap().hook_entity(&result.player.base);
+        }
 
         result
     }
@@ -62,7 +64,9 @@ impl<'a> StateBase for StatePlay<'a> {
     }
 
     fn handle_input(&mut self) {
-        self.player.handle_input(self.application.borrow_mut().window_mut(), &self.keyboard);
+        unsafe {
+            self.player.handle_input((*self.application.get()).window_mut(), &self.keyboard);
+        }
 
         unsafe {
             if TIMER_PTR == ptr::null_mut() {
@@ -139,9 +143,11 @@ impl<'a> StateBase for StatePlay<'a> {
                 &mut *self.world.as_ref().unwrap().get()
             }
         );
-        let arc = Arc::clone(&self.application.borrow().camera());
-        let camera = arc.lock().unwrap();
-        World::update(&Arc::clone(self.world.as_ref().unwrap()), &camera);
+        unsafe {
+            let arc = Arc::clone(&(*self.application.get()).camera());
+            let camera = arc.lock().unwrap();
+            World::update(&Arc::clone(self.world.as_ref().unwrap()), &camera);
+        }
     }
 
     fn render(&mut self, renderer: &mut RenderMaster) {
@@ -164,13 +170,15 @@ impl<'a> StateBase for StatePlay<'a> {
                 self.player.draw(renderer);
             }
 
-            let arc = Arc::clone(&self.application.borrow().camera());
+            let arc = Arc::clone(&(*self.application.get()).camera());
             let camera = arc.lock().unwrap();
             (*self.world.as_ref().unwrap().get()).render_world(renderer, &camera);
         }
     }
 
     fn on_open(&mut self) {
-        self.application.borrow_mut().turn_off_mouse();
+        unsafe {
+            (*self.application.get()).turn_off_mouse();
+        }
     }
 }

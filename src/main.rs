@@ -98,6 +98,6 @@ fn main() {
 
     let app = Application::new(config);
     unsafe {
-        (*app.as_ptr()).run_loop();
+        (*app.get()).run_loop();
     }
 }

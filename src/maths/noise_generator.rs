@@ -1,3 +1,4 @@
+use std::num::Wrapping;
 use crate::world::world_constants::{CHUNK_SIZE, WATER_LEVEL};
 
 #[derive(Copy, Clone, Default)]
@@ -82,11 +83,12 @@ impl NoiseGenerator {
     /// @brief Gets Noise through n which acts as a seed number.
     /// @param n
     /// @return
-    fn get_noise_i(&self, mut n: i32) -> f64 {
+    fn get_noise_i(&self, n: i32) -> f64 {
+        let mut n = Wrapping(n);
         n += self.seed;
         n = (n << 13) ^ n;
-        let new_n = (n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff;
-        1.0 - new_n as f64 / 1073741824.0
+        let new_n = (n * (n * n * Wrapping(60493) + Wrapping(19990303)) + Wrapping(1376312589)) & Wrapping(0x7fffffff);
+        1.0 - new_n.0 as f64 / 1073741824.0
     }
 
     /// @brief Overload of getNoise that takes doubles instead of int n.

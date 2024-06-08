@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::UnsafeCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use sfml::system::{Clock, Time, Vector2i};
@@ -25,7 +25,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(config: Config) -> Rc<RefCell<Self>> {
+    pub fn new(config: Config) -> Rc<UnsafeCell<Self>> {
         let result = Self {
             states: Vec::new(),
             context: Context::new(config),
@@ -34,10 +34,12 @@ impl Application {
             config,
             is_pop_state: false
         };
-        let result = Rc::new(RefCell::new(result));
+        let result = Rc::new(UnsafeCell::new(result));
 
         BlockDatabase::get();
-        result.borrow_mut().push_state(Box::new(StatePlay::new(Rc::clone(&result), config)));
+        unsafe {
+            (*result.get()).push_state(Box::new(StatePlay::new(Rc::clone(&result), config)));
+        }
 
         result
     }

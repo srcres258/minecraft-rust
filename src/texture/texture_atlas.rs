@@ -1,4 +1,3 @@
-use std::ptr;
 use gl::types::{GLfloat, GLuint};
 use sfml::graphics::Image;
 use sfml::system::Vector2i;
@@ -38,6 +37,7 @@ impl TextureAtlas {
             gl::BindTexture(gl::TEXTURE_2D, self.id);
 
             let pixel_data = image.pixel_data();
+            let pixel_data_vec = Vec::from(pixel_data);
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
@@ -47,7 +47,7 @@ impl TextureAtlas {
                 0,
                 gl::RGBA,
                 gl::UNSIGNED_BYTE,
-                ptr::addr_of!(pixel_data) as _
+                pixel_data_vec.as_ptr() as _
             );
 
             gl::GenerateMipmap(gl::TEXTURE_2D);
