@@ -87,6 +87,7 @@ impl Model {
             gl::VertexAttribPointer(self.vbo_count as _, dimensions, gl::FLOAT, gl::FALSE, 0, ptr::null());
 
             gl::EnableVertexAttribArray(self.vbo_count as _);
+            self.vbo_count += 1;
         }
 
         self.buffers.push(vbo);
