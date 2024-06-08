@@ -88,7 +88,8 @@ impl ChunkManager {
             self.chunks.insert(key, chunk);
         }
 
-        self.chunks.get_mut(&key).unwrap().load(self.terrain_generator.as_mut());
+        let val = self.chunks.get_mut(&key).unwrap();
+        val.load(self.terrain_generator.as_mut());
     }
 
     pub fn unload_chunk(&mut self, x: i32, z: i32) {

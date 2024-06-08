@@ -47,12 +47,12 @@ pub struct World {
 const CHUNK_LOAD_THREADS_COUNT: usize = 1;
 
 impl World {
-    pub fn new(camera: Arc<Mutex<Camera>>, config: &Config, player: &mut Player) -> Arc<UnsafeCellWrapper<Self>> {
+    pub fn new(camera: Arc<UnsafeCellWrapper<Camera>>, config: &Config, player: &mut Player) -> Arc<UnsafeCellWrapper<Self>> {
         let result = Self {
             chunk_manager: None,
             events: Vec::new(),
             chunk_updates: HashMap::new(),
-            is_running: AtomicBool::new(false),
+            is_running: AtomicBool::new(true),
             chunk_load_threads: Vec::new(),
             main_mutex: Mutex::new(()),
             load_distance: 0,
@@ -72,7 +72,7 @@ impl World {
                 let cam = camera.clone();
                 (*result.get()).chunk_load_threads.push(
                     thread::spawn(move || {
-                        (*obj.get()).load_chunks(&cam.lock().unwrap());
+                        (*obj.get()).load_chunks(&*cam.get());
                     })
                 );
             }
@@ -276,7 +276,7 @@ impl World {
                 for x in min_x..max_x {
                     for z in min_z..max_z {
                         let lock = self.main_mutex.lock().unwrap();
-                        is_mesh_made = self.chunk_manager.as_mut().unwrap().make_mesh(x, z, camera);
+                        is_mesh_made = self.chunk_manager.as_mut().unwrap().make_mesh(x, z, &camera);
                         drop(lock);
                     }
                 }

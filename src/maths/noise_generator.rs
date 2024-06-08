@@ -52,8 +52,8 @@ impl NoiseGenerator {
     /// @param chunkZ
     /// @return val
     pub fn get_height(&self, x: i32, z: i32, chunk_x: i32, chunk_z: i32) -> f64 {
-        let new_x = x + chunk_x * CHUNK_SIZE as i32;
-        let new_z = z + chunk_z * CHUNK_SIZE as i32;
+        let new_x = x.wrapping_add(chunk_x.wrapping_mul(CHUNK_SIZE as i32));
+        let new_z = z.wrapping_add(chunk_z.wrapping_mul(CHUNK_SIZE as i32));
 
         if new_x < 0 || new_z < 0 {
             return WATER_LEVEL as f64 - 1.0;

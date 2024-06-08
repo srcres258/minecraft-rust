@@ -51,7 +51,7 @@ impl<'a> StatePlay<'a> {
         unsafe {
             result.world = Some(World::new((*application.get()).camera(), &config, &mut result.player));
 
-            (*application.get()).camera().lock().unwrap().hook_entity(&result.player.base);
+            (*(*application.get()).camera().get()).hook_entity(&result.player.base);
         }
 
         result
@@ -77,7 +77,7 @@ impl<'a> StateBase for StatePlay<'a> {
         let mut last_position: glm::TVec3<f32> = Default::default();
 
         // Ray is cast as player's 'vision'
-        let ray = Ray::new(
+        let mut ray = Ray::new(
             &glm::vec3(
                 self.player.position.x,
                 self.player.position.y + 0.6,
@@ -125,6 +125,8 @@ impl<'a> StateBase for StatePlay<'a> {
                 }
             }
             last_position = ray.end();
+
+            ray.step(0.05);
         }
     }
 
@@ -145,7 +147,7 @@ impl<'a> StateBase for StatePlay<'a> {
         );
         unsafe {
             let arc = Arc::clone(&(*self.application.get()).camera());
-            let camera = arc.lock().unwrap();
+            let camera = &*arc.get();
             World::update(&Arc::clone(self.world.as_ref().unwrap()), &camera);
         }
     }
@@ -171,7 +173,7 @@ impl<'a> StateBase for StatePlay<'a> {
             }
 
             let arc = Arc::clone(&(*self.application.get()).camera());
-            let camera = arc.lock().unwrap();
+            let camera = &*arc.get();
             (*self.world.as_ref().unwrap().get()).render_world(renderer, &camera);
         }
     }

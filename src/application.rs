@@ -1,6 +1,6 @@
 use std::cell::UnsafeCell;
 use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use sfml::system::{Clock, Time, Vector2i};
 use sfml::window::{Event, Key, VideoMode, Window};
 use crate::camera::Camera;
@@ -9,6 +9,7 @@ use crate::context::Context;
 use crate::renderer::render_master::RenderMaster;
 use crate::states::play_state::StatePlay;
 use crate::states::state_base::StateBase;
+use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::block::block_database::BlockDatabase;
 
 pub static mut TIME_ELAPSED: f32 = 0.0;
@@ -18,7 +19,7 @@ pub struct Application {
     states: Vec<Box<dyn StateBase>>,
     context: Context,
     master_renderer: RenderMaster,
-    camera: Arc<Mutex<Camera>>,
+    camera: Arc<UnsafeCellWrapper<Camera>>,
     #[allow(dead_code)]
     config: Config,
     is_pop_state: bool
@@ -30,7 +31,7 @@ impl Application {
             states: Vec::new(),
             context: Context::new(config),
             master_renderer: RenderMaster::default(),
-            camera: Arc::new(Mutex::new(Camera::new(config))),
+            camera: Arc::new(UnsafeCellWrapper::new(Camera::new(config))),
             config,
             is_pop_state: false
         };
@@ -75,12 +76,14 @@ impl Application {
 
             state.handle_input();
             state.update(delta_time.as_seconds());
-            self.camera.lock().unwrap().update();
+            unsafe {
+                (*self.camera.get()).update();
+            }
 
             state.render(&mut self.master_renderer);
-            let camera = self.camera.lock().unwrap();
-            self.master_renderer.finish_render(&mut self.context.window, &camera);
-            drop(camera);
+            unsafe {
+                self.master_renderer.finish_render(&mut self.context.window, &*self.camera.get());
+            }
 
             self.handle_events();
             if self.is_pop_state {
@@ -108,7 +111,7 @@ impl Application {
         self.is_pop_state = true;
     }
 
-    pub fn camera(&self) -> Arc<Mutex<Camera>> {
+    pub fn camera(&self) -> Arc<UnsafeCellWrapper<Camera>> {
         Arc::clone(&self.camera)
     }
 
