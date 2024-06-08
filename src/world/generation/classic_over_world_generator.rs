@@ -41,6 +41,7 @@ static mut NOISE_GEN: bool = false;
 
 impl ClassicOverWorldGenerator {
     pub fn new() -> Self {
+        Self::set_up_noise();
         Self::default()
     }
 

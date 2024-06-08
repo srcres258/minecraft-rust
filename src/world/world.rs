@@ -104,7 +104,7 @@ impl World {
 
     // loads chunks
     // make chunk meshes
-    pub fn update(this: UnsafeCell<Self>, _camera: &Camera) {
+    pub fn update(this: &UnsafeCell<Self>, _camera: &Camera) {
         let mut key = ToggleKey::new(Key::C);
 
         unsafe {

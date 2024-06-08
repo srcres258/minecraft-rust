@@ -1,8 +1,6 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use gl::types::GLfloat;
 use sfml::system::{Vector2i, Vector3i};
-use crate::world::block::block_data::{BlockData, BlockDataHolder, BlockMeshType, BlockShaderType};
+use crate::world::block::block_data::{BlockMeshType, BlockShaderType};
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
@@ -307,24 +305,6 @@ impl<'a> ChunkMeshBuilder<'a> {
                     );
                 }
             }
-        }
-    }
-
-    fn should_make_face(
-        &self,
-        p_block_data: Rc<RefCell<BlockData>>,
-        block_position: &Vector3i,
-        _block_data: &BlockDataHolder
-    ) -> bool {
-        let block = self.p_chunk.get_block(block_position.x, block_position.y, block_position.z);
-        let data = block.get_data();
-
-        if block.id == BlockId::Air as _ {
-            true
-        } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
-            true
-        } else {
-            false
         }
     }
 
