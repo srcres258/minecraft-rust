@@ -1,7 +1,5 @@
 extern crate nalgebra_glm as glm;
 
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use crate::config::Config;
 use crate::entity::Entity;

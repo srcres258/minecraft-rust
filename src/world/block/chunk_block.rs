@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::world::block::block_data::{BlockData, BlockDataHolder};
+use crate::world::block::block_data::BlockData;
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::{BlockId, BlockType};
 

@@ -1,6 +1,5 @@
 extern crate nalgebra_glm as glm;
 
-use sfml::window::Key::P;
 use crate::physics::aabb::AABB;
 
 pub enum Planes {

@@ -1,14 +1,11 @@
 extern crate nalgebra_glm as glm;
 
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::thread::{JoinHandle, Thread};
+use std::thread::JoinHandle;
 use std::time::Duration;
 use nalgebra_glm::IVec3;
-use sfml::system::Vector3i;
 use sfml::window::Key;
 use crate::camera::Camera;
 use crate::config::Config;

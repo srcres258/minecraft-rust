@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::SfBox;
 use sfml::system::{Clock, Vector2f};
@@ -41,7 +40,7 @@ impl<'a> FPSCounter<'a> {
 
         result
     }
-    
+
     pub fn init(&'a mut self) {
         self.text.set_font(&self.font);
     }

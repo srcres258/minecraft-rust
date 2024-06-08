@@ -1,8 +1,5 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use sfml::system::{Vector2i, Vector3i};
-use sfml::window::Key::P;
 use crate::camera::Camera;
 use crate::renderer::render_master::RenderMaster;
 use crate::util::array2d::Array2D;

@@ -1,5 +1,3 @@
-use rand::prelude::{StdRng, ThreadRng};
-use rand::Rng;
 use crate::maths::noise_generator::NoiseParameters;
 use crate::util::random::Random;
 use crate::world::block::block_id::BlockId;
