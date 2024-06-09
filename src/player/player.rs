@@ -125,12 +125,12 @@ impl<'a> Player<'a> {
     }
 
     pub fn collide(&mut self, world: &mut World, vel: &glm::TVec3<f32>, _dt: f32) {
-        for x in (self.base.position.x - self.base.box_aabb.dimensions.x) as i32 ..
-            (self.base.position.x + self.base.box_aabb.dimensions.x) as i32 {
-            for y in (self.base.position.y - self.base.box_aabb.dimensions.y) as i32 ..
-                (self.base.position.y + 0.7) as i32 {
-                for z in (self.base.position.z - self.base.box_aabb.dimensions.z) as i32 ..
-                    (self.base.position.z + self.base.box_aabb.dimensions.z) as i32 {
+        let mut x = (self.base.position.x - self.base.box_aabb.dimensions.x) as i32;
+        while (x as f32) < self.base.position.x + self.base.box_aabb.dimensions.x {
+            let mut y = (self.base.position.y - self.base.box_aabb.dimensions.y) as i32;
+            while (y as f32) < self.base.position.y + 0.7 {
+                let mut z = (self.base.position.z - self.base.box_aabb.dimensions.z) as i32;
+                while (z as f32) < self.base.position.z + self.base.box_aabb.dimensions.z {
                     let block = world.get_block(x, y, z);
 
                     if block.id != 0 && block.get_data().read().unwrap().block_data().is_collidable {
@@ -155,8 +155,11 @@ impl<'a> Player<'a> {
                             self.base.position.z = z as f32 + self.base.box_aabb.dimensions.z + 1.;
                         }
                     }
+                    z += 1;
                 }
+                y += 1;
             }
+            x += 1;
         }
     }
 
