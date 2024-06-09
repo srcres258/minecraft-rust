@@ -32,7 +32,7 @@ impl ChunkManager {
     pub fn get_chunk(&mut self, x: i32, z: i32) -> &Chunk {
         let key = VectorXZ::new(x, z);
         if !self.chunk_exists_at(x, z) {
-            let chunk = Chunk::new(self.world.clone(), Vector2i::new(x, z));
+            let chunk = Chunk::new(Arc::clone(&self.world), Vector2i::new(x, z));
             self.chunks.insert(key, chunk);
         }
 
@@ -42,7 +42,7 @@ impl ChunkManager {
     pub fn get_chunk_mut(&mut self, x: i32, z: i32) -> &mut Chunk {
         let key = VectorXZ::new(x, z);
         if !self.chunk_exists_at(x, z) {
-            let chunk = Chunk::new(self.world.clone(), Vector2i::new(x, z));
+            let chunk = Chunk::new(Arc::clone(&self.world), Vector2i::new(x, z));
             self.chunks.insert(key, chunk);
         }
 

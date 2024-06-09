@@ -61,15 +61,15 @@ impl World {
         };
         let result = Arc::new(UnsafeCellWrapper::new(result));
         unsafe {
-            (*result.get()).chunk_manager = Some(ChunkManager::new(result.clone()));
+            (*result.get()).chunk_manager = Some(ChunkManager::new(Arc::clone(&result)));
 
             (*result.get()).set_spawn_point();
             player.position = (*result.get()).player_spawn_point;
 
             for _ in 0..CHUNK_LOAD_THREADS_COUNT {
                 thread::sleep(Duration::from_millis(200));
-                let obj = result.clone();
-                let cam = camera.clone();
+                let obj = Arc::clone(&result);
+                let cam = Arc::clone(&camera);
                 (*result.get()).chunk_load_threads.push(
                     thread::spawn(move || {
                         (*obj.get()).load_chunks(&*cam.get());

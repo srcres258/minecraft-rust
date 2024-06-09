@@ -10,6 +10,7 @@ use sfml::window::{Event, Key};
 use sfml::window::mouse::Button;
 use crate::application::Application;
 use crate::config::Config;
+use crate::entity::Entity;
 use crate::input::keyboard::Keyboard;
 use crate::input::toggle_key::ToggleKey;
 use crate::maths::ray::Ray;
@@ -40,17 +41,20 @@ static mut DRAW_GUI: bool = false;
 static mut DRAW_KEY_PTR: *mut ToggleKey = ptr::null_mut();
 
 impl<'a> StatePlay<'a> {
-    pub fn new(application: Rc<UnsafeCell<Application>>, config: Config) -> Self {
-        let mut result = Self {
+    pub fn new_boxed(application: Rc<UnsafeCell<Application>>, config: Config) -> Box<Self> {
+        let result = Self {
             application: Rc::clone(&application),
             keyboard: Keyboard::new(),
             player: Player::default(),
             world: None,
             fps_counter: FPSCounter::new()
         };
+        let mut result = Box::new(result);
         unsafe {
             result.world = Some(World::new((*application.get()).camera(), &config, &mut result.player));
 
+            let addr = &result.player.base as *const Entity as usize;
+            println!("Address before hook_entity(): 0x{:X}", addr);
             (*(*application.get()).camera().get()).hook_entity(&result.player.base);
         }
 

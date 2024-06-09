@@ -35,7 +35,7 @@ impl Chunk {
             chunks: Vec::new(),
             highest_blocks: Array2D::new(CHUNK_SIZE),
             location,
-            p_world: world.clone(),
+            p_world: Arc::clone(&world),
             is_loaded: false,
             error_section: ChunkSection::new(Vector3i::new(444, 444, 444), world)
         };
@@ -114,7 +114,7 @@ impl Chunk {
         let y = self.chunks.len();
         self.chunks.push(ChunkSection::new(
             Vector3i::new(self.location.x, y as _, self.location.y),
-            self.p_world.clone()
+            Arc::clone(&self.p_world)
         ));
     }
 

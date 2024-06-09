@@ -91,6 +91,8 @@ impl<'a> Player<'a> {
     }
 
     pub fn update(&mut self, dt: f32, world: &mut World) {
+        let addr = &self.base as *const Entity as usize;
+        println!("Address from Player update(): 0x{:X}", addr);
         self.base.velocity += self.acceleration;
         self.acceleration = glm::vec3(0., 0., 0.);
 

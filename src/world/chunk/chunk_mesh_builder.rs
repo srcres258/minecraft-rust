@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use gl::types::GLfloat;
 use sfml::system::{Vector2i, Vector3i};
 use crate::world::block::block_data::{BlockMeshType, BlockShaderType};
@@ -68,7 +69,7 @@ impl<'a> ChunkMeshBuilder<'a> {
             }
 
             let p_block_data = block.get_data();
-            let data = p_block_data.clone();
+            let data = Rc::clone(&p_block_data);
 
             if data.borrow().block_data().mesh_type == BlockMeshType::X {
                 Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.borrow().block_data().tex_top_coord, &position);

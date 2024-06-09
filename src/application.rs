@@ -39,7 +39,7 @@ impl Application {
 
         BlockDatabase::get();
         unsafe {
-            (*result.get()).push_state(Box::new(StatePlay::new(Rc::clone(&result), config)));
+            (*result.get()).push_state(StatePlay::new_boxed(Rc::clone(&result), config));
         }
 
         result
