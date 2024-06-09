@@ -25,7 +25,7 @@ impl FloraRenderer {
 
         unsafe {
             gl::Disable(gl::BLEND);
-            gl::Enable(gl::CULL_FACE);
+            gl::Disable(gl::CULL_FACE);
         }
         self.shader.base.base.use_program();
 

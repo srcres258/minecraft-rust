@@ -73,6 +73,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
             if data.read().unwrap().block_data().mesh_type == BlockMeshType::X {
                 Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.read().unwrap().block_data().tex_top_coord, &position);
+                continue;
             }
 
             directions.update(x as _, y as _, z as _);

@@ -24,8 +24,8 @@ impl WaterRenderer {
         }
 
         unsafe {
-            gl::Disable(gl::BLEND);
-            gl::Enable(gl::CULL_FACE);
+            gl::Enable(gl::BLEND);
+            gl::Disable(gl::CULL_FACE);
         }
         self.shader.base.base.use_program();
 
