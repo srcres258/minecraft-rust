@@ -221,6 +221,7 @@ impl Default for ClassicOverWorldGenerator {
 }
 
 impl TerrainGenerator for ClassicOverWorldGenerator {
+    
     fn generate_terrain_for(&mut self, chunk: &mut Chunk) {
         let location = chunk.get_location();
         self.random.set_seed(((location.x ^ location.y) << 2) as _);

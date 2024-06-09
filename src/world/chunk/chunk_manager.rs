@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ptr;
 use std::sync::Arc;
 use sfml::system::Vector2i;
 use crate::camera::Camera;
@@ -82,14 +83,8 @@ impl ChunkManager {
     }
 
     pub fn load_chunk(&mut self, x: i32, z: i32) {
-        let key = VectorXZ::new(x, z);
-        if !self.chunk_exists_at(x, z) {
-            let chunk = Chunk::new(self.world.clone(), Vector2i::new(x, z));
-            self.chunks.insert(key, chunk);
-        }
-
-        let val = self.chunks.get_mut(&key).unwrap();
-        val.load(self.terrain_generator.as_mut());
+        let ptr = &mut self.terrain_generator as *mut Box<dyn TerrainGenerator + Send>;
+        self.get_chunk_mut(x, z).load(unsafe { (*ptr).as_mut() });
     }
 
     pub fn unload_chunk(&mut self, x: i32, z: i32) {
