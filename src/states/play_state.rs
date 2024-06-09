@@ -10,7 +10,6 @@ use sfml::window::{Event, Key};
 use sfml::window::mouse::Button;
 use crate::application::Application;
 use crate::config::Config;
-use crate::entity::Entity;
 use crate::input::keyboard::Keyboard;
 use crate::input::toggle_key::ToggleKey;
 use crate::maths::ray::Ray;
@@ -53,8 +52,6 @@ impl<'a> StatePlay<'a> {
         unsafe {
             result.world = Some(World::new((*application.get()).camera(), &config, &mut result.player));
 
-            let addr = &result.player.base as *const Entity as usize;
-            println!("Address before hook_entity(): 0x{:X}", addr);
             (*(*application.get()).camera().get()).hook_entity(&result.player.base);
         }
 

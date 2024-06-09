@@ -57,8 +57,6 @@ impl Camera {
     }
 
     pub fn update(&mut self) {
-        let addr = self.p_entity.as_ref().unwrap().0 as usize;
-        println!("Address from Camera update(): 0x{:X}", addr);
         let wrapped_obj = &mut self.base;
         let p_entity = unsafe { &***self.p_entity.as_ref().unwrap() };
         wrapped_obj.position = glm::vec3(p_entity.position.x, p_entity.position.y + 0.6, p_entity.position.z);
@@ -70,8 +68,6 @@ impl Camera {
     }
 
     pub fn hook_entity(&mut self, entity: *const Entity) {
-        let addr = entity as usize;
-        println!("Address within hook_entity(): 0x{:X}", addr);
         self.p_entity = Some(PtrConstEntity(entity));
     }
 
