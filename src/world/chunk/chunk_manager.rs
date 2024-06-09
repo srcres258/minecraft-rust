@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::ptr;
 use std::sync::Arc;
 use sfml::system::Vector2i;
 use crate::camera::Camera;

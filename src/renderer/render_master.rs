@@ -20,20 +20,6 @@ pub struct RenderMaster {
     draw_box: bool
 }
 
-const VERTEX_SHADER_SOURCE: &str = r##"#version 330 core
-layout (location = 0) in vec3 aPos;
-void main()
-{
-   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}"##;
-
-const FRAGMENT_SHADER_SOURCE: &str = r##"#version 330 core
-out vec4 FragColor;
-void main()
-{
-   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}"##;
-
 impl RenderMaster {
     pub fn draw_chunk(&mut self, chunk: &ChunkSection) {
         let solid_mesh = &chunk.get_meshes().solid_mesh;

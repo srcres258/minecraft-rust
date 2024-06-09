@@ -1,5 +1,4 @@
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use crate::world::block::block_data::BlockData;
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::block::block_id::{BlockId, BlockType};
@@ -18,7 +17,7 @@ impl ChunkBlock {
         Self { id: id as BlockType }
     }
     
-    pub fn get_data(&self) -> Rc<RefCell<BlockData>> {
+    pub fn get_data(&self) -> Arc<RwLock<BlockData>> {
         BlockDatabase::get()
             .get_data(BlockId::try_from(self.id as i32).unwrap())
     }

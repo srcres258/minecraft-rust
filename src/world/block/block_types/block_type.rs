@@ -1,25 +1,24 @@
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use crate::world::block::block_data::BlockData;
 
 pub trait BlockType {
-    fn data(&self) -> Rc<RefCell<BlockData>>;
+    fn data(&self) -> Arc<RwLock<BlockData>>;
 }
 
 pub struct DefaultBlock {
-    data: Rc<RefCell<BlockData>>
+    data: Arc<RwLock<BlockData>>
 }
 
 impl DefaultBlock {
     pub fn new(file_name: &str) -> Self {
         Self {
-            data: Rc::new(RefCell::new(BlockData::new(file_name)))
+            data: Arc::new(RwLock::new(BlockData::new(file_name)))
         }
     }
 }
 
 impl BlockType for DefaultBlock {
-    fn data(&self) -> Rc<RefCell<BlockData>> {
-        Rc::clone(&self.data)
+    fn data(&self) -> Arc<RwLock<BlockData>> {
+        Arc::clone(&self.data)
     }
 }

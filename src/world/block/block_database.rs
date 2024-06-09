@@ -1,6 +1,5 @@
-use std::cell::RefCell;
 use std::ptr;
-use std::rc::Rc;
+use std::sync::{Arc, RwLock};
 use crate::texture::texture_atlas::TextureAtlas;
 use crate::world::block::block_data::BlockData;
 use crate::world::block::block_id::BlockId;
@@ -51,7 +50,7 @@ impl BlockDatabase {
         self.blocks[id as usize].as_ref()
     }
 
-    pub fn get_data(&self, id: BlockId) -> Rc<RefCell<BlockData>> {
+    pub fn get_data(&self, id: BlockId) -> Arc<RwLock<BlockData>> {
         self.blocks[id as usize].data()
     }
 }

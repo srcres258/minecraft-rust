@@ -133,7 +133,7 @@ impl<'a> Player<'a> {
                     (self.base.position.z + self.base.box_aabb.dimensions.z) as i32 {
                     let block = world.get_block(x, y, z);
 
-                    if block.id != 0 && block.get_data().borrow().block_data().is_collidable {
+                    if block.id != 0 && block.get_data().read().unwrap().block_data().is_collidable {
                         if vel.y > 0. {
                             self.base.position.y = y as f32 - self.base.box_aabb.dimensions.y;
                             self.base.velocity.y = 0.;

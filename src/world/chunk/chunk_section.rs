@@ -33,7 +33,7 @@ pub struct ChunkSection {
 
 impl Layer {
     pub fn update(&mut self, c: ChunkBlock) {
-        if c.get_data().borrow().block_data().is_opaque {
+        if c.get_data().read().unwrap().block_data().is_opaque {
             self.solid_block_count -= 1;
         } else {
             self.solid_block_count += 1;

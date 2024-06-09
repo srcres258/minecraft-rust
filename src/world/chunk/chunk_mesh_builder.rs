@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 use gl::types::GLfloat;
 use sfml::system::{Vector2i, Vector3i};
 use crate::world::block::block_data::{BlockMeshType, BlockShaderType};
@@ -69,28 +69,14 @@ impl<'a> ChunkMeshBuilder<'a> {
             }
 
             let p_block_data = block.get_data();
-            let data = Rc::clone(&p_block_data);
+            let data = Arc::clone(&p_block_data);
 
-            if data.borrow().block_data().mesh_type == BlockMeshType::X {
-                Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.borrow().block_data().tex_top_coord, &position);
+            if data.read().unwrap().block_data().mesh_type == BlockMeshType::X {
+                Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.read().unwrap().block_data().tex_top_coord, &position);
             }
 
             directions.update(x as _, y as _, z as _);
 
-            // let should_make_face = |p_block_data: Rc<RefCell<BlockData>>,
-            //                         block_position: &Vector3i,
-            //                         _block_data: &BlockDataHolder| {
-            //     let block = self.p_chunk.get_block(block_position.x, block_position.y, block_position.z);
-            //     let data = block.get_data();
-            //
-            //     if block.id == BlockId::Air as _ {
-            //         true
-            //     } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
-            //         true
-            //     } else {
-            //         false
-            //     }
-            // };
             // Up/ Down
             if self.p_chunk.get_location().y != 0 || y != 0 {
                 let smf = {
@@ -99,7 +85,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                     if block.id == BlockId::Air as _ {
                         true
-                    } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                    } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                         true
                     } else {
                         false
@@ -111,7 +97,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                     &mut self.p_chunk.meshes,
                     block,
                     BOTTOM_FACE,
-                    &data.borrow().block_data().tex_bottom_coord,
+                    &data.read().unwrap().block_data().tex_bottom_coord,
                     &position,
                     LIGHT_BOT
                 );
@@ -122,7 +108,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                 if block.id == BlockId::Air as _ {
                     true
-                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
                 } else {
                     false
@@ -134,7 +120,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 &mut self.p_chunk.meshes,
                 block,
                 TOP_FACE,
-                &data.borrow().block_data().tex_top_coord,
+                &data.read().unwrap().block_data().tex_top_coord,
                 &position,
                 LIGHT_TOP
             );
@@ -146,7 +132,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                 if block.id == BlockId::Air as _ {
                     true
-                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
                 } else {
                     false
@@ -158,7 +144,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 &mut self.p_chunk.meshes,
                 block,
                 LEFT_FACE,
-                &data.borrow().block_data().tex_side_coord,
+                &data.read().unwrap().block_data().tex_side_coord,
                 &position,
                 LIGHT_X
             );
@@ -168,7 +154,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                 if block.id == BlockId::Air as _ {
                     true
-                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
                 } else {
                     false
@@ -180,7 +166,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 &mut self.p_chunk.meshes,
                 block,
                 RIGHT_FACE,
-                &data.borrow().block_data().tex_side_coord,
+                &data.read().unwrap().block_data().tex_side_coord,
                 &position,
                 LIGHT_X
             );
@@ -192,7 +178,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                 if block.id == BlockId::Air as _ {
                     true
-                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
                 } else {
                     false
@@ -204,7 +190,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 &mut self.p_chunk.meshes,
                 block,
                 FRONT_FACE,
-                &data.borrow().block_data().tex_side_coord,
+                &data.read().unwrap().block_data().tex_side_coord,
                 &position,
                 LIGHT_Z
             );
@@ -214,7 +200,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
                 if block.id == BlockId::Air as _ {
                     true
-                } else if !data.borrow().block_data().is_opaque && data.borrow().block_data().id != p_block_data.borrow().block_data().id {
+                } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
                 } else {
                     false
@@ -226,7 +212,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 &mut self.p_chunk.meshes,
                 block,
                 BACK_FACE,
-                &data.borrow().block_data().tex_side_coord,
+                &data.read().unwrap().block_data().tex_side_coord,
                 &position,
                 LIGHT_Z
             );
@@ -242,7 +228,7 @@ impl<'a> ChunkMeshBuilder<'a> {
     ) {
         let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
 
-        match block.get_data().borrow().block_data().shader_type {
+        match block.get_data().read().unwrap().block_data().shader_type {
             BlockShaderType::Chunk => {
                 meshes.solid_mesh.add_face(X_FACE_1, tex_coords, &location,
                                                         block_position, LIGHT_X);
@@ -277,7 +263,7 @@ impl<'a> ChunkMeshBuilder<'a> {
         if should_make_face {
             let tex_coords = BlockDatabase::get().texture_atlas.get_texture(texture_coords);
 
-            match block.get_data().borrow().block_data().shader_type {
+            match block.get_data().read().unwrap().block_data().shader_type {
                 BlockShaderType::Chunk => {
                     meshes.solid_mesh.add_face(
                         block_face,

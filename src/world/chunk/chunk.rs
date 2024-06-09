@@ -178,7 +178,7 @@ impl IChunk for Chunk {
         if y == *self.highest_blocks.get(x as _, z as _) {
             let mut high_block = self.get_block(x, y, z);
             y -= 1;
-            while !high_block.get_data().borrow().block_data().is_opaque {
+            while !high_block.get_data().read().unwrap().block_data().is_opaque {
                 high_block = self.get_block(x, y, z);
                 y -= 1;
             }
