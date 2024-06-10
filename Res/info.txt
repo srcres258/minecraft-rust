@@ -1,5 +1,5 @@
 
-============WELCOME TO MINECRAFT IN A WEEK============
+============ WELCOME TO MINECRAFT RUST ============
 This is a very simple Minecraft clone (mostly) created in one week
 
 
@@ -18,9 +18,9 @@ However, I did manage to implement some other important things:
 
 
 For now, the game it pretty much entirely a community-driven project.
-Source code can be found at https://github.com/Hopson97/MineCraft-One-Week-Challenge
+Source code can be found at https://github.com/srcres258/minecraft-rust
 Feel free to contribute!
 
 Please view 'controls.txt for controls!
 
-============Press enter to begin ============
+====================================================

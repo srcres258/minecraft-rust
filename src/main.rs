@@ -14,9 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{fs, io};
+use std::fs;
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, Read, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
 use crate::application::Application;
 use crate::config::Config;
@@ -98,18 +98,11 @@ fn display_info() {
     println!("{}", info);
 }
 
-fn get_char() -> u8 {
-    let mut buf = vec![0; 1];
-    io::stdin().lock().read_exact(&mut buf).unwrap();
-    buf[0]
-}
-
 fn main() {
     let mut config = Config::default();
     load_config(&mut config);
     display_info();
 
-    get_char();
     println!("Loading game...");
 
     let app = Application::new(config);
