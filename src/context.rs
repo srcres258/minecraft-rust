@@ -35,10 +35,10 @@ impl Context {
 
         let result = Self {
             window: if config.is_fullscreen {
-                Window::new(VideoMode::desktop_mode(), "MineCraft Week", Style::FULLSCREEN, &settings)
+                Window::new(VideoMode::desktop_mode(), "minecraft-rust", Style::FULLSCREEN, &settings)
             } else {
                 let win_mode = VideoMode::new(config.window_x as _, config.window_y as _, 32);
-                Window::new(win_mode, "MineCraft Week", Style::CLOSE, &settings)
+                Window::new(win_mode, "minecraft-rust", Style::CLOSE, &settings)
             }
         };
 
