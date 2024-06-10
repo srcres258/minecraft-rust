@@ -21,8 +21,7 @@ in  vec2 passTextureCoord;
 
 uniform sampler2D texSampler;
 
-void main()
-{
+void main() {
     vec4 color = texture(texSampler, passTextureCoord);
     
     outColour = color;

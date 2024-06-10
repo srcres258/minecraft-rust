@@ -100,7 +100,14 @@ impl Model {
                 gl::STATIC_DRAW
             );
 
-            gl::VertexAttribPointer(self.vbo_count as _, dimensions, gl::FLOAT, gl::FALSE, 0, ptr::null());
+            gl::VertexAttribPointer(
+                self.vbo_count as _,
+                dimensions,
+                gl::FLOAT,
+                gl::FALSE,
+                0,
+                ptr::null()
+            );
 
             gl::EnableVertexAttribArray(self.vbo_count as _);
             self.vbo_count += 1;

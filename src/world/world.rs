@@ -63,7 +63,11 @@ pub struct World {
 const CHUNK_LOAD_THREADS_COUNT: usize = 1;
 
 impl World {
-    pub fn new(camera: Arc<UnsafeCellWrapper<Camera>>, config: &Config, player: &mut Player) -> Arc<UnsafeCellWrapper<Self>> {
+    pub fn new(
+        camera: Arc<UnsafeCellWrapper<Camera>>,
+        config: &Config,
+        player: &mut Player
+    ) -> Arc<UnsafeCellWrapper<Self>> {
         let result = Self {
             chunk_manager: None,
             events: Vec::new(),
@@ -150,7 +154,9 @@ impl World {
         let chunk_position = Self::get_chunk_xz(block_x, block_z);
         let chunk_section_y = block_y / CHUNK_SIZE as i32;
 
-        let key = Vector3i::new(chunk_position.x, chunk_section_y, chunk_position.z);
+        let key = Vector3i::new(
+            chunk_position.x, chunk_section_y, chunk_position.z
+        );
         add_chunk_to_update_batch(
             util::vector3i_to_ivec3(key),
             self.chunk_manager.as_mut()
@@ -163,7 +169,9 @@ impl World {
         let section_block_y = block_y % CHUNK_SIZE as i32;
 
         if section_block_xz.x == 0 {
-            let new_key = Vector3i::new(chunk_position.x - 1, chunk_section_y, chunk_position.z);
+            let new_key = Vector3i::new(
+                chunk_position.x - 1, chunk_section_y, chunk_position.z
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -172,7 +180,9 @@ impl World {
                     .get_section_mut(new_key.y)
             );
         } else if section_block_xz.x == CHUNK_SIZE as i32 - 1 {
-            let new_key = Vector3i::new(chunk_position.x + 1, chunk_section_y, chunk_position.z);
+            let new_key = Vector3i::new(
+                chunk_position.x + 1, chunk_section_y, chunk_position.z
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -183,7 +193,9 @@ impl World {
         }
 
         if section_block_y == 0 {
-            let new_key = Vector3i::new(chunk_position.x, chunk_section_y - 1, chunk_position.z);
+            let new_key = Vector3i::new(
+                chunk_position.x, chunk_section_y - 1, chunk_position.z
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -192,7 +204,9 @@ impl World {
                     .get_section_mut(new_key.y)
             );
         } else if section_block_y == CHUNK_SIZE as i32 - 1 {
-            let new_key = Vector3i::new(chunk_position.x, chunk_section_y + 1, chunk_position.z);
+            let new_key = Vector3i::new(
+                chunk_position.x, chunk_section_y + 1, chunk_position.z
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -203,7 +217,9 @@ impl World {
         }
 
         if section_block_xz.z == 0 {
-            let new_key = Vector3i::new(chunk_position.x, chunk_section_y, chunk_position.z - 1);
+            let new_key = Vector3i::new(
+                chunk_position.x, chunk_section_y, chunk_position.z - 1
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -212,7 +228,9 @@ impl World {
                     .get_section_mut(new_key.y)
             );
         } else if section_block_xz.z == CHUNK_SIZE as i32 - 1 {
-            let new_key = Vector3i::new(chunk_position.x, chunk_section_y, chunk_position.z + 1);
+            let new_key = Vector3i::new(
+                chunk_position.x, chunk_section_y, chunk_position.z + 1
+            );
             add_chunk_to_update_batch(
                 util::vector3i_to_ivec3(new_key),
                 self.chunk_manager.as_mut()
@@ -243,7 +261,8 @@ impl World {
 
             let location = chunk.get_location();
 
-            if min_x > location.x || min_z > location.y || max_z < location.y || max_x < location.x {
+            if min_x > location.x || min_z > location.y ||
+                max_z < location.y || max_x < location.x {
                 keys_to_remove.insert(*key);
             } else {
                 chunk.draw_chunks(renderer, camera);
@@ -332,7 +351,9 @@ impl World {
         let mut block_z = 0;
         let mut block_y = 0;
         
-        let h = self.chunk_manager.as_ref().unwrap().get_terrain_generator().get_minimum_spawn_height();
+        let h = self.chunk_manager.as_ref().unwrap()
+            .get_terrain_generator()
+            .get_minimum_spawn_height();
         
         while block_y <= h {
             self.chunk_manager.as_mut().unwrap().unload_chunk(chunk_x, chunk_z);

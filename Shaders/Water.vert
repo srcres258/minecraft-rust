@@ -27,8 +27,7 @@ uniform mat4 projViewMatrix;
 uniform float globalTime;
 
 
-vec4 getWorldPos()
-{
+vec4 getWorldPos() {
     vec3 inVert = inVertexPosition.xyz;
     inVert.y += sin((globalTime + inVert.x) * 1.5) / 8.8f;
     inVert.y += cos((globalTime + inVert.z) * 1.5) / 8.1f;
@@ -36,8 +35,7 @@ vec4 getWorldPos()
     return vec4(inVert, 1);
 }
 
-void main()
-{
+void main() {
     gl_Position = projViewMatrix * getWorldPos();
 
     passTextureCoord    = inTextureCoord;

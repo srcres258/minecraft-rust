@@ -284,7 +284,10 @@ impl<'a> Player<'a> {
         unsafe {
             if LAST_MOUSE_POSITION_PTR == ptr::null_mut() {
                 let mut last_mouse_position = window.position();
-                last_mouse_position += Vector2i::new(window.size().x as i32 / 2, window.size().y as i32 / 2);
+                last_mouse_position += Vector2i::new(
+                    window.size().x as i32 / 2,
+                    window.size().y as i32 / 2
+                );
                 let last_mouse_position = Box::new(last_mouse_position);
                 LAST_MOUSE_POSITION_PTR = Box::leak(last_mouse_position);
                 window.set_mouse_position(*LAST_MOUSE_POSITION_PTR);

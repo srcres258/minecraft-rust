@@ -35,9 +35,18 @@ impl Context {
 
         let result = Self {
             window: if config.is_fullscreen {
-                Window::new(VideoMode::desktop_mode(), "minecraft-rust", Style::FULLSCREEN, &settings)
+                Window::new(
+                    VideoMode::desktop_mode(),
+                    "minecraft-rust",
+                    Style::FULLSCREEN,
+                    &settings
+                )
             } else {
-                let win_mode = VideoMode::new(config.window_x as _, config.window_y as _, 32);
+                let win_mode = VideoMode::new(
+                    config.window_x as _,
+                    config.window_y as _,
+                    32
+                );
                 Window::new(win_mode, "minecraft-rust", Style::CLOSE, &settings)
             }
         };
@@ -51,9 +60,17 @@ impl Context {
         
         unsafe {
             gl::Enable(gl::DEBUG_OUTPUT);
-            gl::Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
+            // makes sure errors are displayed synchronously
+            gl::Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
             gl::DebugMessageCallback(Some(gl_debug_output), ptr::null());
-            gl::DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0, ptr::null(), gl::TRUE);
+            gl::DebugMessageControl(
+                gl::DONT_CARE,
+                gl::DONT_CARE,
+                gl::DONT_CARE,
+                0,
+                ptr::null(),
+                gl::TRUE
+            );
             
             gl::Viewport(0, 0, result.window.size().x as _, result.window.size().y as _);
             
@@ -74,7 +91,8 @@ extern "system" fn gl_debug_output(
     message: *const GLchar,
     _user_param: *mut c_void
 ) {
-    if id == 131169 || id == 131185 || id == 131218 || id == 131204 { // ignore these non-significant error codes
+    // ignore these non-significant error codes
+    if id == 131169 || id == 131185 || id == 131218 || id == 131204 {
         return;
     }
 

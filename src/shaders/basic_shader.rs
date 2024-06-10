@@ -60,9 +60,13 @@ impl Shader for BasicShader {
         self.base.use_program();
         unsafe {
             let c_string = CString::new("projViewMatrix").unwrap();
-            self.location_projection_view_matrix = gl::GetUniformLocation(self.base.id, c_string.as_ptr());
+            self.location_projection_view_matrix = gl::GetUniformLocation(
+                self.base.id, c_string.as_ptr()
+            );
             let c_string = CString::new("modelMatrix").unwrap();
-            self.location_model_matrix = gl::GetUniformLocation(self.base.id, c_string.as_ptr());
+            self.location_model_matrix = gl::GetUniformLocation(
+                self.base.id, c_string.as_ptr()
+            );
         }
     }
 }

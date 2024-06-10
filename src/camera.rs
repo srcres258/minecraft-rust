@@ -75,7 +75,9 @@ impl Camera {
     pub fn update(&mut self) {
         let wrapped_obj = &mut self.base;
         let p_entity = unsafe { &***self.p_entity.as_ref().unwrap() };
-        wrapped_obj.position = glm::vec3(p_entity.position.x, p_entity.position.y + 0.6, p_entity.position.z);
+        wrapped_obj.position = glm::vec3(
+            p_entity.position.x, p_entity.position.y + 0.6, p_entity.position.z
+        );
         wrapped_obj.rotation = p_entity.rotation;
 
         self.view_matrix = matrix::make_view_matrix(self);

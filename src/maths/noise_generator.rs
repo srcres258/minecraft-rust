@@ -77,9 +77,12 @@ impl NoiseGenerator {
 
         let mut total_value = 0f64;
 
-        for a in 0..self.noise_parameters.octaves - 1 { // This loops through the octaves.
-            let frequency = 2f64.powi(a); // This increases the frequency with every loop of the octave.
-            let amplitude = self.noise_parameters.roughness.powi(a); // This decreases the amplitude with every loop of the octave.
+        // This loops through the octaves.
+        for a in 0..self.noise_parameters.octaves - 1 {
+            // This increases the frequency with every loop of the octave.
+            let frequency = 2f64.powi(a);
+            // This decreases the amplitude with every loop of the octave.
+            let amplitude = self.noise_parameters.roughness.powi(a);
             total_value += self.noise(
                 new_x as f64 * frequency / self.noise_parameters.smoothness as f64,
                 new_z as f64 * frequency / self.noise_parameters.smoothness as f64
@@ -103,7 +106,8 @@ impl NoiseGenerator {
         let mut n = Wrapping(n);
         n += self.seed;
         n = (n << 13) ^ n;
-        let new_n = (n * (n * n * Wrapping(60493) + Wrapping(19990303)) + Wrapping(1376312589)) & Wrapping(0x7fffffff);
+        let new_n = (n * (n * n * Wrapping(60493) + Wrapping(19990303)) +
+            Wrapping(1376312589)) & Wrapping(0x7fffffff);
         1.0 - new_n.0 as f64 / 1073741824.0
     }
 
@@ -126,15 +130,18 @@ impl NoiseGenerator {
 
         let s = self.get_noise_dd(floor_x, floor_z);
         let t = self.get_noise_dd(floor_x + 1.0, floor_z);
-        let u = self.get_noise_dd(floor_x, floor_z + 1.0); // Get the surrounding values to calculate the transition.
+        // Get the surrounding values to calculate the transition.
+        let u = self.get_noise_dd(floor_x, floor_z + 1.0);
         let v = self.get_noise_dd(floor_x + 1.0, floor_z + 1.0);
 
-        let rec1 = Self::lerp(s, t, x - floor_x); // Interpolate between the values.
+        // Interpolate between the values.
+        let rec1 = Self::lerp(s, t, x - floor_x);
         let rec2 = Self::lerp(
             u, v,
             x - floor_x // Here we use x-floorX, to get 1st dimension. Don't mind
         );                 // the x-floorX thingie, it's part of the cosine formula.
-        let rec3 = Self::lerp(rec1, rec2, z - floor_z); // Here we use y-floorZ, to get the 2nd dimension.
+        // Here we use y-floorZ, to get the 2nd dimension.
+        let rec3 = Self::lerp(rec1, rec2, z - floor_z);
 
         rec3
     }

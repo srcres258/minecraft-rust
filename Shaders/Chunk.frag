@@ -24,10 +24,10 @@ uniform sampler2D texSampler;
 
 vec4 color;
 
-void main()
-{
+void main() {
     color = texture(texSampler, passTextureCoord);
 
     outColour = color * passCardinalLight;
-    if (outColour.a == 0) discard;
+    if (outColour.a == 0)
+        discard;
 }

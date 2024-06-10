@@ -89,16 +89,38 @@ impl Material {
 }
 
 lazy_static! {
-    pub static ref NOTHING: Material = Material::new(ID::Nothing, 0, false, "None");
-    pub static ref GRASS_BLOCK: Material = Material::new(ID::Grass, 99, true, "Grass Block");
-    pub static ref DIRT_BLOCK: Material = Material::new(ID::Dirt, 99, true, "Dirt Block");
-    pub static ref STONE_BLOCK: Material = Material::new(ID::Stone, 99, true, "Stone Block");
-    pub static ref OAK_BARK_BLOCK: Material = Material::new(ID::OakBark, 99, true, "Oak Bark Block");
-    pub static ref OAK_LEAF_BLOCK: Material = Material::new(ID::OakLeaf, 99, true, "Oak Leaf Block");
-    pub static ref SAND_BLOCK: Material = Material::new(ID::Sand, 99, true, "Sand Block");
-    pub static ref CACTUS_BLOCK: Material = Material::new(ID::Cactus, 99, true, "Cactus Block");
+    pub static ref NOTHING: Material = Material::new(
+        ID::Nothing, 0, false, "None"
+    );
+    pub static ref GRASS_BLOCK: Material = Material::new(
+        ID::Grass, 99, true, "Grass Block"
+    );
+    pub static ref DIRT_BLOCK: Material = Material::new(
+        ID::Dirt, 99, true, "Dirt Block"
+    );
+    pub static ref STONE_BLOCK: Material = Material::new(
+        ID::Stone, 99, true, "Stone Block"
+    );
+    pub static ref OAK_BARK_BLOCK: Material = Material::new(
+        ID::OakBark, 99, true, "Oak Bark Block"
+    );
+    pub static ref OAK_LEAF_BLOCK: Material = Material::new(
+        ID::OakLeaf, 99, true, "Oak Leaf Block"
+    );
+    pub static ref SAND_BLOCK: Material = Material::new(
+        ID::Sand, 99, true, "Sand Block"
+    );
+    pub static ref CACTUS_BLOCK: Material = Material::new(
+        ID::Cactus, 99, true, "Cactus Block"
+    );
     
-    pub static ref ROSE: Material = Material::new(ID::Rose, 99, true, "Rose");
-    pub static ref TALL_GRASS: Material = Material::new(ID::TallGrass, 99, true, "Tall Grass");
-    pub static ref DEAD_SHRUB: Material = Material::new(ID::DeadShrub, 99, true, "Dead Shrub");
+    pub static ref ROSE: Material = Material::new(
+        ID::Rose, 99, true, "Rose"
+    );
+    pub static ref TALL_GRASS: Material = Material::new(
+        ID::TallGrass, 99, true, "Tall Grass"
+    );
+    pub static ref DEAD_SHRUB: Material = Material::new(
+        ID::DeadShrub, 99, true, "Dead Shrub"
+    );
 }

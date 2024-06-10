@@ -50,7 +50,9 @@ pub struct ClassicOverWorldGenerator {
 lazy_static! {
     static ref SEED: i32 = RandomSingleton::get().int_in_range(424..=325322);
 
-    static ref BIOME_NOISE_GEN: Mutex<NoiseGenerator> = Mutex::new(NoiseGenerator::new(SEED.clone() * 2));
+    static ref BIOME_NOISE_GEN: Mutex<NoiseGenerator> = Mutex::new(
+        NoiseGenerator::new(SEED.clone() * 2)
+    );
 }
 
 static mut NOISE_GEN: bool = false;
@@ -99,7 +101,8 @@ impl ClassicOverWorldGenerator {
                     } else if y == height {
                         if y >= WATER_LEVEL as i32 {
                             if y < (WATER_LEVEL + 4) as i32 {
-                                p_chunk.set_block(x as _, y as _, z as _, biome.get_beach_block(&self.random));
+                                p_chunk.set_block(x as _, y as _, z as _,
+                                                  biome.get_beach_block(&self.random));
                                 continue;
                             }
 
@@ -109,14 +112,18 @@ impl ClassicOverWorldGenerator {
                             if self.random.int_in_range(0..=biome.get_tree_frequency()) == 5 {
                                 plants.push(Vector3i::new(x as _, y + 1, z as _));
                             }
-                            p_chunk.set_block(x as _, y, z as _, self.get_biome(x, z).get_top_block(&self.random));
+                            p_chunk.set_block(x as _, y, z as _,
+                                              self.get_biome(x, z).get_top_block(&self.random));
                         } else {
-                            p_chunk.set_block(x as _, y, z as _, biome.get_under_water_block(&self.random));
+                            p_chunk.set_block(x as _, y, z as _,
+                                              biome.get_under_water_block(&self.random));
                         }
                     } else if y > height - 3 {
-                        p_chunk.set_block(x as _, y, z as _, ChunkBlock::new_with_block_id(BlockId::Dirt));
+                        p_chunk.set_block(x as _, y, z as _,
+                                          ChunkBlock::new_with_block_id(BlockId::Dirt));
                     } else {
-                        p_chunk.set_block(x as _, y, z as _, ChunkBlock::new_with_block_id(BlockId::Stone));
+                        p_chunk.set_block(x as _, y, z as _,
+                                          ChunkBlock::new_with_block_id(BlockId::Stone));
                     }
                 }
             }

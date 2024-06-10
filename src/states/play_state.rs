@@ -66,7 +66,11 @@ impl<'a> StatePlay<'a> {
         };
         let mut result = Box::new(result);
         unsafe {
-            result.world = Some(World::new((*application.get()).camera(), &config, &mut result.player));
+            result.world = Some(World::new(
+                (*application.get()).camera(),
+                &config,
+                &mut result.player)
+            );
 
             (*(*application.get()).camera().get()).hook_entity(&result.player.base);
         }

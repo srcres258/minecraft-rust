@@ -25,10 +25,9 @@ out float passCardinalLight;
 
 uniform mat4 projViewMatrix;
 
-void main()
-{
+void main() {
     gl_Position = projViewMatrix * vec4(inVertexPosition, 1.0);
 
-    passTextureCoord    = inTextureCoord;
-    passCardinalLight   = inCardinalLight;
+    passTextureCoord = inTextureCoord;
+    passCardinalLight = inCardinalLight;
 }
