@@ -17,8 +17,8 @@
 use std::cell::UnsafeCell;
 use std::rc::Rc;
 use std::sync::Arc;
-use sfml::system::{Clock, Time, Vector2i};
-use sfml::window::{Event, Key, VideoMode, Window};
+use sfml::system::{Clock, Time};
+use sfml::window::{Event, Key, Window};
 use crate::camera::Camera;
 use crate::config::Config;
 use crate::context::Context;
@@ -65,26 +65,9 @@ impl Application {
     pub fn run_loop(&mut self) {
         let mut dt_timer = Clock::start();
         let mut dt = Clock::start();
-        let win_center;
 
         #[allow(unused_assignments)]
         let mut m = Time::default();
-
-        // Grab the context window and force it to a certain position.
-        // This prevents the window from sticking to the bottom of the visible screen like it does
-        // in some Linux distros. Especially Arch.
-
-        // If the window is small, use these parameters
-        if self.context.window.size().x <= 640 {
-            win_center = Vector2i::new(
-                (VideoMode::desktop_mode().width as f32 / 3.5) as _,
-                (VideoMode::desktop_mode().height / 4) as _
-            );
-        } else {
-            win_center = Vector2i::new(0, 0);
-        }
-
-        self.context.window.set_position(win_center);
 
         while self.context.window.is_open() && !self.states.is_empty() {
             let delta_time = dt_timer.restart();

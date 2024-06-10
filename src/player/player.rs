@@ -21,7 +21,7 @@ use std::ptr;
 use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::SfBox;
 use sfml::system::{Vector2f, Vector2i};
-use sfml::window::{Key, mouse, Window};
+use sfml::window::{Key, Window};
 use crate::entity::Entity;
 use crate::input::keyboard::Keyboard;
 use crate::input::toggle_key::ToggleKey;
@@ -283,11 +283,14 @@ impl<'a> Player<'a> {
         const BOUND: f32 = 89.;
         unsafe {
             if LAST_MOUSE_POSITION_PTR == ptr::null_mut() {
-                let last_mouse_position = Box::new(window.position());
+                let mut last_mouse_position = window.position();
+                last_mouse_position += Vector2i::new(window.size().x as i32 / 2, window.size().y as i32 / 2);
+                let last_mouse_position = Box::new(last_mouse_position);
                 LAST_MOUSE_POSITION_PTR = Box::leak(last_mouse_position);
+                window.set_mouse_position(*LAST_MOUSE_POSITION_PTR);
             }
         }
-        let change = unsafe { mouse::desktop_position() - *LAST_MOUSE_POSITION_PTR };
+        let change = unsafe { window.mouse_position() - *LAST_MOUSE_POSITION_PTR };
 
         self.base.rotation.y += change.x as f32 * 0.05;
         self.base.rotation.x += change.y as f32 * 0.05;
@@ -304,13 +307,8 @@ impl<'a> Player<'a> {
             self.base.rotation.y = 360.;
         }
 
-        let cx = (window.size().x / 2) as i32;
-        let cy = (window.size().y / 2) as i32;
-
-        window.set_position(Vector2i::new(cx, cy));
-
         unsafe {
-            *LAST_MOUSE_POSITION_PTR = mouse::desktop_position();
+            window.set_mouse_position(*LAST_MOUSE_POSITION_PTR);
         }
     }
 }

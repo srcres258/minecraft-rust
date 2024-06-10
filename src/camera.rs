@@ -81,6 +81,8 @@ impl Camera {
         self.view_matrix = matrix::make_view_matrix(self);
         self.proj_view_matrix = self.projection_matrix * self.view_matrix;
         self.frustum.update(&self.proj_view_matrix);
+
+        // println!("Camera frustum: {:#?}", self.frustum);
     }
 
     pub fn hook_entity(&mut self, entity: *const Entity) {
