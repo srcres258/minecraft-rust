@@ -38,9 +38,9 @@ impl SkyboxShader {
 
     pub fn load_view_matrix(&self, view_matrix: &glm::TMat4<f32>) {
         let mut view_matrix = *view_matrix;
-        view_matrix[(3, 0)] = 0.;
-        view_matrix[(3, 1)] = 0.;
-        view_matrix[(3, 2)] = 0.;
+        view_matrix[(0, 3)] = 0.;
+        view_matrix[(1, 3)] = 0.;
+        view_matrix[(2, 3)] = 0.;
         ShaderBase::load_matrix_4(self.location_view, &view_matrix);
     }
 
