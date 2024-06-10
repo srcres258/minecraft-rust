@@ -83,34 +83,34 @@ extern "system" fn gl_debug_output(
         message_c_str = CStr::from_ptr(message);
     }
     let message_str = message_c_str.to_str().unwrap();
-    println!("Debug message ({}): {}", id, message_str);
+    log::debug!("Debug message ({}): {}", id, message_str);
     match source {
-        gl::DEBUG_SOURCE_API => println!("Source: API"),
-        gl::DEBUG_SOURCE_WINDOW_SYSTEM => println!("Source: Window System"),
-        gl::DEBUG_SOURCE_SHADER_COMPILER => println!("Source: Shader Compiler"),
-        gl::DEBUG_SOURCE_THIRD_PARTY => println!("Source: Third Party"),
-        gl::DEBUG_SOURCE_APPLICATION => println!("Source: Application"),
-        gl::DEBUG_SOURCE_OTHER => println!("Source: Other"),
+        gl::DEBUG_SOURCE_API => log::debug!("Source: API"),
+        gl::DEBUG_SOURCE_WINDOW_SYSTEM => log::debug!("Source: Window System"),
+        gl::DEBUG_SOURCE_SHADER_COMPILER => log::debug!("Source: Shader Compiler"),
+        gl::DEBUG_SOURCE_THIRD_PARTY => log::debug!("Source: Third Party"),
+        gl::DEBUG_SOURCE_APPLICATION => log::debug!("Source: Application"),
+        gl::DEBUG_SOURCE_OTHER => log::debug!("Source: Other"),
         _ => {}
     }
     match gltype {
-        gl::DEBUG_TYPE_ERROR => println!("Type: Error"),
-        gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR => println!("Type: Deprecated Behaviour"),
-        gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR => println!("Type: Undefined Behaviour"),
-        gl::DEBUG_TYPE_PORTABILITY => println!("Type: Portability"),
-        gl::DEBUG_TYPE_PERFORMANCE => println!("Type: Performance"),
-        gl::DEBUG_TYPE_MARKER => println!("Type: Marker"),
-        gl::DEBUG_TYPE_PUSH_GROUP => println!("Type: Push Group"),
-        gl::DEBUG_TYPE_POP_GROUP => println!("Type: Pop Group"),
-        gl::DEBUG_TYPE_OTHER => println!("Type: Other"),
+        gl::DEBUG_TYPE_ERROR => log::debug!("Type: Error"),
+        gl::DEBUG_TYPE_DEPRECATED_BEHAVIOR => log::debug!("Type: Deprecated Behaviour"),
+        gl::DEBUG_TYPE_UNDEFINED_BEHAVIOR => log::debug!("Type: Undefined Behaviour"),
+        gl::DEBUG_TYPE_PORTABILITY => log::debug!("Type: Portability"),
+        gl::DEBUG_TYPE_PERFORMANCE => log::debug!("Type: Performance"),
+        gl::DEBUG_TYPE_MARKER => log::debug!("Type: Marker"),
+        gl::DEBUG_TYPE_PUSH_GROUP => log::debug!("Type: Push Group"),
+        gl::DEBUG_TYPE_POP_GROUP => log::debug!("Type: Pop Group"),
+        gl::DEBUG_TYPE_OTHER => log::debug!("Type: Other"),
         _ => {}
     }
     match severity {
-        gl::DEBUG_SEVERITY_HIGH => println!("Severity: high"),
-        gl::DEBUG_SEVERITY_MEDIUM => println!("Severity: medium"),
-        gl::DEBUG_SEVERITY_LOW => println!("Severity: low"),
-        gl::DEBUG_SEVERITY_NOTIFICATION => println!("Severity: notification"),
+        gl::DEBUG_SEVERITY_HIGH => log::debug!("Severity: high"),
+        gl::DEBUG_SEVERITY_MEDIUM => log::debug!("Severity: medium"),
+        gl::DEBUG_SEVERITY_LOW => log::debug!("Severity: low"),
+        gl::DEBUG_SEVERITY_NOTIFICATION => log::debug!("Severity: notification"),
         _ => {}
     }
-    println!("---------------");
+    log::debug!("---------------");
 }

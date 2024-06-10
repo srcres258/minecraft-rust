@@ -324,7 +324,7 @@ impl World {
 
     fn set_spawn_point(&mut self) {
         let timer = Clock::start();
-        println!("Searching for spawn...");
+        log::info!("Searching for spawn...");
         let mut attempts = 0;
         let mut chunk_x = -1;
         let mut chunk_z = -1;
@@ -360,8 +360,8 @@ impl World {
                 drop(lock);
             }
         }
-        
-        println!(
+
+        log::info!(
             "Spawn found! Attempts: {} Time Taken: {} seconds",
             attempts,
             timer.elapsed_time().as_seconds()

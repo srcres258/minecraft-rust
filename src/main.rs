@@ -48,9 +48,7 @@ fn load_config(config: &mut Config) {
 
     // If the config file is missing or "bad"
     if !config_file.exists() {
-        println!("Configuration file invalid,");
-        println!("writing 'new' configuration.");
-        println!();
+        log::debug!("Configuration file invalid, writing 'new' configuration.");
 
         let out_file = File::create(config_file).unwrap();
         let mut writer = BufWriter::new(out_file);
@@ -60,8 +58,7 @@ fn load_config(config: &mut Config) {
         writer.write(b"fov 105\n").unwrap();
         writer.flush().unwrap();
 
-        println!();
-        println!("New configuration file created.");
+        log::debug!("New configuration file created.");
     }
 
     // Open 'new' config file.
@@ -76,18 +73,18 @@ fn load_config(config: &mut Config) {
             let key = parts[0];
             if key == "renderdistance" {
                 config.render_distance = parts[1].parse().unwrap();
-                println!("Config: Render Distance: {}", config.render_distance);
+                log::debug!("Config: Render Distance: {}", config.render_distance);
             } else if key == "fullscreen" {
                 let is_fullscreen: i32 = parts[1].parse().unwrap();
                 config.is_fullscreen = is_fullscreen == 1;
-                println!("Config: Full screen mode: {}", config.is_fullscreen);
+                log::debug!("Config: Full screen mode: {}", config.is_fullscreen);
             } else if key == "windowsize" {
                 config.window_x = parts[1].parse().unwrap();
                 config.window_y = parts[2].parse().unwrap();
-                println!("Config: Window Size: {} x {}", config.window_x, config.window_y);
+                log::debug!("Config: Window Size: {} x {}", config.window_x, config.window_y);
             } else if key == "fov" {
                 config.fov = parts[1].parse().unwrap();
-                println!("Config: Field of Vision: {}", config.fov);
+                log::debug!("Config: Field of Vision: {}", config.fov);
             }
         }
     }
@@ -95,15 +92,19 @@ fn load_config(config: &mut Config) {
 
 fn display_info() {
     let info = fs::read_to_string("Res/info.txt").unwrap();
-    println!("{}", info);
+    for line in info.lines() {
+        log::info!("{}", line);
+    }
 }
 
 fn main() {
+    env_logger::init();
+
     let mut config = Config::default();
     load_config(&mut config);
     display_info();
 
-    println!("Loading game...");
+    log::info!("Loading game...");
 
     let app = Application::new(config);
     unsafe {

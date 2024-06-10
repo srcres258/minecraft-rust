@@ -62,10 +62,10 @@ impl ClassicOverWorldGenerator {
     }
 
     fn set_up_noise() {
-        println!("Seed: {}", SEED.clone());
+        log::info!("Seed: {}", SEED.clone());
         unsafe {
             if !NOISE_GEN {
-                println!("making noise");
+                log::info!("making noise");
                 NOISE_GEN = true;
 
                 let mut biome_params = NoiseParameters::default();

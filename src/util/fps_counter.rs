@@ -71,7 +71,7 @@ impl<'a> FPSCounter<'a> {
 
                 // Only show this output in debug mode
                 if self.debugging {
-                    println!("{}", self.fps);
+                    log::debug!("{}", self.fps);
                 }
             }
         }
