@@ -50,23 +50,25 @@ impl<T: Ord + Clone + Default> Array2D<T> {
         
         result
     }
+}
 
+impl<T: Ord + Clone> Array2D<T> {
     pub fn get(&self, x: usize, z: usize) -> &T {
         &self.array[x * self.width + z]
     }
-    
+
     pub fn get_mut(&mut self, x: usize, z: usize) -> &mut T {
         &mut self.array[x * self.width + z]
     }
-    
+
     pub fn get_max_value(&self) -> &T {
         self.array.iter().max().unwrap()
     }
-    
+
     pub fn set_all(&mut self, val: T) {
         self.array.fill(val)
     }
-    
+
     pub fn width(&self) -> usize {
         self.width
     }
