@@ -1,7 +1,10 @@
+#![feature(variant_count)]
+
 use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::Path;
+use crate::application::Application;
 use crate::config::Config;
 
 pub mod config;
@@ -10,6 +13,15 @@ pub mod states;
 pub mod context;
 pub mod renderer;
 pub mod camera;
+pub mod texture;
+pub mod world;
+pub mod input;
+pub mod entity;
+pub mod physics;
+pub mod player;
+pub mod item;
+pub mod util;
+pub mod maths;
 
 fn main() {
     env_logger::init();
@@ -20,7 +32,8 @@ fn main() {
 
     log::info!("Loading game...");
 
-
+    let mut app = Application::new(config);
+    app.run_loop();
 }
 
 /// @brief Self declared function that loads in configuration files as needed.

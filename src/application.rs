@@ -3,7 +3,9 @@ use crate::camera::Camera;
 use crate::config::Config;
 use crate::context::Context;
 use crate::renderer::render_master::RenderMaster;
+use crate::states::play_state::StatePlay;
 use crate::states::state_base::StateBase;
+use crate::world::block::block_database::BlockDatabase;
 
 pub struct Application {
     states: Vec<Box<dyn StateBase>>,
@@ -16,10 +18,22 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(config: &Config) -> Self {
-        //todo
+    pub fn new(config: Config) -> Self {
+        let mut result = Self {
+            states: Vec::new(),
+            context: Context::new(config),
+            master_renderer: , //todo
+            camera: ,//todo
+            is_pop_state: false
+        }
+
+        BlockDatabase::get();
+        result.push_state(Box::new(StatePlay::new(&result, config)));
+
+        result
     }
 
+    /// @brief Game loop utilizing a mixture of SFML events and GL rendering.
     pub fn run_loop(&mut self) {
         //todo
     }

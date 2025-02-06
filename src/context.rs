@@ -9,7 +9,7 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(config: Config) -> Self {
         let mut settings = ContextSettings::default();
         settings.antialiasing_level = 0;
         settings.major_version = 3;
