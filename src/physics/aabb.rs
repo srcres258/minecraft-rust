@@ -1,7 +1,7 @@
 use nalgebra_glm::Vec3;
 
 /// @brief Collision detection class for 3D environment.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct AABB {
     pub position: Vec3,
     pub dimensions: Vec3

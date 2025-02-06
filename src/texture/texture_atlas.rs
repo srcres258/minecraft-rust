@@ -28,7 +28,7 @@ impl TextureAtlas {
         //todo
     }
 
-    pub fn get_texture(coords: Vector2i) -> [GLfloat; 8] {
+    pub fn texture(&self, coords: Vector2i) -> [GLfloat; 8] {
         //todo
     }
 }

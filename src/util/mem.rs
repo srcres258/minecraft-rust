@@ -24,6 +24,11 @@ impl<T> UnsafeWrappedRef<T> {
     pub fn from_ptr(ptr: *const T) -> Self {
         Self { ptr }
     }
+    pub fn from_uw_ref_mut(uw: UnsafeWrappedRefMut<T>) -> Self {
+        Self {
+            ptr: uw.ptr()
+        }
+    }
 
     pub fn ptr(&self) -> *const T {
         self.ptr
@@ -61,9 +66,7 @@ impl<T> Deref for UnsafeWrappedRef<T> {
 
 impl<T> From<UnsafeWrappedRefMut<T>> for UnsafeWrappedRef<T> {
     fn from(value: UnsafeWrappedRefMut<T>) -> Self {
-        Self {
-            ptr: value.ptr()
-        }
+        Self::from_uw_ref_mut(value)
     }
 }
 
@@ -84,6 +87,11 @@ impl<T> UnsafeWrappedRefMut<T> {
     pub fn from_ptr_const(ptr: *const T) -> Self {
         Self {
             ptr: ptr as *mut T
+        }
+    }
+    pub fn from_uw_ref(uw: UnsafeWrappedRef<T>) -> Self {
+        Self {
+            ptr: uw.ptr() as *mut T
         }
     }
 
@@ -131,18 +139,22 @@ impl<T> DerefMut for UnsafeWrappedRefMut<T> {
 
 impl<T> From<UnsafeWrappedRef<T>> for UnsafeWrappedRefMut<T> {
     fn from(value: UnsafeWrappedRef<T>) -> Self {
-        Self {
-            ptr: value.ptr() as *mut T
-        }
+        Self::from_uw_ref(value)
     }
 }
 
 pub fn uw_ref<T>(r: &T) -> UWRef<T> {
     UWRef::from_ref(r)
 }
+pub fn uw_ref_ptr<T>(r: *const T) -> UWRef<T> {
+    UWRef::from_ptr(r)
+}
 
 pub fn uw_ref_mut<T>(r: &mut T) -> UWRefMut<T> {
     UWRefMut::from_ref(r)
+}
+pub fn uw_ref_mut_ptr<T>(r: *mut T) -> UWRefMut<T> {
+    UWRefMut::from_ptr(r)
 }
 
 unsafe impl<T> Sync for UnsafeWrappedRef<T> {}

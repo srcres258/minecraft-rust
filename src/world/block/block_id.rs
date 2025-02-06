@@ -45,6 +45,14 @@ impl TryFrom<i32> for BlockId {
     }
 }
 
+impl TryFrom<BlockNumType> for BlockId {
+    type Error = ();
+    
+    fn try_from(value: BlockNumType) -> Result<Self, Self::Error> {
+        Self::try_from(value as i32)
+    }
+}
+
 impl Default for BlockId {
     fn default() -> Self {
         Self::Air

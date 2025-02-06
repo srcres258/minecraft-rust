@@ -1,4 +1,4 @@
-#![feature(variant_count)]
+#![feature(variant_count, generic_const_exprs)]
 
 use std::fs;
 use std::fs::File;
@@ -22,6 +22,8 @@ pub mod player;
 pub mod item;
 pub mod util;
 pub mod maths;
+pub mod mesh;
+pub mod model;
 
 fn main() {
     env_logger::init();
