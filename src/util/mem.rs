@@ -4,19 +4,19 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 #[derive(Copy, Clone)]
-pub struct UnsafeWrappedRef<T> {
+pub struct UnsafeWrappedRef<T: ?Sized> {
     ptr: *const T
 }
 
 #[derive(Copy, Clone)]
-pub struct UnsafeWrappedRefMut<T> {
+pub struct UnsafeWrappedRefMut<T: ?Sized> {
     ptr: *mut T
 }
 
-pub type UWRef<T> = UnsafeWrappedRef<T>;
-pub type UWRefMut<T> = UnsafeWrappedRefMut<T>;
+pub type UWRef<T: ?Sized> = UnsafeWrappedRef<T>;
+pub type UWRefMut<T: ?Sized> = UnsafeWrappedRefMut<T>;
 
-impl<T> UnsafeWrappedRef<T> {
+impl<T: ?Sized> UnsafeWrappedRef<T> {
     pub fn from_ref(reference: &T) -> Self {
         Self {
             ptr: reference as *const T
@@ -55,7 +55,7 @@ impl<T> UnsafeWrappedRef<T> {
     }
 }
 
-impl<T> Deref for UnsafeWrappedRef<T> {
+impl<T: ?Sized> Deref for UnsafeWrappedRef<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -65,13 +65,13 @@ impl<T> Deref for UnsafeWrappedRef<T> {
     }
 }
 
-impl<T> From<UnsafeWrappedRefMut<T>> for UnsafeWrappedRef<T> {
+impl<T: ?Sized> From<UnsafeWrappedRefMut<T>> for UnsafeWrappedRef<T> {
     fn from(value: UnsafeWrappedRefMut<T>) -> Self {
         Self::from_uw_ref_mut(value)
     }
 }
 
-impl<T> UnsafeWrappedRefMut<T> {
+impl<T: ?Sized> UnsafeWrappedRefMut<T> {
     pub fn from_ref(reference: &mut T) -> Self {
         Self {
             ptr: reference as *mut T
@@ -120,7 +120,7 @@ impl<T> UnsafeWrappedRefMut<T> {
     }
 }
 
-impl<T> Deref for UnsafeWrappedRefMut<T> {
+impl<T: ?Sized> Deref for UnsafeWrappedRefMut<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -130,7 +130,7 @@ impl<T> Deref for UnsafeWrappedRefMut<T> {
     }
 }
 
-impl<T> DerefMut for UnsafeWrappedRefMut<T> {
+impl<T: ?Sized> DerefMut for UnsafeWrappedRefMut<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe {
             &mut *self.ptr
@@ -138,30 +138,30 @@ impl<T> DerefMut for UnsafeWrappedRefMut<T> {
     }
 }
 
-impl<T> From<UnsafeWrappedRef<T>> for UnsafeWrappedRefMut<T> {
+impl<T: ?Sized> From<UnsafeWrappedRef<T>> for UnsafeWrappedRefMut<T> {
     fn from(value: UnsafeWrappedRef<T>) -> Self {
         Self::from_uw_ref(value)
     }
 }
 
-pub fn uw_ref<T>(r: &T) -> UWRef<T> {
+pub fn uw_ref<T: ?Sized>(r: &T) -> UWRef<T> {
     UWRef::from_ref(r)
 }
-pub fn uw_ref_ptr<T>(r: *const T) -> UWRef<T> {
+pub fn uw_ref_ptr<T: ?Sized>(r: *const T) -> UWRef<T> {
     UWRef::from_ptr(r)
 }
 
-pub fn uw_ref_mut<T>(r: &mut T) -> UWRefMut<T> {
+pub fn uw_ref_mut<T: ?Sized>(r: &mut T) -> UWRefMut<T> {
     UWRefMut::from_ref(r)
 }
-pub fn uw_ref_mut_ptr<T>(r: *mut T) -> UWRefMut<T> {
+pub fn uw_ref_mut_ptr<T: ?Sized>(r: *mut T) -> UWRefMut<T> {
     UWRefMut::from_ptr(r)
 }
 
-unsafe impl<T> Sync for UnsafeWrappedRef<T> {}
-unsafe impl<T> Send for UnsafeWrappedRef<T> {}
-unsafe impl<T> Sync for UnsafeWrappedRefMut<T> {}
-unsafe impl<T> Send for UnsafeWrappedRefMut<T> {}
+unsafe impl<T: ?Sized> Sync for UnsafeWrappedRef<T> {}
+unsafe impl<T: ?Sized> Send for UnsafeWrappedRef<T> {}
+unsafe impl<T: ?Sized> Sync for UnsafeWrappedRefMut<T> {}
+unsafe impl<T: ?Sized> Send for UnsafeWrappedRefMut<T> {}
 
 pub struct UnsafeWrappedCell<T> {
     inner: UnsafeCell<T>

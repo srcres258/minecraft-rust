@@ -1,3 +1,77 @@
+use sfml::window::Window;
+use crate::camera::Camera;
+use crate::renderer::chunk_renderer::ChunkRenderer;
+use crate::renderer::flora_renderer::FloraRenderer;
+use crate::renderer::skybox_renderer::SkyboxRenderer;
+use crate::renderer::water_renderer::WaterRenderer;
+use crate::world::chunk::chunk_section::ChunkSection;
+
 pub struct RenderMaster {
-    //todo
+    // Chunks
+    chunk_renderer: ChunkRenderer,
+    water_renderer: WaterRenderer,
+    flora_renderer: FloraRenderer,
+
+    // Detail
+    skybox_renderer: SkyboxRenderer,
+
+    draw_box: bool
+}
+
+impl RenderMaster {
+    pub fn draw_chunk(&mut self, chunk: &ChunkSection) {
+        let solid_mesh = &chunk.meshes().solid_mesh;
+        let water_mesh = &chunk.meshes().water_mesh;
+        let flora_mesh = &chunk.meshes().flora_mesh;
+
+        if solid_mesh.faces > 0 {
+            self.chunk_renderer.add(solid_mesh);
+        }
+
+        if water_mesh.faces > 0 {
+            self.chunk_renderer.add(water_mesh);
+        }
+
+        if flora_mesh.faces > 0 {
+            self.chunk_renderer.add(flora_mesh);
+        }
+    }
+    pub fn draw_sky(&mut self) {
+        self.draw_box = true;
+    }
+
+    pub fn finish_render(&mut self, window: &mut Window, camera: &Camera) {
+        unsafe {
+            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
+            gl::Clear(gl::DEPTH_BUFFER_BIT | gl::COLOR_BUFFER_BIT);
+
+            gl::Enable(gl::DEPTH_TEST);
+            gl::Enable(gl::CULL_FACE);
+        }
+        self.chunk_renderer.render(camera);
+        self.water_renderer.render(camera);
+        self.flora_renderer.render(camera);
+
+        if self.draw_box {
+            unsafe {
+                gl::Disable(gl::CULL_FACE);
+                self.skybox_renderer.render(camera);
+                self.draw_box = false;
+            }
+        }
+
+        window.display();
+    }
+}
+
+impl Default for RenderMaster {
+    fn default() -> Self {
+        Self {
+            chunk_renderer: ChunkRenderer::default(),
+            water_renderer: WaterRenderer::default(),
+            flora_renderer: FloraRenderer::default(),
+            skybox_renderer: SkyboxRenderer::new().unwrap(),
+            draw_box: false
+        }
+    }
 }

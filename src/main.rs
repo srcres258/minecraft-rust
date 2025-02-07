@@ -25,6 +25,8 @@ pub mod maths;
 pub mod mesh;
 pub mod model;
 pub mod event;
+pub mod shaders;
+pub mod gl;
 
 fn main() {
     env_logger::init();

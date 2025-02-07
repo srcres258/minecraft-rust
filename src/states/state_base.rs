@@ -1,4 +1,5 @@
 use sfml::window::Event;
+use crate::renderer::render_master::RenderMaster;
 
 pub trait StateBase {
     fn handle_event(&mut self, e: Event);
@@ -6,7 +7,7 @@ pub trait StateBase {
 
     fn update(&mut self, delta_time: f32);
 
-    // todo: render
+    fn render(&mut self, renderer: &RenderMaster);
 
     fn on_open(&mut self);
 }

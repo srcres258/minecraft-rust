@@ -3,6 +3,7 @@ use crate::application::Application;
 use crate::config::Config;
 use crate::input::keyboard::Keyboard;
 use crate::player::player::Player;
+use crate::renderer::render_master::RenderMaster;
 use crate::states::state_base::StateBase;
 use crate::util::mem::{uw_ref, UWRef};
 use crate::world::world::World;
@@ -29,6 +30,10 @@ impl StateBase for StatePlay {
     }
 
     fn update(&mut self, delta_time: f32) {
+        todo!()
+    }
+
+    fn render(&mut self, renderer: &RenderMaster) {
         todo!()
     }
 

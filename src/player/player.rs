@@ -1,4 +1,4 @@
-use crate::entity::Entity;
+use crate::entity::{Entity, EntityImpl};
 use crate::input::keyboard::Keyboard;
 use crate::input::toggle_key::ToggleKey;
 use crate::item::item_stack::ItemStack;
@@ -11,6 +11,8 @@ use nalgebra_glm::Vec3;
 use sfml::system::Vector2i;
 use sfml::window::{mouse, Key, Window};
 use std::ops::{Deref, DerefMut};
+use delegate::delegate;
+use crate::physics::aabb::AABB;
 
 struct StaticStorage {
     use_mouse: bool,
@@ -21,7 +23,7 @@ struct StaticStorage {
 
 /// @brief Player character, including player movements and world interactions.
 pub struct Player {
-    base: Entity,
+    base: EntityImpl,
 
     is_on_ground: bool,
     is_flying: bool,
@@ -55,7 +57,7 @@ pub struct Player {
 // hence ignore it in Rust here. (Consider implementing it in Rust later.)
 
 impl Deref for Player {
-    type Target = Entity;
+    type Target = EntityImpl;
 
     fn deref(&self) -> &Self::Target {
         &self.base
@@ -73,7 +75,7 @@ const SPEED: f32 = 0.2;
 impl Player {
     pub fn new() -> Self {
         let mut result = Self {
-            base: Entity::new_ex_2(
+            base: EntityImpl::new_ex_2(
                 Vec3::new(2500.0, 125.0, 2500.0),
                 Vec3::new(0.0, 0.0, 0.0),
                 Vec3::new(0.3, 1.0, 0.3)
@@ -296,5 +298,20 @@ impl Player {
         window.set_mouse_position(Vector2i::new(cx, cy));
 
         self.static_storage.last_mouse_position = Some(mouse::desktop_position());
+    }
+}
+
+impl Entity for Player {
+    delegate! {
+        to self.base {
+            fn position(&self) -> Vec3;
+            fn position_mut(&mut self) -> &mut Vec3;
+            fn rotation(&self) -> Vec3;
+            fn rotation_mut(&mut self) -> &mut Vec3;
+            fn velocity(&self) -> Vec3;
+            fn velocity_mut(&mut self) -> &mut Vec3;
+            fn box_aabb(&self) -> AABB;
+            fn box_aabb_mut(&mut self) -> &mut AABB;
+        }
     }
 }

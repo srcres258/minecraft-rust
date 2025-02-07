@@ -103,7 +103,7 @@ impl Model {
         self.render_info.indices_count as _
     }
 
-    pub fn get_render_info(&self) -> RenderInfo {
+    pub fn render_info(&self) -> RenderInfo {
         self.render_info
     }
 }
