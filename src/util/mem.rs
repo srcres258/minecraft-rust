@@ -1,3 +1,4 @@
+use std::cell::UnsafeCell;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use std::sync::Arc;
@@ -158,4 +159,38 @@ pub fn uw_ref_mut_ptr<T>(r: *mut T) -> UWRefMut<T> {
 }
 
 unsafe impl<T> Sync for UnsafeWrappedRef<T> {}
+unsafe impl<T> Send for UnsafeWrappedRef<T> {}
 unsafe impl<T> Sync for UnsafeWrappedRefMut<T> {}
+unsafe impl<T> Send for UnsafeWrappedRefMut<T> {}
+
+pub struct UnsafeWrappedCell<T> {
+    inner: UnsafeCell<T>
+}
+
+pub type UWCell<T> = UnsafeWrappedCell<T>;
+
+impl<T> UnsafeWrappedCell<T> {
+    pub fn new(data: T) -> Self {
+        Self {
+            inner: UnsafeCell::new(data)
+        }
+    }
+    
+    pub fn get(&self) -> &T {
+        unsafe {
+            &*self.inner.get()
+        }
+    }
+    pub fn get_mut(&self) -> &mut T {
+        unsafe {
+            &mut *self.inner.get()
+        }
+    }
+}
+
+unsafe impl<T> Sync for UnsafeWrappedCell<T> {}
+unsafe impl<T> Send for UnsafeWrappedCell<T> {}
+
+pub fn uw_cell<T>(data: T) -> UnsafeWrappedCell<T> {
+    UnsafeWrappedCell::new(data)
+}

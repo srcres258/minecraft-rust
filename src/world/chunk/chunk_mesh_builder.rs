@@ -8,7 +8,7 @@ use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_mesh::{ChunkMesh, ChunkMeshCollection};
 use crate::world::chunk::chunk_section::ChunkSection;
-use crate::world::chunk::ichunk::IChunk;
+use crate::world::chunk::chunk::IChunk;
 use crate::world::constants::{CHUNK_SIZE, CHUNK_VOLUME};
 
 const FRONT_FACE: [GLfloat; 12] = [0., 0., 1., 1., 0., 1., 1., 1., 1., 0., 1., 1.];

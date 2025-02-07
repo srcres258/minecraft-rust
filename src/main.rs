@@ -24,6 +24,7 @@ pub mod util;
 pub mod maths;
 pub mod mesh;
 pub mod model;
+pub mod event;
 
 fn main() {
     env_logger::init();

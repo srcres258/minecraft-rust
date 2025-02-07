@@ -1,14 +1,20 @@
-use sfml::system::Vector2i;
+use std::ops::Deref;
 use crate::camera::Camera;
 use crate::renderer::render_master::RenderMaster;
 use crate::util::array_2d::Array2D;
 use crate::util::mem::{uw_ref, UWRef};
+use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_section::ChunkSection;
-use crate::world::chunk::ichunk::IChunk;
 use crate::world::constants::CHUNK_SIZE;
 use crate::world::generation::terrain_generator::TerrainGenerator;
 use crate::world::world::World;
+use sfml::system::{Vector2i, Vector3i};
+
+pub trait IChunk {
+    fn block(&self, x: i32, y: i32, z: i32) -> ChunkBlock;
+    fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock);
+}
 
 /// @brief A chunk, in other words, a large arrangement of blocks.
 pub struct Chunk {
@@ -18,18 +24,28 @@ pub struct Chunk {
 
     world: UWRef<World>,
 
-    is_loaded: bool
+    is_loaded: bool,
+    
+    error_section: Option<ChunkSection>
 }
 
 impl Chunk {
     pub fn new(world: &World, location: Vector2i) -> Self {
-        Self {
+        let mut result = Self {
             chunks: Vec::new(),
             highest_blocks: Array2D::new(),
             location,
             world: uw_ref(world),
-            is_loaded: false
-        }
+            is_loaded: false,
+            error_section: None
+        };
+        
+        result.highest_blocks.set_all(0);
+        result.error_section = Some(ChunkSection::new(
+            Vector3i::new(444, 444, 444), result.world.deref()
+        ));
+        
+        result
     }
 
     pub fn make_mesh(&mut self, camera: &Camera) -> bool {
@@ -38,39 +54,126 @@ impl Chunk {
     }
 
     pub fn height_at(&self, x: i32, z: i32) -> i32 {
-
+        if self.out_of_bound(x, 0, z) {
+            0
+        } else {
+            *self.highest_blocks.get(x as usize, z as usize)
+        }
     }
 
-    pub fn draw_chunks(&mut self, renderer: &RenderMaster, camera: &Camera) {}
+    pub fn draw_chunks(&mut self, renderer: &RenderMaster, camera: &Camera) {
+        //todo
+    }
 
-    pub fn has_loaded(&self) -> bool {}
-    pub fn load(&mut self, generator: &dyn TerrainGenerator) {}
+    pub fn has_loaded(&self) -> bool {
+        self.is_loaded
+    }
+    pub fn load(&mut self, generator: &mut dyn TerrainGenerator) {
+        if self.has_loaded() {
+            return;
+        }
+        
+        generator.generate_terrain_for(self);
+        self.is_loaded = true;
+    }
 
-    pub fn section(&self, index: i32) -> &ChunkSection {}
+    pub fn section(&self, index: i32) -> &ChunkSection {
+        if index >= self.chunks.len() as i32 || index < 0 {
+            self.error_section.as_ref().unwrap()
+        } else {
+            &self.chunks[index as usize]
+        }
+    }
+    pub fn section_mut(&mut self, index: i32) -> &mut ChunkSection {
+        if index >= self.chunks.len() as i32 || index < 0 {
+            self.error_section.as_mut().unwrap()
+        } else {
+            &mut self.chunks[index as usize]
+        }
+    }
 
-    pub fn location(&self) -> Vector2i {}
+    pub fn location(&self) -> Vector2i {
+        self.location
+    }
 
-    pub fn delete_meshes(&mut self) {}
+    pub fn delete_meshes(&mut self) {
+        //todo
+    }
 
-    fn add_section(&mut self) {}
-    fn add_section_block_target(&mut self, block_y: i32) {}
-    fn add_section_index_target(&mut self, index: i32) {}
+    fn add_section(&mut self) {
+        let y = self.chunks.len() as i32;
+        self.chunks.push(ChunkSection::new(
+            Vector3i::new(self.location.x, y, self.location.y),
+            self.world.deref()
+        ));
+    }
+    fn add_section_block_target(&mut self, block_y: i32) {
+        let index = block_y / CHUNK_SIZE as i32;
+        self.add_section_index_target(index);
+    }
+    fn add_section_index_target(&mut self, index: i32) {
+        while (self.chunks.len() as i32) < index + 1 {
+            self.add_section();
+        }
+    }
 
-    fn out_of_bound(&self, x: i32, y: i32, z: i32) -> bool {}
+    fn out_of_bound(&self, x: i32, y: i32, z: i32) -> bool {
+        if x >= CHUNK_SIZE as i32 {
+            return true;
+        }
+        if z >= CHUNK_SIZE as i32 {
+            return true;
+        }
+        
+        if x < 0 {
+            return true;
+        }
+        if y < 0 {
+            return true;
+        }
+        if z < 0 {
+            return true;
+        }
+        
+        if y >= (self.chunks.len() * CHUNK_SIZE) as i32 {
+            return true;
+        }
+        
+        false
+    }
 }
 
 impl IChunk for Chunk {
     fn block(&self, x: i32, y: i32, z: i32) -> ChunkBlock {
-        todo!()
+        if self.out_of_bound(x, y, z) {
+            return ChunkBlock::from_block_id(BlockId::Air);
+        }
+        
+        let by = y % CHUNK_SIZE as i32;
+        
+        self.chunks[y as usize / CHUNK_SIZE].block(x, by, z)
     }
 
-    fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock) {
+    fn set_block(&mut self, x: i32, mut y: i32, z: i32, block: ChunkBlock) {
         self.add_section_block_target(y);
         if self.out_of_bound(x, y, z) {
             return;
         }
 
-        let by = y as usize % CHUNK_SIZE;
-        self.chunks[y / CHUNK_SIZE]//todo
+        let by = y % CHUNK_SIZE as i32;
+        self.chunks[y as usize / CHUNK_SIZE].set_block(x, by, z, block);
+        
+        if y == *self.highest_blocks.get(x as usize, z as usize) {
+            let mut high_block = self.block(x, y, z);
+            y -= 1;
+            while !high_block.data().is_opaque {
+                high_block = self.block(x, y, z);
+                y -= 1;
+            }
+        } else if y > *self.highest_blocks.get(x as usize, z as usize) {
+            *self.highest_blocks.get_mut(x as usize, z as usize) = y;
+        }
+        
+        // The rest of code in C++ is commented, hence ignore its implementation.
     }
 }

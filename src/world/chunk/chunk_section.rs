@@ -6,7 +6,7 @@ use crate::util::mem::{uw_ref, uw_ref_mut, UWRef};
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
 use crate::world::chunk::chunk_mesh_builder::ChunkMeshBuilder;
-use crate::world::chunk::ichunk::IChunk;
+use crate::world::chunk::chunk::IChunk;
 use crate::world::constants::{CHUNK_AREA, CHUNK_SIZE, CHUNK_VOLUME};
 use crate::world::world::World;
 
