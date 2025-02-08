@@ -188,11 +188,37 @@ impl Player {
             while (y as f32) < self.position.y + self.box_aabb.dimensions.y {
                 let mut z = (self.position.z - self.box_aabb.dimensions.z) as i32;
                 while (z as f32) < self.position.z + self.box_aabb.dimensions.z {
-                    //todo
+                    let block = world.block(x, y, z);
+                    
+                    if block.id != 0 && block.data().is_collidable {
+                        if vel.y > 0. {
+                            self.position.y = y as f32 - self.box_aabb.dimensions.y;
+                            self.velocity.y = 0.;
+                        } else if vel.y < 0. {
+                            self.is_on_ground = true;
+                            self.position.y = y as f32 + self.box_aabb.dimensions.y + 1.;
+                            self.velocity.y = 0.;
+                        }
+                        
+                        if vel.x > 0. {
+                            self.position.x = x as f32 - self.box_aabb.dimensions.x;
+                        } else if vel.x < 0. {
+                            self.position.x = x as f32 + self.box_aabb.dimensions.x + 1.;
+                        }
+
+                        if vel.z > 0. {
+                            self.position.z = z as f32 - self.box_aabb.dimensions.z;
+                        } else if vel.z < 0. {
+                            self.position.z = z as f32 + self.box_aabb.dimensions.z + 1.;
+                        }
+                    } 
+                    
                     z += 1;
                 }
+                
                 y += 1;
             }
+            
             x += 1;
         }
     }
@@ -212,7 +238,11 @@ impl Player {
     }
 
     pub fn draw(&self, master: &RenderMaster) {
-        //todo
+        log::info!(
+            "X: {} Y: {} Z: {} Grounded: {}",
+            self.position.x, self.position.y, self.position.z,
+            self.is_on_ground
+        );
     }
 
     pub fn held_items(&self) -> &ItemStack {
