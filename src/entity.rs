@@ -1,5 +1,6 @@
 use nalgebra_glm::Vec3;
 use crate::physics::aabb::AABB;
+use crate::util::mem::{UWRef, UWRefMut};
 
 pub trait Entity {
     fn position(&self) -> Vec3;
@@ -80,5 +81,17 @@ impl Entity for EntityImpl {
     }
     fn box_aabb_mut(&mut self) -> &mut AABB {
         &mut self.box_aabb
+    }
+}
+
+impl Clone for UWRef<dyn Entity> {
+    fn clone(&self) -> Self {
+        UWRef::from_ptr(self.ptr())
+    }
+}
+
+impl Clone for UWRefMut<dyn Entity> {
+    fn clone(&self) -> Self {
+        UWRefMut::from_ptr(self.ptr())
     }
 }

@@ -12,7 +12,7 @@ impl CubeTexture {
     pub fn new(files: [&str; 6]) -> Result<Self> {
         let mut result = Self::default();
         result.load_from_files(files)?;
-        result
+        Ok(result)
     }
 
     /**

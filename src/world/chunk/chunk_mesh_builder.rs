@@ -89,7 +89,7 @@ impl ChunkMeshBuilder {
             }
 
             self.block_data = Some(uw_ref(block.data()));
-            let data = self.block_data.as_ref().unwrap().clone();
+            let data = self.block_data.as_ref().unwrap();
 
             if data.mesh_type == BlockMeshType::X {
                 self.add_x_block_to_mesh(data.tex_top_coord, position);

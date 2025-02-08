@@ -46,7 +46,7 @@ impl BasicTexture for TextureAtlas {
     delegate! {
         to self.base {
             fn load_from_image(&mut self, image: &Image);
-            fn load_from_file(&mut self, file: &str);
+            fn load_from_file(&mut self, file: &str) -> Result<()>;
 
             fn bind_texture(&self);
         }

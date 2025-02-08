@@ -37,7 +37,7 @@ impl ChunkRenderer {
 
         for mesh in self.chunks.iter() {
             bind_vao(mesh.vao);
-            draw_elements(mesh.indices_count);
+            draw_elements(mesh.indices_count as _);
         }
 
         self.chunks.clear();

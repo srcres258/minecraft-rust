@@ -2,7 +2,7 @@ use delegate::delegate;
 use crate::config::Config;
 use crate::entity::{Entity, EntityImpl};
 use crate::maths::frustum::ViewFrustum;
-use crate::util::mem::{uw_ref, UWRef};
+use crate::util::mem::{uw_ref, uw_ref_ptr, UWRef};
 use nalgebra_glm::{Mat4, Vec3};
 use crate::maths::matrix::{make_projection_matrix, make_view_matrix};
 use crate::physics::aabb::AABB;
@@ -47,8 +47,8 @@ impl Camera {
         self.projection_view_matrix = self.projection_view_matrix * self.view_matrix;
         self.frustum.update(self.projection_view_matrix);
     }
-    pub fn hook_entity(&mut self, entity: &dyn Entity) {
-        self.entity = Some(uw_ref(entity));
+    pub fn hook_entity(&mut self, entity: UWRef<dyn Entity>) {
+        self.entity = Some(entity);
     }
 
     pub fn view_matrix(&self) -> Mat4 {

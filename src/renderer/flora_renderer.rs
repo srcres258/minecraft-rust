@@ -31,11 +31,13 @@ impl FloraRenderer {
         self.shader.use_program();
 
         self.shader.load_projection_view_matrix(camera.proj_view_matrix());
-        self.shader.load_time(G_TIME_ELAPSED);
+        unsafe {
+            self.shader.load_time(G_TIME_ELAPSED);
+        }
 
         for mesh in self.chunks.iter() {
             bind_vao(mesh.vao);
-            draw_elements(mesh.indices_count);
+            draw_elements(mesh.indices_count as _);
         }
 
         self.chunks.clear();

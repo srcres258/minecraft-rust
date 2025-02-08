@@ -11,7 +11,7 @@ use sfml::system::Vector3i;
 use std::slice::Iter;
 
 #[derive(Copy, Clone, Default)]
-struct Layer {
+pub struct Layer {
     solid_block_count: i32
 }
 

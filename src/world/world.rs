@@ -13,7 +13,7 @@ use crate::world::chunk::chunk_section::ChunkSection;
 use nalgebra_glm::{IVec3, Vec3};
 use sfml::window::Key;
 use std::collections::HashMap;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use std::thread;
@@ -106,9 +106,9 @@ impl World {
             self.load_distance = 2;
         }
 
-        let self1 = uw_ref(self);
+        let mut self1 = uw_ref_mut(self);
         for event in self.events.iter_mut() {
-            event.handle(self1.deref());
+            event.handle(self1.deref_mut());
         }
         self.events.clear();
 
@@ -263,32 +263,32 @@ impl World {
         let mut block_z = 0;
 
         let h = self.chunk_manager.as_ref().unwrap().get().terrain_generator().minimum_spawn_height();
-        
+
         while block_y <= h {
             self.chunk_manager.as_ref().unwrap().get_mut().unload_chunk(chunk_x, chunk_z);
-            
+
             chunk_x = RandomSigleton::get().i32_in_range(100, 200);
             chunk_z = RandomSigleton::get().i32_in_range(100, 200);
             block_x = RandomSigleton::get().i32_in_range(0, 15);
             block_z = RandomSigleton::get().i32_in_range(0, 15);
-            
+
             self.chunk_manager.as_ref().unwrap().get_mut().load_chunk(chunk_x, chunk_z);
             block_y = self.chunk_manager.as_ref().unwrap().get_mut().chunk(chunk_x, chunk_z).height_at(block_x, block_z);
             attempts += 1;
         }
-        
+
         let world_x = chunk_x * CHUNK_SIZE as i32 + block_x;
         let world_z = chunk_z * CHUNK_SIZE as i32 + block_z;
-        
+
         self.player_spawn_point = Vec3::new(world_x as _, block_y as _, world_z as _);
-        
+
         for x in world_x - 1 ..= world_x + 1 {
             for z in world_z - 1 ..= world_z + 1 {
                 let lock = self.main_mutex.lock().unwrap();
                 self.chunk_manager.as_ref().unwrap().get_mut().load_chunk(x, z);
             }
         }
-        
+
         log::info!("Spawn found! Attempts: {}", attempts);
         log::info!("Time Taken: {} seconds", timer.elapsed_time().as_seconds());
     }

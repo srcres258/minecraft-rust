@@ -4,7 +4,7 @@ use crate::util::mem::{uw_ref_mut, UWRefMut};
 /// @brief Array template used in mathematical calculations.
 /// @tparam T
 /// @tparam WIDTH
-#[derive(Copy, Clone, Default, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Array2D<T : Copy + Default + Ord, const WIDTH: usize>
 where [(); WIDTH * WIDTH]: {
     array: [T; WIDTH * WIDTH]
@@ -54,5 +54,14 @@ where [(); WIDTH * WIDTH]: {
     
     pub fn set_all(&mut self, val: T) {
         self.array.fill(val);
+    }
+}
+
+impl<T : Copy + Default + Ord, const WIDTH: usize> Default for Array2D<T, WIDTH>
+where [(); WIDTH * WIDTH]: {
+    fn default() -> Self {
+        Self {
+            array: [T::default(); WIDTH * WIDTH]
+        }
     }
 }

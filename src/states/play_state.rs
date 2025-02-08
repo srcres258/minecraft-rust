@@ -70,7 +70,7 @@ impl StateBase for StatePlay {
                         self.world.add_event(Box::new(PlayerDigEvent::new(
                             mouse::Button::Left,
                             ray.end(),
-                            uw_ref(&self.player)
+                            uw_ref_mut(&mut self.player)
                         )));
                         break;
                     } else if mouse::Button::Right.is_pressed() {
@@ -79,7 +79,7 @@ impl StateBase for StatePlay {
                         self.world.add_event(Box::new(PlayerDigEvent::new(
                             mouse::Button::Right,
                             ray.end(),
-                            uw_ref(&self.player)
+                            uw_ref_mut(&mut self.player)
                         )));
                         break;
                     }
@@ -138,7 +138,7 @@ impl StatePlay {
             draw_key: ToggleKey::new(Key::F3)
         };
         
-        app.camera_mut().hook_entity(&result.player);
+        app.camera_mut().hook_entity(uw_ref(&result.player));
         
         result
     }

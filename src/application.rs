@@ -6,6 +6,7 @@ use crate::context::Context;
 use crate::renderer::render_master::RenderMaster;
 use crate::states::play_state::StatePlay;
 use crate::states::state_base::StateBase;
+use crate::util::mem::uw_ref_mut;
 use crate::world::block::block_database::BlockDatabase;
 
 pub static mut G_TIME_ELAPSED: f32 = 0.;
@@ -31,7 +32,7 @@ impl Application {
         };
 
         BlockDatabase::get();
-        result.push_state(Box::new(StatePlay::new(&result, config)));
+        uw_ref_mut(&mut result).push_state(Box::new(StatePlay::new(&mut result, config)));
 
         result
     }
@@ -68,7 +69,7 @@ impl Application {
             state.update(delta_time.as_seconds());
             self.camera.update();
 
-            state.render(&self.master_renderer);
+            state.render(&mut self.master_renderer);
             self.master_renderer.finish_render(&mut self.context.window, &self.camera);
 
             self.handle_events();

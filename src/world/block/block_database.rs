@@ -18,7 +18,7 @@ lazy_static! {
 impl BlockDatabase {
     fn new() -> Self {
         Self {
-            texture_atlas: TextureAtlas::new("DefaultPack"),
+            texture_atlas: TextureAtlas::new("DefaultPack").unwrap(),
             blocks: [
                 Box::new(DefaultBlock::new("Air")),
                 Box::new(DefaultBlock::new("Grass")),

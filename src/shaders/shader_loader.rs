@@ -41,7 +41,7 @@ fn link_program(vertex_shader_id: GLuint, fragment_shader_id: GLuint) -> GLuint 
 
 pub fn load_shaders(vertex_shader: &str, fragment_shader: &str) -> Result<GLuint> {
     let vertex_source = get_file_contents(&format!("Shaders/{}.vert", vertex_shader))?;
-    let fragment_source = get_file_contents(&format!("Shaders{}/.frag", fragment_shader))?;
+    let fragment_source = get_file_contents(&format!("Shaders/{}.frag", fragment_shader))?;
     
     let vertex_shader_id = compile_shader(
         CString::new(vertex_source.as_str())?.as_ptr(),
