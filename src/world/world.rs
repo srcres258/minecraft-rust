@@ -20,8 +20,12 @@ use std::thread;
 use std::thread::JoinHandle;
 use std::time::Duration;
 use sfml::system::Clock;
+use crate::entity::Entity;
+use crate::util::random::RandomSigleton;
+use crate::util::singleton::Singleton;
 use crate::world::constants::CHUNK_SIZE;
 
+/// @brief Massive class designed to hold multiple chunks, the player, and most game aspects.
 pub struct World {
     chunk_manager: Option<UWCell<ChunkManager>>,
 
@@ -59,7 +63,7 @@ impl World {
             key: ToggleKey::new(Key::C)
         };
 
-        result.chunk_manager = Some(uw_cell(ChunkManager::new(&result)));
+        result.chunk_manager = Some(uw_cell(ChunkManager::new(&mut result)));
 
         result.set_spawn_point();
         player.position = result.player_spawn_point;
@@ -158,9 +162,34 @@ impl World {
         }
     }
 
-    pub fn render_world(&mut self, renderer: &RenderMaster, camera: &Camera) {
+    pub fn render_world(&mut self, renderer: &mut RenderMaster, camera: &Camera) {
         let lock = self.main_mutex.lock().unwrap();
-        //todo
+        renderer.draw_sky();
+
+        let chunk_map = self.chunk_manager.as_ref().unwrap().get_mut().chunks_mut();
+        let mut keys_to_be_removed: Vec<VectorXZ> = Vec::new();
+        for (key, chunk) in chunk_map.iter_mut() {
+            let camera_x = camera.position().x as i32;
+            let camera_z = camera.position().z as i32;
+
+            let min_x = camera_x / CHUNK_SIZE as i32 - self.render_distance;
+            let min_z = camera_z / CHUNK_SIZE as i32 - self.render_distance;
+            let max_x = camera_x / CHUNK_SIZE as i32 + self.render_distance;
+            let max_z = camera_z / CHUNK_SIZE as i32 + self.render_distance;
+
+            let location = chunk.location();
+
+            if min_x > location.x || min_z > location.y ||
+                max_z < location.y || max_x < location.x {
+                keys_to_be_removed.push(*key);
+                continue;
+            } else {
+                chunk.draw_chunks(renderer, camera);
+            }
+        }
+        for key in keys_to_be_removed.iter() {
+            chunk_map.remove(key);
+        }
     }
 
     pub fn chunk_manager(&self) -> &ChunkManager {
@@ -186,7 +215,34 @@ impl World {
 
         while self.is_running.load(Ordering::Acquire) {
             let mut is_mesh_made = false;
-            //todo
+            let camera_x = camera.position().x as i32 / CHUNK_SIZE as i32;
+            let camera_z = camera.position().x as i32 / CHUNK_SIZE as i32;
+
+            'inner: for i in 0 .. self.load_distance {
+                thread::sleep(Duration::from_millis(1));
+                let min_x = (camera_x - i).max(0);
+                let min_z = (camera_z - i).max(0);
+                let max_x = camera_x + i;
+                let max_z = camera_z + i;
+
+                for x in min_x .. max_x {
+                    for z in min_z .. max_z {
+                        let lock = self.main_mutex.lock().unwrap();
+                        is_mesh_made = self.chunk_manager.as_ref().unwrap().get_mut().make_mesh(x, z, camera);
+                    }
+                }
+
+                if is_mesh_made {
+                    break 'inner;
+                }
+            }
+
+            if !is_mesh_made {
+                self.load_distance += 1;
+            }
+            if self.load_distance >= self.render_distance {
+                self.load_distance = 2;
+            }
         }
     }
     fn update_chunks(&mut self) {
@@ -205,7 +261,35 @@ impl World {
         let mut block_x = 0;
         let mut block_y = 0;
         let mut block_z = 0;
+
+        let h = self.chunk_manager.as_ref().unwrap().get().terrain_generator().minimum_spawn_height();
         
-        //todo
+        while block_y <= h {
+            self.chunk_manager.as_ref().unwrap().get_mut().unload_chunk(chunk_x, chunk_z);
+            
+            chunk_x = RandomSigleton::get().i32_in_range(100, 200);
+            chunk_z = RandomSigleton::get().i32_in_range(100, 200);
+            block_x = RandomSigleton::get().i32_in_range(0, 15);
+            block_z = RandomSigleton::get().i32_in_range(0, 15);
+            
+            self.chunk_manager.as_ref().unwrap().get_mut().load_chunk(chunk_x, chunk_z);
+            block_y = self.chunk_manager.as_ref().unwrap().get_mut().chunk(chunk_x, chunk_z).height_at(block_x, block_z);
+            attempts += 1;
+        }
+        
+        let world_x = chunk_x * CHUNK_SIZE as i32 + block_x;
+        let world_z = chunk_z * CHUNK_SIZE as i32 + block_z;
+        
+        self.player_spawn_point = Vec3::new(world_x as _, block_y as _, world_z as _);
+        
+        for x in world_x - 1 ..= world_x + 1 {
+            for z in world_z - 1 ..= world_z + 1 {
+                let lock = self.main_mutex.lock().unwrap();
+                self.chunk_manager.as_ref().unwrap().get_mut().load_chunk(x, z);
+            }
+        }
+        
+        log::info!("Spawn found! Attempts: {}", attempts);
+        log::info!("Time Taken: {} seconds", timer.elapsed_time().as_seconds());
     }
 }

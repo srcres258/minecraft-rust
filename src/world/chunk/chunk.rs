@@ -1,8 +1,7 @@
-use std::ops::Deref;
 use crate::camera::Camera;
 use crate::renderer::render_master::RenderMaster;
 use crate::util::array_2d::Array2D;
-use crate::util::mem::{uw_ref, UWRef};
+use crate::util::mem::{uw_ref_mut, UWRefMut};
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_section::ChunkSection;
@@ -10,6 +9,7 @@ use crate::world::constants::CHUNK_SIZE;
 use crate::world::generation::terrain_generator::TerrainGenerator;
 use crate::world::world::World;
 use sfml::system::{Vector2i, Vector3i};
+use std::ops::DerefMut;
 
 pub trait IChunk {
     fn block(&self, x: i32, y: i32, z: i32) -> ChunkBlock;
@@ -22,7 +22,7 @@ pub struct Chunk {
     highest_blocks: Array2D<i32, CHUNK_SIZE>,
     location: Vector2i,
 
-    world: UWRef<World>,
+    world: UWRefMut<World>,
 
     is_loaded: bool,
     
@@ -30,26 +30,31 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub fn new(world: &World, location: Vector2i) -> Self {
+    pub fn new(world: &mut World, location: Vector2i) -> Self {
         let mut result = Self {
             chunks: Vec::new(),
             highest_blocks: Array2D::new(),
             location,
-            world: uw_ref(world),
+            world: uw_ref_mut(world),
             is_loaded: false,
             error_section: None
         };
         
         result.highest_blocks.set_all(0);
         result.error_section = Some(ChunkSection::new(
-            Vector3i::new(444, 444, 444), result.world.deref()
+            Vector3i::new(444, 444, 444), result.world.deref_mut()
         ));
         
         result
     }
 
     pub fn make_mesh(&mut self, camera: &Camera) -> bool {
-        todo!();
+        for chunk in self.chunks.iter_mut() {
+            if !chunk.has_mesh() && camera.frustum().is_box_in_frustum(chunk.aabb()) {
+                chunk.make_mesh();
+                return true;
+            }
+        }
         false
     }
 
@@ -61,8 +66,18 @@ impl Chunk {
         }
     }
 
-    pub fn draw_chunks(&mut self, renderer: &RenderMaster, camera: &Camera) {
-        //todo
+    pub fn draw_chunks(&mut self, renderer: &mut RenderMaster, camera: &Camera) {
+        for chunk in self.chunks.iter_mut() {
+            if chunk.has_mesh() {
+                if !chunk.has_buffered() {
+                    chunk.buffer_mesh();
+                }
+
+                if camera.frustum().is_box_in_frustum(chunk.aabb()) {
+                    renderer.draw_chunk(chunk);
+                }
+            }
+        }
     }
 
     pub fn has_loaded(&self) -> bool {
@@ -97,14 +112,14 @@ impl Chunk {
     }
 
     pub fn delete_meshes(&mut self) {
-        //todo
+        self.chunks.iter_mut().for_each(|chunk| chunk.delete_meshes());
     }
 
     fn add_section(&mut self) {
         let y = self.chunks.len() as i32;
         self.chunks.push(ChunkSection::new(
             Vector3i::new(self.location.x, y, self.location.y),
-            self.world.deref()
+            self.world.deref_mut()
         ));
     }
     fn add_section_block_target(&mut self, block_y: i32) {

@@ -76,7 +76,7 @@ impl Model {
                 (data.len() * mem::size_of::<GLfloat>()) as _,
                 data.as_ptr() as _,
                 gl::STATIC_DRAW
-            )
+            );
 
             gl::VertexAttribPointer(
                 self.vbo_count as _,

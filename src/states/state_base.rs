@@ -7,7 +7,7 @@ pub trait StateBase {
 
     fn update(&mut self, delta_time: f32);
 
-    fn render(&mut self, renderer: &RenderMaster);
+    fn render(&mut self, renderer: &mut RenderMaster);
 
     fn on_open(&mut self);
 }

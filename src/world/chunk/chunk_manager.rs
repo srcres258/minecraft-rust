@@ -1,13 +1,13 @@
-use std::collections::HashMap;
-use std::ops::{Deref, DerefMut, Index};
-use sfml::system::Vector2i;
 use crate::camera::Camera;
 use crate::maths::vector2xz::VectorXZ;
-use crate::util::mem::{uw_ref, UWRef};
+use crate::util::mem::{uw_ref_mut, UWRefMut};
 use crate::world::chunk::chunk::Chunk;
 use crate::world::generation::terrain::classic_over_world_generator::ClassicOverWorldGenerator;
 use crate::world::generation::terrain_generator::TerrainGenerator;
 use crate::world::world::World;
+use sfml::system::Vector2i;
+use std::collections::HashMap;
+use std::ops::{Deref, DerefMut};
 
 pub type ChunkMap = HashMap<VectorXZ, Chunk>;
 
@@ -16,22 +16,22 @@ pub struct ChunkManager {
     chunks: ChunkMap,
     terrain_generator: Box<dyn TerrainGenerator>,
 
-    world: UWRef<World>
+    world: UWRefMut<World>
 }
 
 impl ChunkManager {
-    pub fn new(world: &World) -> Self {
+    pub fn new(world: &mut World) -> Self {
         Self {
             chunks: HashMap::new(),
             terrain_generator: Box::new(ClassicOverWorldGenerator::new()),
-            world: uw_ref(world)
+            world: uw_ref_mut(world)
         }
     }
 
     pub fn chunk(&mut self, x: i32, z: i32) -> &mut Chunk {
         let key = VectorXZ::new(x, z);
         if !self.chunk_exists_at(x, z) {
-            let chunk = Chunk::new(self.world.deref(), Vector2i::new(x, z));
+            let chunk = Chunk::new(self.world.deref_mut(), Vector2i::new(x, z));
             self.chunks.insert(key, chunk);
         }
         
@@ -51,22 +51,22 @@ impl ChunkManager {
             }
         }
         
-        todo!()
+        self.chunk(x, z).make_mesh(camera)
     }
 
     pub fn chunk_loaded_at(&self, x: i32, z: i32) -> bool {
         if self.chunk_exists_at(x, z) {
-            todo!()
+            self.chunks[&VectorXZ::new(x, z)].has_loaded()
         } else {
             false
         }
     }
     pub fn chunk_exists_at(&self, x: i32, z: i32) -> bool {
-        todo!()
+        self.chunks.contains_key(&VectorXZ::new(x, z))
     }
 
     pub fn load_chunk(&mut self, x: i32, z: i32) {
-        todo!()
+        uw_ref_mut(self).chunk(x, z).load(self.terrain_generator.deref_mut())
     }
     pub fn unload_chunk(&mut self, x: i32, z: i32) {
         // To implement in the future here: save chunks to file...
@@ -76,7 +76,7 @@ impl ChunkManager {
     }
 
     pub fn delete_meshes(&mut self) {
-        todo!()
+        self.chunks.iter_mut().for_each(|chunk| chunk.1.delete_meshes());
     }
 
     pub fn terrain_generator(&self) -> &dyn TerrainGenerator {
