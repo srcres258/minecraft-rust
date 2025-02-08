@@ -1,6 +1,6 @@
 use crate::camera::Camera;
 use crate::maths::vector2xz::VectorXZ;
-use crate::util::mem::{uw_ref_mut, UWRefMut};
+use crate::util::mem::{uw_ref_mut, UWBox, UWCell, UWRefMut};
 use crate::world::chunk::chunk::Chunk;
 use crate::world::generation::terrain::classic_over_world_generator::ClassicOverWorldGenerator;
 use crate::world::generation::terrain_generator::TerrainGenerator;
@@ -8,30 +8,31 @@ use crate::world::world::World;
 use sfml::system::Vector2i;
 use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
+use std::sync::{Arc, Mutex};
 
 pub type ChunkMap = HashMap<VectorXZ, Chunk>;
 
 /// @brief Dynamic chunk manager that affects chunk and block placement.
 pub struct ChunkManager {
     chunks: ChunkMap,
-    terrain_generator: Box<dyn TerrainGenerator>,
+    terrain_generator: Box<dyn TerrainGenerator + Send>,
 
-    world: UWRefMut<World>
+    world: Arc<World>
 }
 
 impl ChunkManager {
-    pub fn new(world: &mut World) -> Self {
-        Self {
+    pub fn new(world: Arc<World>) -> Arc<UWBox<Self>> {
+        Arc::new(UWBox::new(Self {
             chunks: HashMap::new(),
             terrain_generator: Box::new(ClassicOverWorldGenerator::new()),
-            world: uw_ref_mut(world)
-        }
+            world
+        }))
     }
 
     pub fn chunk(&mut self, x: i32, z: i32) -> &mut Chunk {
         let key = VectorXZ::new(x, z);
         if !self.chunk_exists_at(x, z) {
-            let chunk = Chunk::new(self.world.deref_mut(), Vector2i::new(x, z));
+            let chunk = Chunk::new(Arc::clone(&self.world), Vector2i::new(x, z));
             self.chunks.insert(key, chunk);
         }
         
@@ -44,14 +45,14 @@ impl ChunkManager {
         &mut self.chunks
     }
 
-    pub fn make_mesh(&mut self, x: i32, z: i32, camera: &Camera) -> bool {
+    pub fn make_mesh(&mut self, x: i32, z: i32, camera: Arc<Mutex<Camera>>) -> bool {
         for nx in -1 ..= 1 {
             for nz in -1 ..= 1 {
                 self.load_chunk(x + nx, z + nz);
             }
         }
         
-        self.chunk(x, z).make_mesh(camera)
+        self.chunk(x, z).make_mesh(&camera.lock().unwrap())
     }
 
     pub fn chunk_loaded_at(&self, x: i32, z: i32) -> bool {

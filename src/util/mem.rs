@@ -194,3 +194,45 @@ unsafe impl<T> Send for UnsafeWrappedCell<T> {}
 pub fn uw_cell<T>(data: T) -> UnsafeWrappedCell<T> {
     UnsafeWrappedCell::new(data)
 }
+
+pub struct UnsafeWrappedBox<T> {
+    inner: *mut T
+}
+
+pub type UWBox<T> = UnsafeWrappedBox<T>;
+
+impl<T> UnsafeWrappedBox<T> {
+    pub fn new(data: T) -> Self {
+        let b = Box::new(data);
+        Self {
+            inner: Box::into_raw(b)
+        }
+    }
+    
+    pub fn get(&self) -> &T {
+        unsafe {
+            &*self.inner
+        }
+    }
+    pub fn get_mut(&self) -> &mut T {
+        unsafe {
+            &mut *self.inner
+        }
+    }
+}
+
+impl<T> Drop for UnsafeWrappedBox<T> {
+    fn drop(&mut self) {
+        unsafe {
+            let b = Box::from_raw(self.inner);
+            drop(b);
+        }
+    }
+}
+
+pub fn uw_box<T>(data: T) -> UnsafeWrappedBox<T> {
+    UnsafeWrappedBox::new(data)
+}
+
+unsafe impl<T> Sync for UnsafeWrappedBox<T> {}
+unsafe impl<T> Send for UnsafeWrappedBox<T> {}

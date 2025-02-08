@@ -228,9 +228,10 @@ impl ChunkMeshBuilder {
     }
 
     fn should_make_layer(&mut self, y: i32) -> bool {
-        let adj_is_solid = |dx: i32, dz: i32| {
+        let adj_is_solid = |dx, dz| {
             let sect = self.chunk.as_ref().unwrap().adjacent(dx, dz);
-            sect.layer(y).all_solid()
+            let result = sect.get_mut().layer(y).all_solid();
+            result
         };
         
         !self.chunk.as_ref().unwrap().layer(y).all_solid() || 

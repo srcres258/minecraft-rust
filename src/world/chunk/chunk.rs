@@ -1,7 +1,6 @@
 use crate::camera::Camera;
 use crate::renderer::render_master::RenderMaster;
 use crate::util::array_2d::Array2D;
-use crate::util::mem::{uw_ref_mut, UWRefMut};
 use crate::world::block::block_id::BlockId;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk_section::ChunkSection;
@@ -9,7 +8,8 @@ use crate::world::constants::CHUNK_SIZE;
 use crate::world::generation::terrain_generator::TerrainGenerator;
 use crate::world::world::World;
 use sfml::system::{Vector2i, Vector3i};
-use std::ops::DerefMut;
+use std::sync::{Arc, Mutex};
+use crate::util::mem::UWBox;
 
 pub trait IChunk {
     fn block(&self, x: i32, y: i32, z: i32) -> ChunkBlock;
@@ -18,31 +18,31 @@ pub trait IChunk {
 
 /// @brief A chunk, in other words, a large arrangement of blocks.
 pub struct Chunk {
-    chunks: Vec<ChunkSection>,
+    chunks: Vec<Arc<UWBox<ChunkSection>>>,
     highest_blocks: Array2D<i32, CHUNK_SIZE>,
     location: Vector2i,
 
-    world: UWRefMut<World>,
+    world: Arc<World>,
 
     is_loaded: bool,
     
-    error_section: Option<ChunkSection>
+    error_section: Option<Arc<UWBox<ChunkSection>>>
 }
 
 impl Chunk {
-    pub fn new(world: &mut World, location: Vector2i) -> Self {
+    pub fn new(world: Arc<World>, location: Vector2i) -> Self {
         let mut result = Self {
             chunks: Vec::new(),
             highest_blocks: Array2D::new(),
             location,
-            world: uw_ref_mut(world),
+            world: Arc::clone(&world),
             is_loaded: false,
             error_section: None
         };
         
         result.highest_blocks.set_all(0);
         result.error_section = Some(ChunkSection::new(
-            Vector3i::new(444, 444, 444), result.world.deref_mut()
+            Vector3i::new(444, 444, 444), world
         ));
         
         result
@@ -50,8 +50,9 @@ impl Chunk {
 
     pub fn make_mesh(&mut self, camera: &Camera) -> bool {
         for chunk in self.chunks.iter_mut() {
-            if !chunk.has_mesh() && camera.frustum().is_box_in_frustum(chunk.aabb()) {
-                chunk.make_mesh();
+            let mut chunk_obj = chunk.get_mut();
+            if !chunk_obj.has_mesh() && camera.frustum().is_box_in_frustum(chunk_obj.aabb()) {
+                chunk_obj.make_mesh();
                 return true;
             }
         }
@@ -68,13 +69,14 @@ impl Chunk {
 
     pub fn draw_chunks(&mut self, renderer: &mut RenderMaster, camera: &Camera) {
         for chunk in self.chunks.iter_mut() {
-            if chunk.has_mesh() {
-                if !chunk.has_buffered() {
-                    chunk.buffer_mesh();
+            let mut chunk_obj = chunk.get_mut();
+            if chunk_obj.has_mesh() {
+                if !chunk_obj.has_buffered() {
+                    chunk_obj.buffer_mesh();
                 }
 
-                if camera.frustum().is_box_in_frustum(chunk.aabb()) {
-                    renderer.draw_chunk(chunk);
+                if camera.frustum().is_box_in_frustum(chunk_obj.aabb()) {
+                    renderer.draw_chunk(&chunk_obj);
                 }
             }
         }
@@ -92,18 +94,11 @@ impl Chunk {
         self.is_loaded = true;
     }
 
-    pub fn section(&self, index: i32) -> &ChunkSection {
+    pub fn section(&self, index: i32) -> Arc<UWBox<ChunkSection>> {
         if index >= self.chunks.len() as i32 || index < 0 {
-            self.error_section.as_ref().unwrap()
+            Arc::clone(self.error_section.as_ref().unwrap())
         } else {
-            &self.chunks[index as usize]
-        }
-    }
-    pub fn section_mut(&mut self, index: i32) -> &mut ChunkSection {
-        if index >= self.chunks.len() as i32 || index < 0 {
-            self.error_section.as_mut().unwrap()
-        } else {
-            &mut self.chunks[index as usize]
+            Arc::clone(&self.chunks[index as usize])
         }
     }
 
@@ -112,14 +107,14 @@ impl Chunk {
     }
 
     pub fn delete_meshes(&mut self) {
-        self.chunks.iter_mut().for_each(|chunk| chunk.delete_meshes());
+        self.chunks.iter_mut().for_each(|chunk| chunk.get_mut().delete_meshes());
     }
 
     fn add_section(&mut self) {
         let y = self.chunks.len() as i32;
         self.chunks.push(ChunkSection::new(
             Vector3i::new(self.location.x, y, self.location.y),
-            self.world.deref_mut()
+            Arc::clone(&self.world)
         ));
     }
     fn add_section_block_target(&mut self, block_y: i32) {
@@ -166,7 +161,7 @@ impl IChunk for Chunk {
         
         let by = y % CHUNK_SIZE as i32;
         
-        self.chunks[y as usize / CHUNK_SIZE].block(x, by, z)
+        self.chunks[y as usize / CHUNK_SIZE].get().block(x, by, z)
     }
 
     fn set_block(&mut self, x: i32, mut y: i32, z: i32, block: ChunkBlock) {
@@ -176,7 +171,7 @@ impl IChunk for Chunk {
         }
 
         let by = y % CHUNK_SIZE as i32;
-        self.chunks[y as usize / CHUNK_SIZE].set_block(x, by, z, block);
+        self.chunks[y as usize / CHUNK_SIZE].get_mut().set_block(x, by, z, block);
         
         if y == *self.highest_blocks.get(x as usize, z as usize) {
             let mut high_block = self.block(x, y, z);

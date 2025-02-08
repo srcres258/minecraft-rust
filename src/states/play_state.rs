@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex, RwLock};
 use crate::application::Application;
 use crate::config::Config;
 use crate::event::player_dig_event::PlayerDigEvent;
@@ -17,11 +18,11 @@ use sfml::SfBox;
 
 /// @brief Active game playing state, not associated with game menus.
 pub struct StatePlay {
-    application: UWRefMut<Application>,
+    application: Arc<Application>,
     
     keyboard: Keyboard,
     player: Player,
-    world: World,
+    world: Arc<World>,
     
     // Since FPSCounter has not been fully implemented in the C++ code,
     // ignore its implementation at present. (Consider implementing this later.)
@@ -38,7 +39,11 @@ impl StateBase for StatePlay {
     }
 
     fn handle_input(&mut self) {
-        self.player.handle_input(self.application.window_mut(), &self.keyboard);
+        let context_ref = self.application.context();
+        let mut context = context_ref.lock().unwrap();
+        self.player.handle_input(&mut context.window, &self.keyboard);
+        drop(context);
+        drop(context_ref);
 
         if let None = self.timer {
             self.timer = Some(Clock::start());
@@ -100,7 +105,7 @@ impl StateBase for StatePlay {
         }
 
         self.player.update(delta_time, &self.world);
-        self.world.update(self.application.camera());
+        self.world.update();
     }
 
     fn render(&mut self, renderer: &mut RenderMaster) {
@@ -125,10 +130,10 @@ impl StateBase for StatePlay {
 }
 
 impl StatePlay {
-    pub fn new(app: &mut Application, config: Config) -> Self {
+    pub fn new(app: Arc<Application>, config: Config) -> Self {
         let mut player = Player::new();
-        let result = Self {
-            application: uw_ref_mut(app),
+        let mut result = Self {
+            application: Arc::clone(&app),
             world: World::new(app.camera(), config, &mut player),
             keyboard: Keyboard::new(),
             player,
@@ -138,7 +143,7 @@ impl StatePlay {
             draw_key: ToggleKey::new(Key::F3)
         };
         
-        app.camera_mut().hook_entity(uw_ref(&result.player));
+        app.camera().lock().unwrap().hook_entity(uw_ref(&result.player));
         
         result
     }

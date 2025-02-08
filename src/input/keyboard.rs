@@ -19,10 +19,14 @@ impl Keyboard {
         self.recently_released = Key::Unknown;
         match e {
             Event::KeyReleased { code, .. } => {
-                self.keys[code as usize] = false
+                if code != Key::Unknown {
+                    self.keys[code as usize] = false;
+                }
             }
             Event::KeyPressed { code, .. } => {
-                self.keys[code as usize] = true
+                if code != Key::Unknown {
+                    self.keys[code as usize] = true;
+                }
             }
             _ => {}
         }

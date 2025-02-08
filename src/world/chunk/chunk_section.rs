@@ -1,5 +1,5 @@
 use crate::physics::aabb::AABB;
-use crate::util::mem::{uw_ref_mut, UWRefMut};
+use crate::util::mem::{uw_ref_mut, UWBox, UWRefMut};
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
@@ -9,6 +9,7 @@ use crate::world::world::World;
 use nalgebra_glm::Vec3;
 use sfml::system::Vector3i;
 use std::slice::Iter;
+use std::sync::{Arc, Mutex};
 
 #[derive(Copy, Clone, Default)]
 pub struct Layer {
@@ -37,21 +38,21 @@ pub struct ChunkSection {
     aabb: AABB,
     location: Vector3i,
 
-    world: UWRefMut<World>,
+    world: Arc<World>,
 
     has_mesh: bool,
     has_buffered_mesh: bool
 }
 
 impl ChunkSection {
-    pub fn new(location: Vector3i, world: &mut World) -> Self {
+    pub fn new(location: Vector3i, world: Arc<World>) -> Arc<UWBox<Self>> {
         let mut result = Self {
             blocks: [ChunkBlock::default(); CHUNK_VOLUME],
             layers: [Layer::default(); CHUNK_SIZE],
             meshes: ChunkMeshCollection::default(),
             aabb: AABB::default(),
             location,
-            world: uw_ref_mut(world),
+            world,
             has_mesh: false,
             has_buffered_mesh: false
         };
@@ -60,7 +61,7 @@ impl ChunkSection {
             location.y as f32 * CHUNK_SIZE as f32,
             location.z as f32 * CHUNK_SIZE as f32
         ));
-        result
+        Arc::new(UWBox::new(result))
     }
 
     pub fn location(&self) -> Vector3i {
@@ -87,49 +88,36 @@ impl ChunkSection {
         self.has_buffered_mesh = true;
     }
 
-    pub fn layer(&self, y: i32) -> &Layer {
+    pub fn layer(&self, y: i32) -> Layer {
         const CS: i32 = CHUNK_SIZE as _;
+        let chunk_manager = self.world.chunk_manager();
         match y {
-            -1 => self.world.chunk_manager_mut()
-                .chunk(self.location.x, self.location.z)
-                .section(self.location.y - 1)
-                .layer(CS - 1),
-            CS => self.world.chunk_manager_mut()
-                .chunk(self.location.x, self.location.z)
-                .section(self.location.y + 1)
-                .layer(0),
-            _ => &self.layers[y as usize]
+            -1 => {
+                let adj = chunk_manager.get_mut()
+                    .chunk(self.location.x, self.location.z)
+                    .section(self.location.y - 1);
+                let result = adj.get_mut().layer(CS - 1);
+                drop(adj);
+                result
+            },
+            CS => {
+                let adj = chunk_manager.get_mut()
+                    .chunk(self.location.x, self.location.z)
+                    .section(self.location.y + 1);
+                let result = adj.get_mut().layer(0);
+                drop(adj);
+                result
+            },
+            _ => self.layers[y as usize]
         }
     }
-    pub fn layer_mut(&mut self, y: i32) -> &mut Layer {
-        const CS: i32 = CHUNK_SIZE as _;
-        match y {
-            -1 => self.world.chunk_manager_mut()
-                .chunk(self.location.x, self.location.z)
-                .section_mut(self.location.y - 1)
-                .layer_mut(CS - 1),
-            CS => self.world.chunk_manager_mut()
-                .chunk(self.location.x, self.location.z)
-                .section_mut(self.location.y + 1)
-                .layer_mut(0),
-            _ => &mut self.layers[y as usize]
-        }
-    }
-    pub fn adjacent(&self, dx: i32, dz: i32) -> &ChunkSection {
+    pub fn adjacent(&self, dx: i32, dz: i32) -> Arc<UWBox<ChunkSection>> {
         let new_x = self.location.x + dx;
         let new_z = self.location.z + dz;
         
-        self.world.chunk_manager_mut()
+        self.world.chunk_manager().get_mut()
             .chunk(new_x, new_z)
             .section(self.location.y)
-    }
-    pub fn adjacent_mut(&self, dx: i32, dz: i32) -> &mut ChunkSection {
-        let new_x = self.location.x + dx;
-        let new_z = self.location.z + dz;
-        
-        self.world.chunk_manager_mut()
-            .chunk(new_x, new_z)
-            .section_mut(self.location.y)
     }
 
     pub fn meshes(&self) -> &ChunkMeshCollection {

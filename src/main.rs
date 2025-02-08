@@ -1,4 +1,4 @@
-#![feature(variant_count, generic_const_exprs)]
+#![feature(variant_count, generic_const_exprs, reentrant_lock)]
 
 use std::fs;
 use std::fs::File;
@@ -37,7 +37,7 @@ fn main() {
 
     log::info!("Loading game...");
 
-    let mut app = Application::new(config);
+    let app = Application::new(config);
     app.run_loop();
 }
 

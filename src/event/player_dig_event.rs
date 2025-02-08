@@ -19,7 +19,7 @@ impl PlayerDigEvent {
         Self { button_press, dig_spot, player }
     }
 
-    fn dig(&mut self, world: &mut World) {
+    fn dig(&mut self, world: &World) {
         let x = self.dig_spot.x as i32;
         let y = self.dig_spot.y as i32;
         let z = self.dig_spot.z as i32;
@@ -47,10 +47,10 @@ impl PlayerDigEvent {
 }
 
 impl IWorldEvent for PlayerDigEvent {
-    fn handle(&mut self, world: &mut World) {
+    fn handle(&mut self, world: &World) {
         let chunk_location = World::chunk_xz(self.dig_spot.x as _, self.dig_spot.z as _);
         
-        if world.chunk_manager().chunk_loaded_at(chunk_location.x, chunk_location.z) {
+        if world.chunk_manager().get().chunk_loaded_at(chunk_location.x, chunk_location.z) {
             self.dig(world);
         }
     }
