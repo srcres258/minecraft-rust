@@ -1,1 +1,2 @@
 pub mod classic_over_world_generator;
+mod super_flat_generator;

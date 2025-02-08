@@ -4,6 +4,7 @@ use crate::util::mem::{uw_ref_mut, UWRefMut};
 /// @brief Array template used in mathematical calculations.
 /// @tparam T
 /// @tparam WIDTH
+#[derive(Copy, Clone, Default, Debug)]
 pub struct Array2D<T : Copy + Default + Ord, const WIDTH: usize>
 where [(); WIDTH * WIDTH]: {
     array: [T; WIDTH * WIDTH]
@@ -12,9 +13,7 @@ where [(); WIDTH * WIDTH]: {
 impl<T : Copy + Default + Ord, const WIDTH: usize> Array2D<T, WIDTH>
 where [(); WIDTH * WIDTH]: {
     pub fn new() -> Self {
-        Self {
-            array: [T::default(); WIDTH * WIDTH]
-        }
+        Self::default()
     }
 
     pub fn get(&self, x: usize, z: usize) -> &T {
