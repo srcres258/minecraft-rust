@@ -108,9 +108,8 @@ fn main() {
     log::info!("Loading game...");
 
     let app = Application::new(config);
-    unsafe {
-        (*app.get()).run_loop();
-    }
+    // SAFETY: Application is fully initialized before run_loop() is called. The Rc<UnsafeCell<Application>> pattern ensures exclusive mutable access during the game loop. No other code holds a mutable reference while run_loop() executes.
+    unsafe { &mut *app.get() }.run_loop();
 }
 
 #[cfg(test)]

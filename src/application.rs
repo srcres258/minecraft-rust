@@ -17,6 +17,7 @@
 use std::cell::UnsafeCell;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 use sfml::system::{Clock, Time};
 use sfml::window::{Event, Key, Window};
 use crate::camera::Camera;
@@ -28,7 +29,28 @@ use crate::states::state_base::StateBase;
 use crate::util::unsafe_cell_wrapper::UnsafeCellWrapper;
 use crate::world::block::block_database::BlockDatabase;
 
-pub static mut TIME_ELAPSED: f32 = 0.0;
+static TIME_ELAPSED_BITS: AtomicU32 = AtomicU32::new(0.0f32.to_bits());
+
+pub fn time_elapsed() -> f32 {
+    f32::from_bits(TIME_ELAPSED_BITS.load(Ordering::Relaxed))
+}
+
+fn add_time_elapsed(delta: f32) {
+    let mut current = TIME_ELAPSED_BITS.load(Ordering::Relaxed);
+
+    loop {
+        let next = (f32::from_bits(current) + delta).to_bits();
+        match TIME_ELAPSED_BITS.compare_exchange_weak(
+            current,
+            next,
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        ) {
+            Ok(_) => break,
+            Err(actual) => current = actual,
+        }
+    }
+}
 
 /// The main game application itself.
 pub struct Application {
@@ -54,6 +76,7 @@ impl Application {
         let result = Rc::new(UnsafeCell::new(result));
 
         BlockDatabase::get();
+        // SAFETY: Application is being initialized on a single thread. No other references exist yet.
         unsafe {
             (*result.get()).push_state(StatePlay::new_boxed(Rc::clone(&result), config));
         }
@@ -75,11 +98,13 @@ impl Application {
 
             state.handle_input();
             state.update(delta_time.as_seconds());
+            // SAFETY: Camera is accessed from the main thread only. The Arc<UnsafeCellWrapper<Camera>> pattern is safe because camera is only mutated during the main game loop where no concurrent access occurs.
             unsafe {
                 (*self.camera.get()).update();
             }
 
             state.render(&mut self.master_renderer);
+            // SAFETY: Camera is read from the main thread only. Mutable access (update) has already completed above.
             unsafe {
                 self.master_renderer.finish_render(&mut self.context.window, &*self.camera.get());
             }
@@ -92,9 +117,7 @@ impl Application {
 
             m = dt.restart();
 
-            unsafe {
-                TIME_ELAPSED += m.as_seconds();
-            }
+            add_time_elapsed(m.as_seconds());
         }
     }
 

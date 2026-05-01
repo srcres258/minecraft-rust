@@ -16,11 +16,12 @@
 
 use nalgebra_glm as glm;
 
-use std::cell::UnsafeCell;
-use std::ptr;
+use std::cell::{RefCell, UnsafeCell};
 use std::rc::Rc;
-use std::sync::Arc;
-use sfml::SfBox;
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use sfml::system::Clock;
 use sfml::window::{Event, Key};
 use sfml::window::mouse::Button;
@@ -49,11 +50,13 @@ pub struct StatePlay {
     fps_counter: FPSCounter
 }
 
-static mut TIMER_PTR: *mut SfBox<Clock> = ptr::null_mut();
+static DRAW_GUI: AtomicBool = AtomicBool::new(false);
 
-static mut DT_PTR: *mut SfBox<Clock> = ptr::null_mut();
-static mut DRAW_GUI: bool = false;
-static mut DRAW_KEY_PTR: *mut ToggleKey = ptr::null_mut();
+thread_local! {
+    static TIMER: RefCell<Option<sfml::SfBox<Clock>>> = RefCell::new(None);
+    static DT: RefCell<Option<sfml::SfBox<Clock>>> = RefCell::new(None);
+    static DRAW_KEY: RefCell<ToggleKey> = RefCell::new(ToggleKey::new(Key::F3));
+}
 
 impl StatePlay {
     pub fn new_boxed(application: Rc<UnsafeCell<Application>>, config: Config) -> Box<Self> {
@@ -89,12 +92,6 @@ impl StateBase for StatePlay {
             self.player.handle_input((*self.application.get()).window_mut(), &self.keyboard);
         }
 
-        unsafe {
-            if TIMER_PTR == ptr::null_mut() {
-                let timer = Box::new(Clock::start());
-                TIMER_PTR = Box::leak(timer);
-            }
-        }
         let mut last_position: glm::TVec3<f32> = Default::default();
 
         // Ray is cast as player's 'vision'
@@ -117,11 +114,17 @@ impl StateBase for StatePlay {
             let id = BlockId::try_from(block.id.0 as i32).unwrap();
 
             if id != BlockId::Air && id != BlockId::Water {
-                unsafe {
-                    if (*TIMER_PTR).elapsed_time().as_seconds() > 0.2 {
-                        if Button::Left.is_pressed() {
-                            (*TIMER_PTR).restart();
-                            // The player "digs" the block up
+                let should_stop = TIMER.with(|timer| {
+                    let mut timer = timer.borrow_mut();
+                    let timer = timer.get_or_insert_with(Clock::start);
+
+                    if timer.elapsed_time().as_seconds() <= 0.2 {
+                        return false;
+                    }
+
+                    if Button::Left.is_pressed() {
+                        timer.restart();
+                        unsafe {
                             (*self.world.as_ref().unwrap().get()).add_event(Box::new(
                                 PlayerDigEvent::new(
                                     Button::Left,
@@ -129,10 +132,11 @@ impl StateBase for StatePlay {
                                     &mut self.player
                                 )
                             ));
-                            break;
-                        } else if Button::Right.is_pressed() {
-                            (*TIMER_PTR).restart();
-                            // The player "digs" the block up
+                        }
+                        true
+                    } else if Button::Right.is_pressed() {
+                        timer.restart();
+                        unsafe {
                             (*self.world.as_ref().unwrap().get()).add_event(Box::new(
                                 PlayerDigEvent::new(
                                     Button::Right,
@@ -140,9 +144,15 @@ impl StateBase for StatePlay {
                                     &mut self.player
                                 )
                             ));
-                            break;
                         }
+                        true
+                    } else {
+                        false
                     }
+                });
+
+                if should_stop {
+                    break;
                 }
             }
             last_position = ray.end();
@@ -179,25 +189,20 @@ impl StateBase for StatePlay {
     }
 
     fn render(&mut self, renderer: &mut RenderMaster) {
+        DT.with(|dt| {
+            dt.borrow_mut().get_or_insert_with(Clock::start);
+        });
+
+        if DRAW_KEY.with(|draw_key| draw_key.borrow_mut().is_key_pressed()) {
+            DRAW_GUI.fetch_xor(true, Ordering::Relaxed);
+        }
+
+        if DRAW_GUI.load(Ordering::Relaxed) {
+            self.fps_counter.draw(renderer);
+            self.player.draw(renderer);
+        }
+
         unsafe {
-            if DT_PTR == ptr::null_mut() {
-                let dt = Box::new(Clock::start());
-                DT_PTR = Box::leak(dt);
-            }
-            if DRAW_KEY_PTR == ptr::null_mut() {
-                let draw_key = Box::new(ToggleKey::new(Key::F3));
-                DRAW_KEY_PTR = Box::leak(draw_key);
-            }
-
-            if (*DRAW_KEY_PTR).is_key_pressed() {
-                DRAW_GUI = !DRAW_GUI;
-            }
-
-            if DRAW_GUI {
-                self.fps_counter.draw(renderer);
-                self.player.draw(renderer);
-            }
-
             let arc = Arc::clone(&(*self.application.get()).camera());
             let camera = &*arc.get();
             (*self.world.as_ref().unwrap().get()).render_world(renderer, &camera);

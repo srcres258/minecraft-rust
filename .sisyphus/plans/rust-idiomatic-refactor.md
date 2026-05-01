@@ -1574,7 +1574,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
   **Commit**: YES — `refactor(world): replace raw pointer updates with safe structures`
   - Files: `src/world/world.rs`
 
-- [ ] 4.11. Refactor `states/play_state.rs` — eliminate static mut
+- [x] 4.11. Refactor `states/play_state.rs` — eliminate static mut
 
   **What to do**:
   - Replace `static mut TIME_ELAPSED` → `OnceLock<AtomicF32>` or thread-local
@@ -1598,7 +1598,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
   **Commit**: YES (multiple commits) — `refactor(play_state): eliminate static mut globals`
   - Files: `src/states/play_state.rs`
 
-- [ ] 4.12. Refactor `application.rs` — separate Rc<UnsafeCell> init
+- [x] 4.12. Refactor `application.rs` — separate Rc<UnsafeCell> init
 
   **What to do**:
   - In `Application::new()`, separate initialization logic from `Rc<UnsafeCell>` wrapping
@@ -1619,7 +1619,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
   **Commit**: YES — `refactor(application): separate initialization from UnsafeCell wrapping`
   - Files: `src/application.rs`
 
-- [ ] 4.13. Refactor `main.rs` — safe Application::run_loop()
+- [x] 4.13. Refactor `main.rs` — safe Application::run_loop()
 
   **What to do**:
   - Remove `Rc<UnsafeCell<Application>>` pattern in main.rs

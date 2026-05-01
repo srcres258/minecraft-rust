@@ -46,9 +46,7 @@ impl FloraRenderer {
         self.shader.base.base.use_program();
 
         self.shader.base.load_projection_view_matrix(&camera.get_projection_view_matrix());
-        unsafe {
-            self.shader.load_time(application::TIME_ELAPSED);
-        }
+        self.shader.load_time(application::time_elapsed());
 
         for mesh in self.chunks.iter() {
             gl_functions::bind_vao(mesh.vao);
