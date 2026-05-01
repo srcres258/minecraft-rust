@@ -21,7 +21,7 @@ use crate::shaders::chunk_shader::ChunkShader;
 use crate::world::block::block_database::BlockDatabase;
 use crate::world::chunk::chunk_mesh::ChunkMesh;
 
-/// @brief Block chunk renderer that helps display block data.
+/// Block chunk renderer that helps display block data.
 #[derive(Default)]
 pub struct ChunkRenderer {
     chunks: Vec<RenderInfo>,

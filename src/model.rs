@@ -19,7 +19,7 @@ use gl::types::{GLfloat, GLuint};
 use crate::mesh::Mesh;
 use crate::renderer::render_info::RenderInfo;
 
-/// @brief Models using mesh data to spawn entities for the game world.
+/// Models using mesh data to spawn entities for the game world.
 #[derive(Clone, Default)]
 pub struct Model {
     render_info: RenderInfo,
@@ -29,8 +29,8 @@ pub struct Model {
 }
 
 impl Model {
-    /// @brief Default constructor.
-    /// @param mesh
+    /// Default constructor.
+    /// mesh
     pub fn new(mesh: &Mesh) -> Self {
         let mut result = Self::default();
         result.add_data(mesh);
@@ -45,7 +45,7 @@ impl Model {
         self.add_ebo(&mesh.indices);
     }
 
-    /// @brief Deletes model data, used to free models from memory.
+    /// Deletes model data, used to free models from memory.
     pub fn delete_data(&mut self) {
         unsafe {
             if self.render_info.vao != 0 {
@@ -73,7 +73,7 @@ impl Model {
         }
     }
 
-    pub fn add_ebo(&mut self, indices: &Vec<GLuint>) {
+    pub fn add_ebo(&mut self, indices: &[GLuint]) {
         self.render_info.indices_count = indices.len() as _;
         let mut ebo: GLuint = 0;
         unsafe {
@@ -88,7 +88,7 @@ impl Model {
         }
     }
 
-    pub fn add_vbo(&mut self, dimensions: i32, data: &Vec<GLfloat>) {
+    pub fn add_vbo(&mut self, dimensions: i32, data: &[GLfloat]) {
         let mut vbo: GLuint = 0;
         unsafe {
             gl::GenBuffers(1, &mut vbo);

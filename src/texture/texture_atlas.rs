@@ -18,7 +18,7 @@ use gl::types::{GLfloat, GLuint};
 use sfml::graphics::Image;
 use sfml::system::Vector2i;
 
-/// @brief Texture atlas that pulls texture data from existing files and maps them appropraitely.
+/// Texture atlas that pulls texture data from existing files and maps them appropraitely.
 #[derive(Default)]
 pub struct TextureAtlas {
     id: GLuint,

@@ -38,7 +38,7 @@ use crate::world::block::block_id::BlockId;
 use crate::world::event::player_dig_event::PlayerDigEvent;
 use crate::world::world::World;
 
-/// @brief Active game playing state, not associated with game menus.
+/// Active game playing state, not associated with game menus.
 pub struct StatePlay {
     application: Rc<UnsafeCell<Application>>,
     

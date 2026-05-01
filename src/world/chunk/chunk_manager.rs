@@ -27,7 +27,7 @@ use crate::world::world::World;
 
 pub type ChunkMap = HashMap<VectorXZ, Chunk>;
 
-/// @brief Dynamic chunk manager that affects chunk and block placement.
+/// Dynamic chunk manager that affects chunk and block placement.
 pub struct ChunkManager {
     chunks: ChunkMap,
     terrain_generator: Box<dyn TerrainGenerator + Send>,

@@ -32,7 +32,7 @@ pub enum ID {
     DeadShrub
 }
 
-/// @brief Determines case-by-case properties and behaviors of known block types.
+/// Determines case-by-case properties and behaviors of known block types.
 pub struct Material {
     pub id: ID,
     pub max_stack_size: i32,

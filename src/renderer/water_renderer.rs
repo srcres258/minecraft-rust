@@ -21,7 +21,7 @@ use crate::renderer::render_info::RenderInfo;
 use crate::shaders::water_shader::WaterShader;
 use crate::world::chunk::chunk_mesh::ChunkMesh;
 
-/// @brief Renderer specifically targeting water and handling shader behaviors.
+/// Renderer specifically targeting water and handling shader behaviors.
 #[derive(Default)]
 pub struct WaterRenderer {
     chunks: Vec<RenderInfo>,

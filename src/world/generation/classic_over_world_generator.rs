@@ -32,7 +32,7 @@ use crate::world::generation::biome::temperate_forest_biome::TemperateForestBiom
 use crate::world::generation::terrain_generator::TerrainGenerator;
 use crate::world::world_constants::{CHUNK_SIZE, WATER_LEVEL};
 
-/// @brief Generates chunks based on perlin noise and recognizable MC parameters.
+/// Generates chunks based on perlin noise and recognizable MC parameters.
 pub struct ClassicOverWorldGenerator {
     height_map: Array2D<i32>,
     biome_map: Array2D<i32>,

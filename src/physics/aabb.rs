@@ -16,7 +16,7 @@
 
 use nalgebra_glm as glm;
 
-/// @brief Collision detection class for 3D environment.
+/// Collision detection class for 3D environment.
 #[derive(Copy, Clone, Default)]
 pub struct AABB {
     pub position: glm::TVec3<f32>,

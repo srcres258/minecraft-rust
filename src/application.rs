@@ -30,7 +30,7 @@ use crate::world::block::block_database::BlockDatabase;
 
 pub static mut TIME_ELAPSED: f32 = 0.0;
 
-/// @brief The main game application itself.
+/// The main game application itself.
 pub struct Application {
     states: Vec<Box<dyn StateBase>>,
     context: Context,
@@ -61,7 +61,7 @@ impl Application {
         result
     }
 
-    /// @brief Game loop utilizing a mixture of SFML events and GL rendering.
+    /// Game loop utilizing a mixture of SFML events and GL rendering.
     pub fn run_loop(&mut self) {
         let mut dt_timer = Clock::start();
         let mut dt = Clock::start();
@@ -98,14 +98,14 @@ impl Application {
         }
     }
 
-    /// @brief Handles window events, especially window polling and keyboard inputs.
+    /// Handles window events, especially window polling and keyboard inputs.
     pub fn push_state(&mut self, state: Box<dyn StateBase>) {
         self.states.push(state);
         let s = self.states.last_mut().unwrap();
         s.on_open();
     }
 
-    /// @brief Tell the program stack to pop off the state.
+    /// Tell the program stack to pop off the state.
     pub fn pop_state(&mut self) {
         self.is_pop_state = true;
     }
@@ -122,17 +122,17 @@ impl Application {
         &mut self.context.window
     }
 
-    /// @brief Makes the mouse invisible, doesn't actually turn off the mouse
+    /// Makes the mouse invisible, doesn't actually turn off the mouse
     pub fn turn_off_mouse(&mut self) {
         self.context.window.set_mouse_cursor_visible(false);
     }
 
-    /// @brief Makes the mouse visible again.
+    /// Makes the mouse visible again.
     pub fn turn_on_mouse(&mut self) {
         self.context.window.set_mouse_cursor_visible(true);
     }
 
-    /// @brief Handles window events, especially window polling and keyboard inputs.
+    /// Handles window events, especially window polling and keyboard inputs.
     fn handle_events(&mut self) {
         while let Some(e) = self.context.window.poll_event() {
             self.states.last_mut().unwrap().handle_event(e);

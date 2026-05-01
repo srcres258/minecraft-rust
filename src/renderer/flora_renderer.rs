@@ -21,7 +21,7 @@ use crate::renderer::render_info::RenderInfo;
 use crate::shaders::flora_shader::FloraShader;
 use crate::world::chunk::chunk_mesh::ChunkMesh;
 
-/// @brief Renderer handling 'flora' based entities that are not true blocks.
+/// Renderer handling 'flora' based entities that are not true blocks.
 #[derive(Default)]
 pub struct FloraRenderer {
     chunks: Vec<RenderInfo>,

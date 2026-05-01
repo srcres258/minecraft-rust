@@ -22,7 +22,7 @@ use crate::renderer::skybox_renderer::SkyboxRenderer;
 use crate::renderer::water_renderer::WaterRenderer;
 use crate::world::chunk::chunk_section::ChunkSection;
 
-/// @brief Master rendering class that handles the sum of drawn in-game objects.
+/// Master rendering class that handles the sum of drawn in-game objects.
 #[derive(Default)]
 pub struct RenderMaster {
     // Chunks

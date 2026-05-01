@@ -21,7 +21,7 @@ use crate::model::Model;
 use crate::shaders::skybox_shader::SkyboxShader;
 use crate::texture::cube_texture::CubeTexture;
 
-/// @brief Renderer that specifically draws the skybox and entities outside player reach.
+/// Renderer that specifically draws the skybox and entities outside player reach.
 pub struct SkyboxRenderer {
     sky_cube: Model,
     shader: SkyboxShader,

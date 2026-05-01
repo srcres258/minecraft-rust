@@ -17,7 +17,7 @@
 use gl::types::GLuint;
 use sfml::graphics::Image;
 
-/// @brief Standard texture that will be mapped to objects.
+/// Standard texture that will be mapped to objects.
 #[derive(Default)]
 pub struct BasicTexture {
     id: GLuint

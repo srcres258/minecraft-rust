@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+#![warn(unsafe_code)]
 
 // Copyright 2024 src_resources
 //
@@ -41,8 +42,8 @@ pub mod texture;
 pub mod shaders;
 pub mod gl;
 
-/// @brief Self declared function that loads in configuration files as needed.
-/// @param config
+/// Self declared function that loads in configuration files as needed.
+/// config
 fn load_config(config: &mut Config) {
     let config_file = Path::new("config.txt");
 

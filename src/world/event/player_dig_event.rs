@@ -28,7 +28,7 @@ use crate::world::world::World;
 
 pub struct PtrMutPlayer(*mut c_void);
 
-/// @brief Event class that handles what happens to a block in a world as a player interacts.
+/// Event class that handles what happens to a block in a world as a player interacts.
 pub struct PlayerDigEvent {
     button_press: Button,
     dig_spot: glm::TVec3<f32>,

@@ -17,7 +17,7 @@
 use crate::item::material;
 use crate::item::material::Material;
 
-/// @brief Determines if a player character is holding blocks or items, also determines placement behavior.
+/// Determines if a player character is holding blocks or items, also determines placement behavior.
 pub struct ItemStack {
     p_material: &'static Material,
     num_in_stack: i32

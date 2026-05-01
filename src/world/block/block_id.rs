@@ -29,7 +29,7 @@ impl From<u8> for BlockType {
     }
 }
 
-/// @brief Known block ID types used in game.
+/// Known block ID types used in game.
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub enum BlockId {
     Air = 0,

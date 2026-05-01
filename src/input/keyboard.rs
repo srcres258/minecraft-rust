@@ -17,7 +17,7 @@
 use std::collections::HashMap;
 use sfml::window::{Event, Key};
 
-/// @brief Handles keyboard inputs and events.
+/// Handles keyboard inputs and events.
 pub struct Keyboard {
     keys: HashMap<Key, bool>,
     recently_released: Key

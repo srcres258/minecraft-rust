@@ -17,7 +17,7 @@
 use gl::types::{GLenum, GLuint};
 use sfml::graphics::Image;
 
-/// @brief Complex texture class that applies textures to all sides of a cube.
+/// Complex texture class that applies textures to all sides of a cube.
 #[derive(Default)]
 pub struct CubeTexture {
     tex_id: GLuint

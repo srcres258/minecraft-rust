@@ -18,7 +18,7 @@ use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::system::{Clock, Vector2f};
 use crate::renderer::render_master::RenderMaster;
 
-/// @brief Generally obsolete FPS counter associated with SFML.
+/// Generally obsolete FPS counter associated with SFML.
 pub struct FPSCounter {
     enabled: bool,
     debugging: bool,

@@ -18,7 +18,7 @@ use sfml::SfBox;
 use sfml::system::Clock;
 use sfml::window::Key;
 
-/// @brief A keyboard related subclass that determines if a key remains pressed.
+/// A keyboard related subclass that determines if a key remains pressed.
 pub struct ToggleKey {
     key: Key,
     delay_timer: SfBox<Clock>

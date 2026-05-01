@@ -19,14 +19,14 @@ use std::io::{BufRead, BufReader};
 use sfml::system::Vector2i;
 use crate::world::block::block_id::BlockId;
 
-/// @brief Allocates meshes to cubes and non-cube entities.
+/// Allocates meshes to cubes and non-cube entities.
 #[derive(Eq, PartialEq)]
 pub enum BlockMeshType {
     Cube = 0,
     X = 1
 }
 
-/// @brief Allocates shader behavior to groups of blocks.
+/// Allocates shader behavior to groups of blocks.
 #[derive(Eq, PartialEq)]
 pub enum BlockShaderType {
     Chunk = 0,
@@ -34,7 +34,7 @@ pub enum BlockShaderType {
     Flora = 2
 }
 
-/// @brief Struct designed to hold geometric and tangibility data for each individual block.
+/// Struct designed to hold geometric and tangibility data for each individual block.
 pub struct BlockDataHolder {
     pub id: BlockId,
     pub tex_top_coord: Vector2i,

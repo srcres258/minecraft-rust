@@ -32,7 +32,7 @@ pub trait IChunk {
     fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock);
 }
 
-/// @brief A chunk, in other words, a large arrangement of blocks.
+/// A chunk, in other words, a large arrangement of blocks.
 pub struct Chunk {
     chunks: Vec<ChunkSection>,
     highest_blocks: Array2D<i32>,

@@ -42,7 +42,7 @@ use crate::world::chunk::chunk_section::ChunkSection;
 use crate::world::event::world_event::IWorldEvent;
 use crate::world::world_constants::CHUNK_SIZE;
 
-/// @brief Massive class designed to hold multiple chunks, the player, and most game aspects.
+/// Massive class designed to hold multiple chunks, the player, and most game aspects.
 pub struct World {
     chunk_manager: Option<ChunkManager>,
 
