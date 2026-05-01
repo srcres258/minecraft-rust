@@ -30,11 +30,11 @@ impl ChunkBlock {
     }
 
     pub fn new_with_block_id(id: BlockId) -> Self {
-        Self { id: id as BlockType }
+        Self { id: BlockType::from(u8::from(id)) }
     }
     
     pub fn get_data(&self) -> Arc<RwLock<BlockData>> {
         BlockDatabase::get()
-            .get_data(BlockId::try_from(self.id as i32).unwrap())
+            .get_data(BlockId::try_from(self.id.0 as i32).unwrap())
     }
 }

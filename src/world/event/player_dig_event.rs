@@ -21,6 +21,7 @@ use sfml::window::mouse::Button;
 use crate::item::material::{ID, Material};
 use crate::player::player::Player;
 use crate::world::block::block_id::BlockId;
+use crate::world::block::block_id::BlockType;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::event::world_event::IWorldEvent;
 use crate::world::world::World;
@@ -69,10 +70,10 @@ impl PlayerDigEvent {
             Button::Left => {
                 let block = world.get_block(x, y, z);
                 let material = Material::from_block_id(BlockId::try_from(
-                    block.id as i32).unwrap());
+                    block.id.0 as i32).unwrap());
                 self.p_player.as_mut().add_item(material);
                 world.update_chunk(x, y, z);
-                world.set_block(x, y, z, ChunkBlock::new_with_block_type(0));
+                world.set_block(x, y, z, ChunkBlock::new_with_block_type(BlockType::default()));
             }
             Button::Right => {
                 let stack = self.p_player.as_mut().get_held_items_mut();

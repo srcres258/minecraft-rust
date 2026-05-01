@@ -29,6 +29,7 @@ use crate::item::item_stack::ItemStack;
 use crate::item::material;
 use crate::item::material::{ID, Material};
 use crate::renderer::render_master::RenderMaster;
+use crate::world::block::block_id::BlockType;
 use crate::world::world::World;
 
 pub struct Player<'a> {
@@ -147,7 +148,7 @@ impl<'a> Player<'a> {
                 while (z as f32) < self.base.position.z + self.base.box_aabb.dimensions.z {
                     let block = world.get_block(x, y, z);
 
-                    if block.id != 0 && block.get_data().read().unwrap().block_data().is_collidable {
+                    if block.id != BlockType::default() && block.get_data().read().unwrap().block_data().is_collidable {
                         if vel.y > 0. {
                             self.base.position.y = y as f32 - self.base.box_aabb.dimensions.y;
                             self.base.velocity.y = 0.;

@@ -19,7 +19,7 @@ use gl::types::GLfloat;
 use sfml::system::{Vector2i, Vector3i};
 use crate::world::block::block_data::{BlockMeshType, BlockShaderType};
 use crate::world::block::block_database::BlockDatabase;
-use crate::world::block::block_id::BlockId;
+use crate::world::block::block_id::BlockType;
 use crate::world::block::chunk_block::ChunkBlock;
 use crate::world::chunk::chunk::IChunk;
 use crate::world::chunk::chunk_mesh::ChunkMeshCollection;
@@ -80,7 +80,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
             let position = Vector3i::new(x as _, y as _, z as _);
 
-            if block.id == BlockId::Air as _ {
+            if block.id == BlockType::default() {
                 continue;
             }
 
@@ -100,7 +100,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                     let block = self.p_chunk.get_block(directions.down.x, directions.down.y, directions.down.z);
                     let data = block.get_data();
 
-                    if block.id == BlockId::Air as _ {
+                    if block.id == BlockType::default() {
                         true
                     } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                         true
@@ -123,7 +123,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 let block = self.p_chunk.get_block(directions.up.x, directions.up.y, directions.up.z);
                 let data = block.get_data();
 
-                if block.id == BlockId::Air as _ {
+                if block.id == BlockType::default() {
                     true
                 } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
@@ -147,7 +147,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 let block = self.p_chunk.get_block(directions.left.x, directions.left.y, directions.left.z);
                 let data = block.get_data();
 
-                if block.id == BlockId::Air as _ {
+                if block.id == BlockType::default() {
                     true
                 } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
@@ -169,7 +169,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 let block = self.p_chunk.get_block(directions.right.x, directions.right.y, directions.right.z);
                 let data = block.get_data();
 
-                if block.id == BlockId::Air as _ {
+                if block.id == BlockType::default() {
                     true
                 } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
@@ -193,7 +193,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 let block = self.p_chunk.get_block(directions.front.x, directions.front.y, directions.front.z);
                 let data = block.get_data();
 
-                if block.id == BlockId::Air as _ {
+                if block.id == BlockType::default() {
                     true
                 } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true
@@ -215,7 +215,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 let block = self.p_chunk.get_block(directions.back.x, directions.back.y, directions.back.z);
                 let data = block.get_data();
 
-                if block.id == BlockId::Air as _ {
+                if block.id == BlockType::default() {
                     true
                 } else if !data.read().unwrap().block_data().is_opaque && data.read().unwrap().block_data().id != p_block_data.read().unwrap().block_data().id {
                     true

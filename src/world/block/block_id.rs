@@ -14,7 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub type BlockType = u8;
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Default)]
+pub struct BlockType(pub u8);
+
+impl From<BlockType> for u8 {
+    fn from(b: BlockType) -> Self {
+        b.0
+    }
+}
+
+impl From<u8> for BlockType {
+    fn from(n: u8) -> Self {
+        Self(n)
+    }
+}
 
 /// @brief Known block ID types used in game.
 #[derive(Eq, PartialEq, Copy, Clone)]

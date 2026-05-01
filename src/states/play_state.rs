@@ -114,7 +114,7 @@ impl<'a> StateBase for StatePlay<'a> {
             let block = unsafe {
                 (*self.world.as_ref().unwrap().get()).get_block(x, y, z)
             };
-            let id = BlockId::try_from(block.id as i32).unwrap();
+            let id = BlockId::try_from(block.id.0 as i32).unwrap();
 
             if id != BlockId::Air && id != BlockId::Water {
                 unsafe {
