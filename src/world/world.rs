@@ -333,6 +333,10 @@ impl World {
     fn update_chunks(&mut self) {
         let lock = self.main_mutex.lock().unwrap();
         for c in self.chunk_updates.iter() {
+            // SAFETY: chunk_updates holds *mut ChunkSection pointers that are valid
+            // because they come from the ChunkManager's chunk storage which outlives
+            // this update call. ChunkSections are owned by Chunks inside ChunkManager,
+            // and the main_mutex lock ensures exclusive access.
             unsafe {
                 let s = &mut **c.1;
                 s.make_mesh();
@@ -392,7 +396,7 @@ impl World {
 
 impl Drop for World {
     fn drop(&mut self) {
-        *self.is_running.get_mut() = false;
+        self.is_running.store(false, Ordering::Release);
         while let Some(thread) = self.chunk_load_threads.pop() {
             thread.join().unwrap();
         }

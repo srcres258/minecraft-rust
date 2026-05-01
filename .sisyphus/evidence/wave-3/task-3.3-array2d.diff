@@ -1,0 +1,46 @@
+diff --git a/src/util/array2d.rs b/src/util/array2d.rs
+index 9dba261..ade10e1 100644
+--- a/src/util/array2d.rs
++++ b/src/util/array2d.rs
+@@ -39,16 +39,10 @@ pub struct Array2D<T: Ord + Clone> {
+ 
+ impl<T: Ord + Clone + Default> Array2D<T> {
+     pub fn new(width: usize) -> Self {
+-        let mut result = Self {
+-            array: Vec::with_capacity(width * width),
+-            width
+-        };
+-        
+-        for _ in 0 .. width * width {
+-            result.array.push(T::default());
+-        }
+-        
+-        result
++        let mut array = Vec::with_capacity(width * width);
++        array.resize(width * width, T::default());
++
++        Self { array, width }
+     }
+ }
+ 
+@@ -61,8 +55,12 @@ impl<T: Ord + Clone> Array2D<T> {
+         &mut self.array[x * self.width + z]
+     }
+ 
++    /// Returns a reference to the maximum value in the array.
++    ///
++    /// # Panics
++    /// Panics if the array is empty.
+     pub fn get_max_value(&self) -> &T {
+-        self.array.iter().max().unwrap()
++        self.array.iter().max().expect("Array2D must be non-empty")
+     }
+ 
+     pub fn set_all(&mut self, val: T) {
+@@ -72,4 +70,4 @@ impl<T: Ord + Clone> Array2D<T> {
+     pub fn width(&self) -> usize {
+         self.width
+     }
+-}
+\ No newline at end of file
++}

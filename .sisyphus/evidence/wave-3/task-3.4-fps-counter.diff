@@ -1,0 +1,81 @@
+diff --git a/src/states/play_state.rs b/src/states/play_state.rs
+index ac336e1..3d6eb89 100644
+--- a/src/states/play_state.rs
++++ b/src/states/play_state.rs
+@@ -46,7 +46,7 @@ pub struct StatePlay<'a> {
+     player: Player<'a>,
+     world: Option<Arc<UnsafeCellWrapper<World>>>,
+     
+-    fps_counter: FPSCounter<'a>
++    fps_counter: FPSCounter
+ }
+ 
+ static mut TIMER_PTR: *mut SfBox<Clock> = ptr::null_mut();
+@@ -204,4 +204,4 @@ impl<'a> StateBase for StatePlay<'a> {
+             (*self.application.get()).turn_off_mouse();
+         }
+     }
+-}
++}
+diff --git a/src/util/fps_counter.rs b/src/util/fps_counter.rs
+index 3591b57..2534167 100644
+--- a/src/util/fps_counter.rs
++++ b/src/util/fps_counter.rs
+@@ -15,33 +15,31 @@
+ // limitations under the License.
+ 
+ use sfml::graphics::{Color, Font, Text, Transformable};
+-use sfml::SfBox;
+ use sfml::system::{Clock, Vector2f};
+ use crate::renderer::render_master::RenderMaster;
+ 
+ /// @brief Generally obsolete FPS counter associated with SFML.
+-pub struct FPSCounter<'a> {
++pub struct FPSCounter {
+     enabled: bool,
+     debugging: bool,
+ 
+-    text: Text<'a>,
+-    font: SfBox<Font>,
++    text: Text<'static>,
+ 
+-    delay_timer: SfBox<Clock>,
+-    fps_timer: SfBox<Clock>,
++    delay_timer: sfml::SfBox<Clock>,
++    fps_timer: sfml::SfBox<Clock>,
+ 
+     fps: f32,
+ 
+     frame_count: i32
+ }
+ 
+-impl<'a> FPSCounter<'a> {
++impl FPSCounter {
+     pub fn new() -> Self {
++        let font = Box::leak(Box::new(Font::from_file("Res/Fonts/rs.ttf").unwrap()));
+         let mut result = Self {
+             enabled: true,
+             debugging: false,
+-            text: Text::default(),
+-            font: Font::from_file("Res/Fonts/rs.ttf").unwrap(),
++            text: Text::new("", font, 25),
+             delay_timer: Clock::start(),
+             fps_timer: Clock::start(),
+             fps: 0.0,
+@@ -57,10 +55,6 @@ impl<'a> FPSCounter<'a> {
+         result
+     }
+ 
+-    pub fn init(&'a mut self) {
+-        self.text.set_font(&self.font);
+-    }
+-
+     pub fn update(&mut self) {
+         self.frame_count += 1;
+         if self.enabled {
+@@ -80,4 +74,4 @@ impl<'a> FPSCounter<'a> {
+     pub fn draw(&mut self, _renderer: &RenderMaster) {
+         self.text.set_string(format!("FPS: {}", self.fps).as_str());
+     }
+-}
++}

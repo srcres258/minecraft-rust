@@ -1,0 +1,23 @@
+{
+  "active_plan": "/home/srcres/Coding/Projects/minecraft-rust/.sisyphus/plans/rust-idiomatic-refactor.md",
+  "started_at": "2026-05-01T03:04:00.617Z",
+  "session_ids": [
+    "ses_21e9ef376ffei9lSVYVewq4mhr"
+  ],
+  "session_origins": {
+    "ses_21e9ef376ffei9lSVYVewq4mhr": "direct"
+  },
+  "plan_name": "rust-idiomatic-refactor",
+  "agent": "atlas",
+  "task_sessions": {
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "**Plan Compliance Audit** — `oracle`",
+      "session_id": "ses_21d9a90bcffeROZyptWGt8iTS7",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-01T07:19:34.824Z"
+    }
+  }
+}

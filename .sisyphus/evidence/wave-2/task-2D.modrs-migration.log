@@ -1,0 +1,9 @@
+Task: 2D.1-19 mod.rs migration
+Date: 2026-05-01
+
+Actions:
+- Renamed 19 `src/**/mod.rs` files to sibling `*.rs` files using `git mv`.
+- Built successfully with `nix develop --command cargo build`.
+
+Result:
+- Build passed.

@@ -1,0 +1,16 @@
+warning: Git tree '/home/srcres/Coding/Projects/minecraft-rust' is dirty
+🦀 minecraft-rust dev shell
+   cargo build  — build the project
+   cargo run    — build and run the game
+   Compiling link-cplusplus v1.0.9
+   Compiling gl_loader v0.1.2
+   Compiling sfml v0.21.0
+   Compiling minecraft-rust v0.1.0 (/home/srcres/Coding/Projects/minecraft-rust)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.53s
+     Running unittests src/main.rs (target/debug/deps/minecraft_rust-1bb4e5564df64bbc)
+
+running 1 test
+test tests::smoke_build_works ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

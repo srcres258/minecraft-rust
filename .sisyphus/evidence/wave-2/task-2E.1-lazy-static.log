@@ -1,0 +1,8 @@
+2026-05-01
+
+Command: nix develop --command cargo build
+Result: PASS
+
+Verification:
+- `grep` over `src/` found no `lazy_static` matches
+- `lsp_diagnostics` on `src/` reported 0 errors

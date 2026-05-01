@@ -1,0 +1,63 @@
+diff --git a/src/util/random.rs b/src/util/random.rs
+--- a/src/util/random.rs
++++ b/src/util/random.rs
+@@
+-/// @brief Singleton class that increases randomness (such as with seeds)
++/// Singleton that provides repeatable random number generation with configurable seeds.
+
+diff --git a/src/maths/frustum.rs b/src/maths/frustum.rs
+--- a/src/maths/frustum.rs
++++ b/src/maths/frustum.rs
+@@
+-/// @brief Vertex based construct, usually flat.
++/// A plane in 3D space defined by a normal vector and distance from origin.
+@@
+-    /// @brief Updates the Frustrum relative between player and observed surface.
+-    /// @param mat
++    /// Updates the frustum planes from the given projection-view matrix.
+@@
+-    /// @brief Determines if a collision box is present in the Frustrum.
+-    /// @param box
+-    /// @return result
++    /// Tests whether an AABB is within the frustum (at least partially visible).
++    /// Returns `true` if the box is visible or intersects any frustum plane.
+
+diff --git a/src/maths/ray.rs b/src/maths/ray.rs
+--- a/src/maths/ray.rs
++++ b/src/maths/ray.rs
+@@
+-/// @brief Raycasting class associated with player's line of sight.
++/// A ray for block picking, starting from the player's eye position and extending in the look direction.
+
+diff --git a/src/maths/noise_generator.rs b/src/maths/noise_generator.rs
+--- a/src/maths/noise_generator.rs
++++ b/src/maths/noise_generator.rs
+@@
+-/// @brief Perlin noise generator used in construction of chunks and chunk blocks.
++/// Perlin noise generator for terrain height computation.
+@@
+-    /// @brief Gets the height of the chunk for the sake of Noise Generation.
+-    /// @param x
+-    /// @param z
+-    /// @param chunkX
+-    /// @param chunkZ
+-    /// @return val
++    /// Computes the terrain height at the given block coordinates within a chunk.
+@@
+-    /// @brief Gets Noise through n which acts as a seed number.
+-    /// @param n
+-    /// @return
++    /// Generates pseudo-random noise from an integer seed using bit manipulation.
+@@
+-    /// @brief Overload of getNoise that takes doubles instead of int n.
+-    /// @param x
+-    /// @param z
+-    /// @return
++    /// Generates 2D noise from floating-point coordinates.
+
+diff --git a/src/config.rs b/src/config.rs
+--- a/src/config.rs
++++ b/src/config.rs
+@@
+-/// @brief Default configuration for program.
++/// Runtime configuration loaded from `config.txt` (or defaults if missing).

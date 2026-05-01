@@ -1,0 +1,21 @@
+Task 2C.1 evidence
+
+Changed files:
+- src/physics/aabb.rs
+- src/maths/matrix.rs
+- src/maths/ray.rs
+- src/maths/frustum.rs
+- src/shaders/basic_shader.rs
+- src/shaders/shader.rs
+- src/shaders/skybox_shader.rs
+- src/camera.rs
+- src/states/play_state.rs
+- src/player/player.rs
+- src/entity.rs
+- src/world/world.rs
+- src/world/chunk/chunk_section.rs
+- src/world/event/player_dig_event.rs
+
+Verification:
+- `nix develop --command cargo build` ✅
+- lsp diagnostics on all 14 changed files: no diagnostics found ✅
