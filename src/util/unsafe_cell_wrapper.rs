@@ -17,6 +17,10 @@
 use std::cell::UnsafeCell;
 use std::ops::{Deref, DerefMut};
 
+/// Wrapper around [`UnsafeCell`] that provides `Send + Sync` for types shared
+/// across threads via [`Arc`]. Soundness depends on external synchronization
+/// (Mutex/AtomicBool) at every usage site — this wrapper does NOT provide
+/// synchronization itself.
 pub struct UnsafeCellWrapper<T: ?Sized>(UnsafeCell<T>);
 
 impl<T> UnsafeCellWrapper<T> {
@@ -39,6 +43,12 @@ impl<T: ?Sized> DerefMut for UnsafeCellWrapper<T> {
     }
 }
 
+// SAFETY: Send is safe because UnsafeCellWrapper is only used with external
+// synchronization (Mutex, Arc<AtomicBool>) — callers must guarantee exclusive access.
+// The wrapper does not enable unsynchronized concurrent mutation of the inner T.
 unsafe impl<T: ?Sized> Send for UnsafeCellWrapper<T> {}
 
+// SAFETY: Sync is safe because UnsafeCellWrapper borrows through Arc with
+// external synchronization. The inner UnsafeCell is never accessed directly;
+// it's always behind a Mutex or equivalent guard at usage sites.
 unsafe impl<T: ?Sized> Sync for UnsafeCellWrapper<T> {}

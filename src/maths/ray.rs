@@ -16,7 +16,7 @@
 
 use nalgebra_glm as glm;
 
-/// @brief Raycasting class associated with player's line of sight.
+/// A ray for block picking, starting from the player's eye position and extending in the look direction.
 pub struct Ray {
     ray_start: glm::TVec3<f32>,
     ray_end: glm::TVec3<f32>,

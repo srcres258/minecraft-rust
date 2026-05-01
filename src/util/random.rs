@@ -22,7 +22,7 @@ use rand::prelude::StdRng;
 use rand::Rng;
 use rand_core::SeedableRng;
 
-/// @brief Singleton class that increases randomness (such as with seeds)
+/// Singleton that provides repeatable random number generation with configurable seeds.
 pub struct RandomSingleton {
     random_engine: Mutex<StdRng>
 }

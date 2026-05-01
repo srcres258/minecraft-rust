@@ -15,33 +15,31 @@
 // limitations under the License.
 
 use sfml::graphics::{Color, Font, Text, Transformable};
-use sfml::SfBox;
 use sfml::system::{Clock, Vector2f};
 use crate::renderer::render_master::RenderMaster;
 
 /// @brief Generally obsolete FPS counter associated with SFML.
-pub struct FPSCounter<'a> {
+pub struct FPSCounter {
     enabled: bool,
     debugging: bool,
 
-    text: Text<'a>,
-    font: SfBox<Font>,
+    text: Text<'static>,
 
-    delay_timer: SfBox<Clock>,
-    fps_timer: SfBox<Clock>,
+    delay_timer: sfml::SfBox<Clock>,
+    fps_timer: sfml::SfBox<Clock>,
 
     fps: f32,
 
     frame_count: i32
 }
 
-impl<'a> FPSCounter<'a> {
+impl FPSCounter {
     pub fn new() -> Self {
+        let font = Box::leak(Box::new(Font::from_file("Res/Fonts/rs.ttf").unwrap()));
         let mut result = Self {
             enabled: true,
             debugging: false,
-            text: Text::default(),
-            font: Font::from_file("Res/Fonts/rs.ttf").unwrap(),
+            text: Text::new("", font, 25),
             delay_timer: Clock::start(),
             fps_timer: Clock::start(),
             fps: 0.0,
@@ -55,10 +53,6 @@ impl<'a> FPSCounter<'a> {
         result.text.set_character_size(25);
 
         result
-    }
-
-    pub fn init(&'a mut self) {
-        self.text.set_font(&self.font);
     }
 
     pub fn update(&mut self) {

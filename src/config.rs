@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// @brief Default configuration for program.
+/// Runtime configuration loaded from `config.txt` (or defaults if missing).
 #[derive(Copy, Clone)]
 pub struct Config {
     pub window_x: i32,

@@ -27,7 +27,7 @@ pub struct NoiseParameters {
     pub roughness: f64
 }
 
-/// @brief Perlin noise generator used in construction of chunks and chunk blocks.
+/// Perlin noise generator for terrain height computation.
 pub struct NoiseGenerator {
     noise_parameters: NoiseParameters,
     seed: i32
@@ -61,12 +61,7 @@ impl NoiseGenerator {
         result
     }
 
-    /// @brief Gets the height of the chunk for the sake of Noise Generation.
-    /// @param x
-    /// @param z
-    /// @param chunkX
-    /// @param chunkZ
-    /// @return val
+    /// Computes the terrain height at the given block coordinates within a chunk.
     pub fn get_height(&self, x: i32, z: i32, chunk_x: i32, chunk_z: i32) -> f64 {
         let new_x = x.wrapping_add(chunk_x.wrapping_mul(CHUNK_SIZE as i32));
         let new_z = z.wrapping_add(chunk_z.wrapping_mul(CHUNK_SIZE as i32));
@@ -99,9 +94,7 @@ impl NoiseGenerator {
         self.noise_parameters = params;
     }
 
-    /// @brief Gets Noise through n which acts as a seed number.
-    /// @param n
-    /// @return
+    /// Generates pseudo-random noise from an integer seed using bit manipulation.
     fn get_noise_i(&self, n: i32) -> f64 {
         let mut n = Wrapping(n);
         n += self.seed;
@@ -111,10 +104,7 @@ impl NoiseGenerator {
         1.0 - new_n.0 as f64 / 1073741824.0
     }
 
-    /// @brief Overload of getNoise that takes doubles instead of int n.
-    /// @param x
-    /// @param z
-    /// @return
+    /// Generates 2D noise from floating-point coordinates.
     fn get_noise_dd(&self, x: f64, z: f64) -> f64 {
         self.get_noise_i((x + z * 57.0) as i32)
     }

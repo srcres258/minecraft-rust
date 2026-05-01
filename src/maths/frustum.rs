@@ -27,7 +27,7 @@ pub enum Planes {
     Bottom
 }
 
-/// @brief Vertex based construct, usually flat.
+/// A plane in 3D space defined by a normal vector and distance from origin.
 #[derive(Copy, Clone, Default, Debug)]
 pub struct Plane {
     pub distance_to_origin: f32,
@@ -54,8 +54,7 @@ impl ViewFrustum {
         Self { planes }
     }
 
-    /// @brief Updates the Frustrum relative between player and observed surface.
-    /// @param mat
+    /// Updates the frustum planes from the given projection-view matrix.
     pub fn update(&mut self, mat: &glm::TMat4<f32>) {
         /*
         NOTE that within the nalgebra_glm crate, implementation of matrix indexing is reversed
@@ -110,9 +109,8 @@ impl ViewFrustum {
         }
     }
 
-    /// @brief Determines if a collision box is present in the Frustrum.
-    /// @param box
-    /// @return result
+    /// Tests whether an AABB is within the frustum (at least partially visible).
+    /// Returns `true` if the box is visible or intersects any frustum plane.
     pub fn is_box_in_frustum(&self, box_: AABB) -> bool {
         for plane in self.planes.iter() {
             if plane.distance_to_point(&box_.get_vp(plane.normal)) < 0.0 {

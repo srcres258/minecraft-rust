@@ -46,7 +46,7 @@ pub struct StatePlay<'a> {
     player: Player<'a>,
     world: Option<Arc<UnsafeCellWrapper<World>>>,
     
-    fps_counter: FPSCounter<'a>
+    fps_counter: FPSCounter
 }
 
 static mut TIMER_PTR: *mut SfBox<Clock> = ptr::null_mut();
