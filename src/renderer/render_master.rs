@@ -75,8 +75,12 @@ impl RenderMaster {
         if self.draw_box {
             unsafe {
                 gl::Disable(gl::CULL_FACE);
+                gl::DepthFunc(gl::LEQUAL);
             }
             self.skybox_renderer.render(camera);
+            unsafe {
+                gl::DepthFunc(gl::LESS);
+            }
             self.draw_box = false;
         }
 
