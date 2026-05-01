@@ -29,11 +29,13 @@ pub struct SkyboxShader {
 
 impl SkyboxShader {
     pub fn new(vertex_file: &str, fragment_file: &str) -> Self {
-        Self {
+        let mut result = Self {
             base: ShaderBase::new(vertex_file, fragment_file),
             location_projection: 0,
             location_view: 0
-        }
+        };
+        result.get_uniforms();
+        result
     }
 
     pub fn load_view_matrix(&self, view_matrix: &glm::TMat4<f32>) {
@@ -51,11 +53,13 @@ impl SkyboxShader {
 
 impl Default for SkyboxShader {
     fn default() -> Self {
-        Self {
+        let mut result = Self {
             base: ShaderBase::new("Skybox", "Skybox"),
             location_projection: 0,
             location_view: 0
-        }
+        };
+        result.get_uniforms();
+        result
     }
 }
 

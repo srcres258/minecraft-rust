@@ -71,7 +71,7 @@ impl ViewFrustum {
         self.planes[Planes::Left as usize].normal.x = mat[(3, 0)] + mat[(0, 0)];
         self.planes[Planes::Left as usize].normal.y = mat[(3, 1)] + mat[(0, 1)];
         self.planes[Planes::Left as usize].normal.z = mat[(3, 2)] + mat[(0, 2)];
-        self.planes[Planes::Left as usize].distance_to_origin = mat[(3, 3)] + mat[(0, 2)];
+        self.planes[Planes::Left as usize].distance_to_origin = mat[(3, 3)] + mat[(0, 3)];
 
         // right
         self.planes[Planes::Right as usize].normal.x = mat[(3, 0)] - mat[(0, 0)];
@@ -118,7 +118,7 @@ impl ViewFrustum {
             if plane.distance_to_point(&box_.get_vp(plane.normal)) < 0.0 {
                 return false;
             } else if plane.distance_to_point(&box_.get_vn(plane.normal)) < 0.0 {
-                return true;
+                continue;
             }
         }
         true

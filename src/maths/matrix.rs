@@ -50,7 +50,7 @@ pub fn make_view_matrix(camera: &Camera) -> glm::TMat4<f32> {
         &matrix, camera.rotation.y.to_radians(), &glm::vec3(0.0, 1.0, 0.0)
     );
     matrix = glm::rotate(
-        &matrix, camera.rotation.z.to_radians(), &glm::vec3(1.0, 0.0, 1.0)
+        &matrix, camera.rotation.z.to_radians(), &glm::vec3(0.0, 0.0, 1.0)
     );
 
     matrix = glm::translate(&matrix, &(-camera.position));
