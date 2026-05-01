@@ -1477,7 +1477,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
   **Commit**: YES (multiple commits) — `refactor(player): replace static mut globals with OnceLock`
   - Files: `src/player/player.rs`, `src/states/play_state.rs`
 
-- [ ] 4.6. Refactor `camera.rs` — safe entity tracking
+- [x] 4.6. Refactor `camera.rs` — safe entity tracking
 
   **What to do**:
   - Replace `PtrConstEntity` raw pointer with owned position copy
@@ -1497,7 +1497,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
   **Commit**: YES — `refactor(camera): replace PtrConstEntity with safe entity tracking`
   - Files: `src/camera.rs`, `src/states/play_state.rs`
 
-- [ ] 4.7. Refactor `world/event/player_dig_event.rs` — safe player ref
+- [x] 4.7. Refactor `world/event/player_dig_event.rs` — safe player ref
 
   **What to do**:
   - Replace `PtrMutPlayer` raw pointer wrapper with `&mut Player` (scoped lifetime)

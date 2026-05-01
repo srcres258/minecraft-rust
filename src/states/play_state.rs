@@ -72,7 +72,7 @@ impl StatePlay {
                 &mut result.player)
             );
 
-            (*(*application.get()).camera().get()).hook_entity(&result.player.base);
+            (*(*application.get()).camera().get()).update_from_entity(&result.player.base);
         }
 
         result
@@ -166,6 +166,11 @@ impl StateBase for StatePlay {
                 &mut *self.world.as_ref().unwrap().get()
             }
         );
+        // Sync player position to camera
+        unsafe {
+            let cam = &mut *(*self.application.get()).camera().get();
+            cam.update_from_entity(&self.player.base);
+        }
         unsafe {
             let arc = Arc::clone(&(*self.application.get()).camera());
             let camera = &*arc.get();

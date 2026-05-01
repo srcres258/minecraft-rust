@@ -22,12 +22,9 @@ use crate::entity::Entity;
 use crate::maths::frustum::ViewFrustum;
 use crate::maths::matrix;
 
-pub struct PtrConstEntity(*const Entity);
-
+/// @brief Camera state and matrices.
 pub struct Camera {
-    pub base: Entity,
-    
-    p_entity: Option<PtrConstEntity>,
+    base: Entity,
 
     frustum: ViewFrustum,
 
@@ -39,22 +36,6 @@ pub struct Camera {
     config: Config
 }
 
-impl Deref for PtrConstEntity {
-    type Target = *const Entity;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for PtrConstEntity {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-unsafe impl Send for PtrConstEntity {}
-
 impl Camera {
     pub fn new(config: Config) -> Self {
         let mut obj = Entity::default();
@@ -63,7 +44,6 @@ impl Camera {
 
         Self {
             base: obj,
-            p_entity: None,
             frustum: ViewFrustum::default(),
             projection_matrix,
             view_matrix: Default::default(),
@@ -73,13 +53,6 @@ impl Camera {
     }
 
     pub fn update(&mut self) {
-        let wrapped_obj = &mut self.base;
-        let p_entity = unsafe { &***self.p_entity.as_ref().unwrap() };
-        wrapped_obj.position = glm::vec3(
-            p_entity.position.x, p_entity.position.y + 0.6, p_entity.position.z
-        );
-        wrapped_obj.rotation = p_entity.rotation;
-
         self.view_matrix = matrix::make_view_matrix(self);
         self.proj_view_matrix = self.projection_matrix * self.view_matrix;
         self.frustum.update(&self.proj_view_matrix);
@@ -87,8 +60,13 @@ impl Camera {
         // println!("Camera frustum: {:#?}", self.frustum);
     }
 
-    pub fn hook_entity(&mut self, entity: *const Entity) {
-        self.p_entity = Some(PtrConstEntity(entity));
+    pub fn update_from_entity(&mut self, entity: &Entity) {
+        self.base.position = glm::vec3(
+            entity.position.x,
+            entity.position.y + 0.6,
+            entity.position.z,
+        );
+        self.base.rotation = entity.rotation;
     }
 
     pub fn get_view_matrix(&self) -> glm::TMat4<f32> {
