@@ -39,11 +39,11 @@ use crate::world::event::player_dig_event::PlayerDigEvent;
 use crate::world::world::World;
 
 /// @brief Active game playing state, not associated with game menus.
-pub struct StatePlay<'a> {
+pub struct StatePlay {
     application: Rc<UnsafeCell<Application>>,
     
     keyboard: Keyboard,
-    player: Player<'a>,
+    player: Player,
     world: Option<Arc<UnsafeCellWrapper<World>>>,
     
     fps_counter: FPSCounter
@@ -55,7 +55,7 @@ static mut DT_PTR: *mut SfBox<Clock> = ptr::null_mut();
 static mut DRAW_GUI: bool = false;
 static mut DRAW_KEY_PTR: *mut ToggleKey = ptr::null_mut();
 
-impl<'a> StatePlay<'a> {
+impl StatePlay {
     pub fn new_boxed(application: Rc<UnsafeCell<Application>>, config: Config) -> Box<Self> {
         let result = Self {
             application: Rc::clone(&application),
@@ -79,7 +79,7 @@ impl<'a> StatePlay<'a> {
     }
 }
 
-impl<'a> StateBase for StatePlay<'a> {
+impl StateBase for StatePlay {
     fn handle_event(&mut self, event: Event) {
         self.keyboard.update(event);
     }

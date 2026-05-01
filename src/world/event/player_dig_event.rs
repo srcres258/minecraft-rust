@@ -36,14 +36,14 @@ pub struct PlayerDigEvent {
 }
 
 impl PtrMutPlayer {
-    pub fn as_mut(&self) -> &mut Player<'static> {
-        unsafe { &mut *(self.0 as *mut Player<'static>) }
+    pub fn as_mut(&self) -> &mut Player {
+        unsafe { &mut *(self.0 as *mut Player) }
     }
 }
 
-impl AsRef<Player<'static>> for PtrMutPlayer {
-    fn as_ref(&self) -> &Player<'static> {
-        unsafe { &*(self.0 as *mut Player<'static>) }
+impl AsRef<Player> for PtrMutPlayer {
+    fn as_ref(&self) -> &Player {
+        unsafe { &*(self.0 as *mut Player) }
     }
 }
 

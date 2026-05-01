@@ -16,8 +16,12 @@
 
 use nalgebra_glm as glm;
 
+use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
-use std::ptr;
+use std::sync::{
+    OnceLock,
+    atomic::{AtomicBool, Ordering},
+};
 use sfml::graphics::{Color, Font, Text, Transformable};
 use sfml::SfBox;
 use sfml::system::{Vector2f, Vector2i};
@@ -32,7 +36,7 @@ use crate::renderer::render_master::RenderMaster;
 use crate::world::block::block_id::BlockType;
 use crate::world::world::World;
 
-pub struct Player<'a> {
+pub struct Player {
     pub base: Entity,
 
     is_on_ground: bool,
@@ -40,8 +44,8 @@ pub struct Player<'a> {
     is_sneak: bool,
 
     items: Vec<ItemStack>,
-    item_text: Vec<Text<'a>>,
-    pos_print: Text<'a>,
+    item_text: Vec<Text<'static>>,
+    pos_print: Text<'static>,
     held_item: i32,
 
     item_down: ToggleKey,
@@ -59,14 +63,17 @@ pub struct Player<'a> {
     acceleration: glm::TVec3<f32>
 }
 
-static mut FONT: *mut SfBox<Font> = ptr::null_mut();
-static mut USE_MOUSE: bool = true;
-static mut USE_MOUSE_KEY_PTR: *mut ToggleKey = ptr::null_mut();
-static mut LAST_MOUSE_POSITION_PTR: *mut Vector2i = ptr::null_mut();
+thread_local! {
+    static FONT: &'static SfBox<Font> = Box::leak(Box::new(Font::from_file("Res/Fonts/rs.ttf").unwrap()));
+    static USE_MOUSE_KEY: RefCell<ToggleKey> = RefCell::new(ToggleKey::new(Key::L));
+}
+
+static USE_MOUSE: AtomicBool = AtomicBool::new(true);
+static LAST_MOUSE_POSITION: OnceLock<Vector2i> = OnceLock::new();
 
 const SPEED: f32 = 0.2;
 
-impl<'a> Player<'a> {
+impl Player {
     pub fn handle_input(&mut self, window: &mut Window, keyboard: &Keyboard) {
         self.keyboard_input(keyboard);
         self.mouse_input(window);
@@ -266,35 +273,31 @@ impl<'a> Player<'a> {
     }
 
     fn mouse_input(&mut self, window: &mut Window) {
-        unsafe {
-            if USE_MOUSE_KEY_PTR == ptr::null_mut() {
-                let use_mouse_key = Box::new(ToggleKey::new(Key::L));
-                USE_MOUSE_KEY_PTR = Box::leak(use_mouse_key);
-            }
+        let use_mouse_pressed = USE_MOUSE_KEY.with(|use_mouse_key| use_mouse_key.borrow_mut().is_key_pressed());
+        if use_mouse_pressed {
+            USE_MOUSE.store(!USE_MOUSE.load(Ordering::Relaxed), Ordering::Relaxed);
+        }
 
-            if (*USE_MOUSE_KEY_PTR).is_key_pressed() {
-                USE_MOUSE = !USE_MOUSE;
-            }
-
-            if !USE_MOUSE {
-                return;
-            }
+        if !USE_MOUSE.load(Ordering::Relaxed) {
+            return;
         }
 
         const BOUND: f32 = 89.;
-        unsafe {
-            if LAST_MOUSE_POSITION_PTR == ptr::null_mut() {
+        if LAST_MOUSE_POSITION.get().is_none() {
+            let last_mouse_position = LAST_MOUSE_POSITION.get_or_init(|| {
                 let mut last_mouse_position = window.position();
                 last_mouse_position += Vector2i::new(
                     window.size().x as i32 / 2,
-                    window.size().y as i32 / 2
+                    window.size().y as i32 / 2,
                 );
-                let last_mouse_position = Box::new(last_mouse_position);
-                LAST_MOUSE_POSITION_PTR = Box::leak(last_mouse_position);
-                window.set_mouse_position(*LAST_MOUSE_POSITION_PTR);
-            }
+                last_mouse_position
+            });
+
+            window.set_mouse_position(*last_mouse_position);
         }
-        let change = unsafe { window.mouse_position() - *LAST_MOUSE_POSITION_PTR };
+
+        let last_mouse_position = LAST_MOUSE_POSITION.get().unwrap();
+        let change = window.mouse_position() - *last_mouse_position;
 
         self.base.rotation.y += change.x as f32 * 0.05;
         self.base.rotation.x += change.y as f32 * 0.05;
@@ -311,13 +314,11 @@ impl<'a> Player<'a> {
             self.base.rotation.y = 360.;
         }
 
-        unsafe {
-            window.set_mouse_position(*LAST_MOUSE_POSITION_PTR);
-        }
+        window.set_mouse_position(*last_mouse_position);
     }
 }
 
-impl<'a> Default for Player<'a> {
+impl Default for Player {
     fn default() -> Self {
         let mut result = Self {
             base: Entity::new_ex_2(&glm::vec3(2500., 125., 2500.), &glm::vec3(0., 0., 0.), &glm::vec3(0.3, 1., 0.3)),
@@ -340,39 +341,27 @@ impl<'a> Default for Player<'a> {
             acceleration: glm::vec3(0., 0., 0.)
         };
 
-        unsafe {
-            if FONT == ptr::null_mut() {
-                let f = Box::new(Font::from_file("Res/Fonts/rs.ttf").unwrap());
-                FONT = Box::leak(f);
-            }
-        }
-
         for _ in 0..5 {
             result.items.push(ItemStack::new(&material::NOTHING, 0));
         }
 
-        for i in 0..5 {
-            let mut t = Text::default();
-            unsafe {
-                t.set_font(&*FONT);
+        FONT.with(|font| {
+            result.pos_print = Text::new("", *font, 25);
+            for i in 0..5 {
+                let mut t = Text::new("", *font, 25);
+                t.set_outline_color(Color::BLACK);
+                t.set_position(Vector2f::new(20., 20. * i as f32 + 100.));
+                result.item_text.push(t);
             }
-            t.set_outline_color(Color::BLACK);
-            t.set_character_size(25);
-            t.set_position(Vector2f::new(20., 20. * i as f32 + 100.));
-            result.item_text.push(t);
-        }
-        unsafe {
-            result.pos_print.set_font(&*FONT);
-        }
-        result.pos_print.set_outline_color(Color::BLACK);
-        result.pos_print.set_character_size(25);
-        result.pos_print.set_position(Vector2f::new(20., 20. * 6. + 100.));
+            result.pos_print.set_outline_color(Color::BLACK);
+            result.pos_print.set_position(Vector2f::new(20., 20. * 6. + 100.));
+        });
 
         result
     }
 }
 
-impl<'a> Deref for Player<'a> {
+impl Deref for Player {
     type Target = Entity;
 
     fn deref(&self) -> &Self::Target {
@@ -380,7 +369,7 @@ impl<'a> Deref for Player<'a> {
     }
 }
 
-impl<'a> DerefMut for Player<'a> {
+impl DerefMut for Player {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.base
     }
