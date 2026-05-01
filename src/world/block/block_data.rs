@@ -124,7 +124,7 @@ impl BlockData {
             .expect(format!("Unable to open block file: {}!", file_name).as_str()));
         let mut state = DecodingState::Vacant;
         for line in in_file.lines() {
-            let line = line.unwrap();
+            let line = line.expect("Failed to read block data line");
             let line = line.trim();
             if state == DecodingState::Vacant {
                 match line {
@@ -143,29 +143,29 @@ impl BlockData {
                 match state {
                     DecodingState::TexTop => {
                         let parts: Vec<_> = line.split(' ').collect();
-                        let x = parts[0].parse::<i32>().unwrap();
-                        let y = parts[1].parse::<i32>().unwrap();
+                        let x = parts[0].parse::<i32>().expect("Failed to parse block data field");
+                        let y = parts[1].parse::<i32>().expect("Failed to parse block data field");
                         result.data.tex_top_coord.x = x;
                         result.data.tex_top_coord.y = y;
                     }
                     DecodingState::TexSide => {
                         let parts: Vec<_> = line.split(' ').collect();
-                        let x = parts[0].parse::<i32>().unwrap();
-                        let y = parts[1].parse::<i32>().unwrap();
+                        let x = parts[0].parse::<i32>().expect("Failed to parse block data field");
+                        let y = parts[1].parse::<i32>().expect("Failed to parse block data field");
                         result.data.tex_side_coord.x = x;
                         result.data.tex_side_coord.y = y;
                     }
                     DecodingState::TexBottom => {
                         let parts: Vec<_> = line.split(' ').collect();
-                        let x = parts[0].parse::<i32>().unwrap();
-                        let y = parts[1].parse::<i32>().unwrap();
+                        let x = parts[0].parse::<i32>().expect("Failed to parse block data field");
+                        let y = parts[1].parse::<i32>().expect("Failed to parse block data field");
                         result.data.tex_bottom_coord.x = x;
                         result.data.tex_bottom_coord.y = y;
                     }
                     DecodingState::TexAll => {
                         let parts: Vec<_> = line.split(' ').collect();
-                        let x = parts[0].parse::<i32>().unwrap();
-                        let y = parts[1].parse::<i32>().unwrap();
+                        let x = parts[0].parse::<i32>().expect("Failed to parse block data field");
+                        let y = parts[1].parse::<i32>().expect("Failed to parse block data field");
                         result.data.tex_top_coord.x = x;
                         result.data.tex_top_coord.y = y;
                         result.data.tex_side_coord.x = x;
@@ -174,8 +174,8 @@ impl BlockData {
                         result.data.tex_bottom_coord.y = y;
                     }
                     DecodingState::Id => {
-                        let id = line.parse::<i32>().unwrap();
-                        result.data.id = BlockId::try_from(id).unwrap();
+                        let id = line.parse::<i32>().expect("Failed to parse block data field");
+                        result.data.id = BlockId::try_from(id).expect("Invalid block ID in data file");
                     }
                     DecodingState::Opaque => {
                         result.data.is_opaque = if line == "1" { true } else { false }
@@ -184,12 +184,12 @@ impl BlockData {
                         result.data.is_collidable = if line == "1" { true } else { false }
                     }
                     DecodingState::MeshType => {
-                        let id = line.parse::<i32>().unwrap();
-                        result.data.mesh_type = BlockMeshType::try_from(id).unwrap();
+                        let id = line.parse::<i32>().expect("Failed to parse block data field");
+                        result.data.mesh_type = BlockMeshType::try_from(id).expect("Failed to parse block data field");
                     }
                     DecodingState::ShaderType => {
-                        let id = line.parse::<i32>().unwrap();
-                        result.data.shader_type = BlockShaderType::try_from(id).unwrap();
+                        let id = line.parse::<i32>().expect("Failed to parse block data field");
+                        result.data.shader_type = BlockShaderType::try_from(id).expect("Failed to parse block data field");
                     }
                     _ => {}
                 }

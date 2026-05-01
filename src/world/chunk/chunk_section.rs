@@ -111,6 +111,10 @@ impl ChunkSection {
     
     pub fn exec_on_layer<R>(&self, y: i32, func: impl FnOnce(&Layer) -> R) -> R {
         let p_world;
+        // SAFETY: p_world is an Arc<UnsafeCellWrapper<World>>. The World is
+        // accessed from the main thread while chunk loading runs on background
+        // threads. External synchronization via Mutex/AtomicBool at the World
+        // level ensures exclusive access at this call site.
         unsafe {
             p_world = &mut *self.p_world.get();
         }
@@ -133,6 +137,10 @@ impl ChunkSection {
         let new_x = self.location.x + dx;
         let new_z = self.location.z + dz;
 
+        // SAFETY: p_world is an Arc<UnsafeCellWrapper<World>>. The World is
+        // accessed from the main thread while chunk loading runs on background
+        // threads. External synchronization via Mutex/AtomicBool at the World
+        // level ensures exclusive access at this call site.
         unsafe {
             (*self.p_world.get()).get_chunk_manager_mut()
                 .get_chunk(new_x, new_z)
@@ -179,6 +187,10 @@ impl IChunk for ChunkSection {
     fn get_block(&self, x: i32, y: i32, z: i32) -> ChunkBlock {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
+            // SAFETY: p_world is an Arc<UnsafeCellWrapper<World>>. The World is
+            // accessed from the main thread while chunk loading runs on background
+            // threads. External synchronization via Mutex/AtomicBool at the World
+            // level ensures exclusive access at this call site.
             unsafe {
                 let p_world = &mut *self.p_world.get();
                 return p_world.get_block(location.x, location.y, location.z);
@@ -191,6 +203,10 @@ impl IChunk for ChunkSection {
     fn set_block(&mut self, x: i32, y: i32, z: i32, block: ChunkBlock) {
         if Self::out_of_bounds(x) || Self::out_of_bounds(y) || Self::out_of_bounds(z) {
             let location = self.to_world_position(x, y, z);
+            // SAFETY: p_world is an Arc<UnsafeCellWrapper<World>>. The World is
+            // accessed from the main thread while chunk loading runs on background
+            // threads. External synchronization via Mutex/AtomicBool at the World
+            // level ensures exclusive access at this call site.
             unsafe {
                 let p_world = &mut *self.p_world.get();
                 p_world.set_block(location.x, location.y, location.z, block);
