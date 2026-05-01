@@ -24,7 +24,8 @@ pub struct SkyboxShader {
     pub base: ShaderBase,
 
     location_projection: GLint,
-    location_view: GLint
+    location_view: GLint,
+    uniforms_loaded: bool
 }
 
 impl SkyboxShader {
@@ -32,7 +33,8 @@ impl SkyboxShader {
         let mut result = Self {
             base: ShaderBase::new(vertex_file, fragment_file),
             location_projection: 0,
-            location_view: 0
+            location_view: 0,
+            uniforms_loaded: false
         };
         result.get_uniforms();
         result
@@ -56,7 +58,8 @@ impl Default for SkyboxShader {
         let mut result = Self {
             base: ShaderBase::new("Skybox", "Skybox"),
             location_projection: 0,
-            location_view: 0
+            location_view: 0,
+            uniforms_loaded: false
         };
         result.get_uniforms();
         result
@@ -65,11 +68,35 @@ impl Default for SkyboxShader {
 
 impl Shader for SkyboxShader {
     fn get_uniforms(&mut self) {
+        self.uniforms_loaded = true;
         unsafe {
             let c_string = CString::new("projectionMatrix").unwrap();
             self.location_projection = gl::GetUniformLocation(self.base.id, c_string.as_ptr());
             let c_string = CString::new("viewMatrix").unwrap();
             self.location_view = gl::GetUniformLocation(self.base.id, c_string.as_ptr());
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_skybox_manual_construction_flag_is_false() {
+        let shader = std::mem::ManuallyDrop::new(SkyboxShader {
+            base: ShaderBase { id: 0 },
+            location_projection: 0,
+            location_view: 0,
+            uniforms_loaded: false,
+        });
+        assert!(!shader.uniforms_loaded);
+    }
+
+    #[test]
+    #[ignore = "requires OpenGL context"]
+    fn test_skybox_default_initializes_uniforms() {
+        let shader = SkyboxShader::default();
+        assert!(shader.uniforms_loaded);
     }
 }

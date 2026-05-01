@@ -124,3 +124,113 @@ impl ViewFrustum {
         true
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::Config;
+
+    fn test_config() -> Config {
+        Config {
+            render_distance: 8,
+            is_fullscreen: false,
+            window_x: 1600,
+            window_y: 900,
+            fov: 105,
+        }
+    }
+
+    fn identity_matrix() -> glm::TMat4<f32> {
+        glm::diagonal4x4(&glm::vec4(1.0_f32, 1.0, 1.0, 1.0))
+    }
+
+    #[test]
+    fn test_frustum_plane_extraction_identity() {
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&identity_matrix());
+
+        let expected = [
+            (Planes::Near as usize, glm::vec3(0.0, 0.0, 1.0), 1.0),
+            (Planes::Far as usize, glm::vec3(0.0, 0.0, -1.0), 1.0),
+            (Planes::Left as usize, glm::vec3(1.0, 0.0, 0.0), 1.0),
+            (Planes::Right as usize, glm::vec3(-1.0, 0.0, 0.0), 1.0),
+            (Planes::Top as usize, glm::vec3(0.0, -1.0, 0.0), 1.0),
+            (Planes::Bottom as usize, glm::vec3(0.0, 1.0, 0.0), 1.0),
+        ];
+
+        for (index, normal, distance) in expected {
+            let plane = frustum.planes[index];
+            assert!((glm::length(&plane.normal) - 1.0).abs() < 0.0001);
+            assert!((plane.normal.x - normal.x).abs() < 0.0001);
+            assert!((plane.normal.y - normal.y).abs() < 0.0001);
+            assert!((plane.normal.z - normal.z).abs() < 0.0001);
+            assert!((plane.distance_to_origin - distance).abs() < 0.0001);
+        }
+    }
+
+    #[test]
+    fn test_frustum_plane_extraction_projection_matrix() {
+        let config = test_config();
+        let proj = crate::maths::matrix::make_projection_matrix(&config);
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&proj);
+
+        for plane in frustum.planes.iter() {
+            let len = glm::length(&plane.normal);
+            assert!((len - 1.0).abs() < 0.0001, "plane not normalized: {len}");
+            assert!(!plane.distance_to_origin.is_nan());
+        }
+    }
+
+    #[test]
+    fn test_aabb_inside_frustum() {
+        let config = test_config();
+        let proj = crate::maths::matrix::make_projection_matrix(&config);
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&proj);
+
+        let mut box_ = AABB::new(&glm::vec3(0.5, 0.5, 0.5));
+        box_.update(&glm::vec3(0.0, 0.0, -2.0));
+        assert!(frustum.is_box_in_frustum(box_));
+    }
+
+    #[test]
+    fn test_aabb_behind_near_plane() {
+        let config = test_config();
+        let proj = crate::maths::matrix::make_projection_matrix(&config);
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&proj);
+
+        let mut box_ = AABB::new(&glm::vec3(0.5, 0.5, 0.5));
+        box_.update(&glm::vec3(0.0, 0.0, 5.0));
+        assert!(!frustum.is_box_in_frustum(box_));
+    }
+
+    #[test]
+    fn test_aabb_outside_side_plane() {
+        let config = test_config();
+        let proj = crate::maths::matrix::make_projection_matrix(&config);
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&proj);
+
+        let mut box_ = AABB::new(&glm::vec3(1.0, 1.0, 1.0));
+        box_.update(&glm::vec3(2000.0, 0.0, -500.0));
+        assert!(!frustum.is_box_in_frustum(box_));
+    }
+
+    #[test]
+    fn test_all_planes_checked_for_accept_and_reject_cases() {
+        let config = test_config();
+        let proj = crate::maths::matrix::make_projection_matrix(&config);
+        let mut frustum = ViewFrustum::new([Plane::default(); 6]);
+        frustum.update(&proj);
+
+        let mut inside = AABB::new(&glm::vec3(1.0, 1.0, 1.0));
+        inside.update(&glm::vec3(0.0, 0.0, -10.0));
+        assert!(frustum.is_box_in_frustum(inside));
+
+        let mut outside = AABB::new(&glm::vec3(1.0, 1.0, 1.0));
+        outside.update(&glm::vec3(-2000.0, 0.0, -10.0));
+        assert!(!frustum.is_box_in_frustum(outside));
+    }
+}
