@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::sync::{LazyLock, Mutex};
+use std::sync::{LazyLock, Mutex, OnceLock};
 use sfml::system::Vector3i;
 use crate::maths::general_maths::smooth_interpolation;
 use crate::maths::noise_generator::{NoiseGenerator, NoiseParameters};
@@ -52,7 +52,7 @@ static BIOME_NOISE_GEN: LazyLock<Mutex<NoiseGenerator>> = LazyLock::new(|| Mutex
     NoiseGenerator::new(*SEED * 2)
 ));
 
-static mut NOISE_GEN: bool = false;
+static NOISE_GEN: OnceLock<NoiseGenerator> = OnceLock::new();
 
 impl ClassicOverWorldGenerator {
     pub fn new() -> Self {
@@ -62,24 +62,20 @@ impl ClassicOverWorldGenerator {
 
     fn set_up_noise() {
         log::info!("Seed: {}", *SEED);
-        unsafe {
-            if !NOISE_GEN {
-                log::info!("making noise");
-                NOISE_GEN = true;
+        NOISE_GEN.get_or_init(|| NoiseGenerator::new(*SEED * 2));
+        log::info!("making noise");
 
-                let mut biome_params = NoiseParameters::default();
-                biome_params.octaves = 5;
-                biome_params.amplitude = 120;
-                biome_params.smoothness = 1035;
-                biome_params.height_offset = 0;
-                biome_params.roughness = 0.75;
+        let mut biome_params = NoiseParameters::default();
+        biome_params.octaves = 5;
+        biome_params.amplitude = 120;
+        biome_params.smoothness = 1035;
+        biome_params.height_offset = 0;
+        biome_params.roughness = 0.75;
 
-                BIOME_NOISE_GEN.lock().unwrap().set_parameters(biome_params);
-            }
-        }
+        BIOME_NOISE_GEN.lock().unwrap().set_parameters(biome_params);
     }
 
-    fn set_blocks(&mut self, p_chunk: &mut Chunk, max_height: i32) {
+    fn set_blocks(&mut self, chunk: &mut Chunk, max_height: i32) {
         let mut trees: Vec<Vector3i> = Vec::new();
         let mut plants: Vec<Vector3i> = Vec::new();
 
@@ -91,14 +87,14 @@ impl ClassicOverWorldGenerator {
 
                     if y > height {
                         if y <= WATER_LEVEL as i32 {
-                            p_chunk.set_block(x as _, y as _, z as _,
+                        chunk.set_block(x as _, y as _, z as _,
                                               ChunkBlock::new_with_block_id(BlockId::Water));
                         }
                         continue;
                     } else if y == height {
                         if y >= WATER_LEVEL as i32 {
                             if y < (WATER_LEVEL + 4) as i32 {
-                                p_chunk.set_block(x as _, y as _, z as _,
+                                chunk.set_block(x as _, y as _, z as _,
                                                   biome.get_beach_block(&self.random));
                                 continue;
                             }
@@ -109,17 +105,17 @@ impl ClassicOverWorldGenerator {
                             if self.random.int_in_range(0..=biome.get_tree_frequency()) == 5 {
                                 plants.push(Vector3i::new(x as _, y + 1, z as _));
                             }
-                            p_chunk.set_block(x as _, y, z as _,
-                                              self.get_biome(x, z).get_top_block(&self.random));
+                            chunk.set_block(x as _, y, z as _,
+                                               self.get_biome(x, z).get_top_block(&self.random));
                         } else {
-                            p_chunk.set_block(x as _, y, z as _,
-                                              biome.get_under_water_block(&self.random));
+                            chunk.set_block(x as _, y, z as _,
+                                               biome.get_under_water_block(&self.random));
                         }
                     } else if y > height - 3 {
-                        p_chunk.set_block(x as _, y, z as _,
+                        chunk.set_block(x as _, y, z as _,
                                           ChunkBlock::new_with_block_id(BlockId::Dirt));
                     } else {
-                        p_chunk.set_block(x as _, y, z as _,
+                        chunk.set_block(x as _, y, z as _,
                                           ChunkBlock::new_with_block_id(BlockId::Stone));
                     }
                 }
@@ -131,20 +127,20 @@ impl ClassicOverWorldGenerator {
             let z = plant.z;
 
             let block = self.get_biome(x as _, z as _).get_plant(&self.random);
-            p_chunk.set_block(x, plant.y, z, block);
+            chunk.set_block(x, plant.y, z, block);
         }
 
         for tree in trees.iter() {
             let x = tree.x;
             let z = tree.z;
 
-            self.get_biome(x as _, z as _).make_tree(&self.random, p_chunk, x, tree.y, z);
+            self.get_biome(x as _, z as _).make_tree(&self.random, chunk, x, tree.y, z);
         }
     }
 
     fn get_height_in(
         &mut self,
-        p_chunk: &mut Chunk,
+        chunk: &mut Chunk,
         x_min: i32,
         z_min: i32,
         x_max: i32,
@@ -153,7 +149,7 @@ impl ClassicOverWorldGenerator {
         let get_height_at = |x: i32, z: i32| {
             let biome = self.get_biome(x as _, z as _);
 
-            biome.get_height(x, z, p_chunk.get_location().x, p_chunk.get_location().y)
+            biome.get_height(x, z, chunk.get_location().x, chunk.get_location().y)
         };
 
         let bottom_left = get_height_at(x_min, z_min) as f32;
@@ -182,18 +178,18 @@ impl ClassicOverWorldGenerator {
         }
     }
 
-    fn get_height_map(&mut self, p_chunk: &mut Chunk) {
+    fn get_height_map(&mut self, chunk: &mut Chunk) {
         const HALF_CHUNK: i32 = CHUNK_SIZE as i32 / 2;
         const CHUNK: i32 = CHUNK_SIZE as i32;
 
-        self.get_height_in(p_chunk, 0, 0, HALF_CHUNK, HALF_CHUNK);
-        self.get_height_in(p_chunk, HALF_CHUNK, 0, CHUNK, HALF_CHUNK);
-        self.get_height_in(p_chunk, 0, HALF_CHUNK, HALF_CHUNK, CHUNK);
-        self.get_height_in(p_chunk, HALF_CHUNK, HALF_CHUNK, CHUNK, CHUNK);
+        self.get_height_in(chunk, 0, 0, HALF_CHUNK, HALF_CHUNK);
+        self.get_height_in(chunk, HALF_CHUNK, 0, CHUNK, HALF_CHUNK);
+        self.get_height_in(chunk, 0, HALF_CHUNK, HALF_CHUNK, CHUNK);
+        self.get_height_in(chunk, HALF_CHUNK, HALF_CHUNK, CHUNK, CHUNK);
     }
 
-    fn get_biome_map(&mut self, p_chunk: &mut Chunk) {
-        let location = p_chunk.get_location();
+    fn get_biome_map(&mut self, chunk: &mut Chunk) {
+        let location = chunk.get_location();
 
         for x in 0..=CHUNK_SIZE {
             for z in 0..=CHUNK_SIZE {

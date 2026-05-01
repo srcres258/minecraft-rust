@@ -22,7 +22,7 @@ use crate::entity::Entity;
 use crate::maths::frustum::ViewFrustum;
 use crate::maths::matrix;
 
-/// @brief Camera state and matrices.
+/// Camera state and matrices.
 pub struct Camera {
     base: Entity,
 

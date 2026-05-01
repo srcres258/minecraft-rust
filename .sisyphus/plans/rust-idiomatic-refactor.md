@@ -89,13 +89,13 @@ Refactor the minecraft-rust codebase into idiomatic, safe Rust while preserving 
 - All modules follow modern Rust conventions
 
 ### Definition of Done
-- [ ] `cargo build` passes with zero errors in Nix dev shell
+- [x] `cargo build` passes with zero errors in Nix dev shell
 - [ ] `cargo test` passes all tests
 - [ ] `cargo clippy` reports zero warnings (or existing warnings only, no new ones)
 - [ ] Skybox visible on launch (not black)
 - [ ] Frustum culling: chunks at screen edges render correctly (no visible pop-in/out at wrong positions)
-- [ ] No `mod.rs` files remain in `src/` (except possibly if blocked by tooling)
-- [ ] All non-FFI `unsafe` blocks documented with `// SAFETY:` comments
+- [x] No `mod.rs` files remain in `src/` (except possibly if blocked by tooling)
+- [x] All non-FFI `unsafe` blocks documented with `// SAFETY:` comments
 
 ### Must Have
 - Skybox fix applied
@@ -721,7 +721,7 @@ Wave FINAL (After ALL tasks — 4 parallel reviews, then user okay):
 
   **Acceptance Criteria**:
   - [ ] 5+ test cases pass covering inside/outside/intersection
-  - [ ] `cargo test` passes all tests
+- [x] `cargo test` passes all tests
   - [ ] Boxes known to be IN frustum return true; known OUT return false
 
   **QA Scenarios**:

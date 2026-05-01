@@ -2,10 +2,18 @@
   "active_plan": "/home/srcres/Coding/Projects/minecraft-rust/.sisyphus/plans/rust-idiomatic-refactor.md",
   "started_at": "2026-05-01T03:04:00.617Z",
   "session_ids": [
-    "ses_21e9ef376ffei9lSVYVewq4mhr"
+    "ses_21e9ef376ffei9lSVYVewq4mhr",
+    "ses_21d82d1aaffeEE5chmsFGdb9Ci",
+    "ses_21d82a368ffe6sVi9xw3W5iMZY",
+    "ses_21d826de6ffecnpq5LLC8esNzi",
+    "ses_21d8239faffesIRtnkJfwxhsLe"
   ],
   "session_origins": {
-    "ses_21e9ef376ffei9lSVYVewq4mhr": "direct"
+    "ses_21e9ef376ffei9lSVYVewq4mhr": "direct",
+    "ses_21d82d1aaffeEE5chmsFGdb9Ci": "appended",
+    "ses_21d82a368ffe6sVi9xw3W5iMZY": "appended",
+    "ses_21d826de6ffecnpq5LLC8esNzi": "appended",
+    "ses_21d8239faffesIRtnkJfwxhsLe": "appended"
   },
   "plan_name": "rust-idiomatic-refactor",
   "agent": "atlas",
@@ -14,10 +22,10 @@
       "task_key": "final-wave:f1",
       "task_label": "F1",
       "task_title": "**Plan Compliance Audit** — `oracle`",
-      "session_id": "ses_21d865542ffegegeqFh7blVN0F",
+      "session_id": "ses_21d7b6b3affetE2Gdpi7bJwyii",
       "agent": "Sisyphus-Junior",
       "category": "quick",
-      "updated_at": "2026-05-01T07:41:08.767Z"
+      "updated_at": "2026-05-01T07:58:10.789Z"
     }
   }
 }
