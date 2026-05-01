@@ -14,25 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::ptr;
 use std::sync::{Arc, RwLock};
+use std::sync::OnceLock;
 use crate::texture::texture_atlas::TextureAtlas;
 use crate::world::block::block_data::BlockData;
 use crate::world::block::block_id::BlockId;
 use crate::world::block::block_types::block_type::{BlockType, DefaultBlock};
 
-static mut INSTANCE_PTR: *mut BlockDatabase = ptr::null_mut();
+static INSTANCE: OnceLock<BlockDatabase> = OnceLock::new();
 
 /// @brief Singleton class that determines status and ID of blocks as a whole.
 pub struct BlockDatabase {
     pub texture_atlas: TextureAtlas,
-    blocks: [Box<dyn BlockType>; BlockId::NUM_TYPES]
+    blocks: [Box<dyn BlockType + Send + Sync>; BlockId::NUM_TYPES]
 }
 
 impl BlockDatabase {
     fn new() -> Self {
         let texture_atlas = TextureAtlas::new("DefaultPack");
-        let blocks: [Box<dyn BlockType>; 12] = [
+        let blocks: [Box<dyn BlockType + Send + Sync>; 12] = [
             Box::new(DefaultBlock::new("Air")),
             Box::new(DefaultBlock::new("Grass")),
             Box::new(DefaultBlock::new("Dirt")),
@@ -49,17 +49,12 @@ impl BlockDatabase {
         Self { texture_atlas, blocks }
     }
 
-    pub fn get() -> &'static Self {
-        unsafe {
-            if INSTANCE_PTR == ptr::null_mut() {
-                // Allocate the instance on heap memory,
-                // then leak it to get the raw pointer.
-                let instance = Box::new(BlockDatabase::new());
-                INSTANCE_PTR = Box::leak(instance);
-            }
+    pub fn instance() -> &'static Self {
+        INSTANCE.get_or_init(Self::new)
+    }
 
-            &*INSTANCE_PTR
-        }
+    pub fn get() -> &'static Self {
+        Self::instance()
     }
 
     pub fn get_block(&self, id: BlockId) -> &dyn BlockType {

@@ -41,21 +41,35 @@ impl TryFrom<i32> for BlockId {
     type Error = ();
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
-        match value {
-            x if x == BlockId::Air as i32 => Ok(BlockId::Air),
-            x if x == BlockId::Grass as i32 => Ok(BlockId::Grass),
-            x if x == BlockId::Dirt as i32 => Ok(BlockId::Dirt),
-            x if x == BlockId::Stone as i32 => Ok(BlockId::Stone),
-            x if x == BlockId::OakBark as i32 => Ok(BlockId::OakBark),
-            x if x == BlockId::OakLeaf as i32 => Ok(BlockId::OakLeaf),
-            x if x == BlockId::Sand as i32 => Ok(BlockId::Sand),
-            x if x == BlockId::Water as i32 => Ok(BlockId::Water),
-            x if x == BlockId::Cactus as i32 => Ok(BlockId::Cactus),
-            x if x == BlockId::Rose as i32 => Ok(BlockId::Rose),
-            x if x == BlockId::TallGrass as i32 => Ok(BlockId::TallGrass),
-            x if x == BlockId::DeadShrub as i32 => Ok(BlockId::DeadShrub),
+        match value as u8 {
+            0 => Ok(BlockId::Air),
+            1 => Ok(BlockId::Grass),
+            2 => Ok(BlockId::Dirt),
+            3 => Ok(BlockId::Stone),
+            4 => Ok(BlockId::OakBark),
+            5 => Ok(BlockId::OakLeaf),
+            6 => Ok(BlockId::Sand),
+            7 => Ok(BlockId::Water),
+            8 => Ok(BlockId::Cactus),
+            9 => Ok(BlockId::Rose),
+            10 => Ok(BlockId::TallGrass),
+            11 => Ok(BlockId::DeadShrub),
             _ => Err(())
         }
+    }
+}
+
+impl From<BlockId> for u8 {
+    fn from(value: BlockId) -> Self {
+        value as u8
+    }
+}
+
+impl TryFrom<u8> for BlockId {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        Self::try_from(value as i32)
     }
 }
 

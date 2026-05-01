@@ -98,8 +98,16 @@ impl ChunkManager {
     }
 
     pub fn load_chunk(&mut self, x: i32, z: i32) {
-        let ptr = &mut self.terrain_generator as *mut Box<dyn TerrainGenerator + Send>;
-        self.get_chunk_mut(x, z).load(unsafe { (*ptr).as_mut() });
+        let key = VectorXZ::new(x, z);
+        let world = Arc::clone(&self.world);
+        let (chunks, terrain_generator) = (&mut self.chunks, &mut self.terrain_generator);
+
+        if !chunks.contains_key(&key) {
+            let chunk = Chunk::new(world, Vector2i::new(x, z));
+            chunks.insert(key, chunk);
+        }
+
+        chunks.get_mut(&key).unwrap().load(terrain_generator.as_mut());
     }
 
     pub fn unload_chunk(&mut self, x: i32, z: i32) {
