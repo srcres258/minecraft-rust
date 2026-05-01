@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 use crate::world::block::block_id::BlockId;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -88,39 +88,36 @@ impl Material {
     }
 }
 
-lazy_static! {
-    pub static ref NOTHING: Material = Material::new(
-        ID::Nothing, 0, false, "None"
-    );
-    pub static ref GRASS_BLOCK: Material = Material::new(
-        ID::Grass, 99, true, "Grass Block"
-    );
-    pub static ref DIRT_BLOCK: Material = Material::new(
-        ID::Dirt, 99, true, "Dirt Block"
-    );
-    pub static ref STONE_BLOCK: Material = Material::new(
-        ID::Stone, 99, true, "Stone Block"
-    );
-    pub static ref OAK_BARK_BLOCK: Material = Material::new(
-        ID::OakBark, 99, true, "Oak Bark Block"
-    );
-    pub static ref OAK_LEAF_BLOCK: Material = Material::new(
-        ID::OakLeaf, 99, true, "Oak Leaf Block"
-    );
-    pub static ref SAND_BLOCK: Material = Material::new(
-        ID::Sand, 99, true, "Sand Block"
-    );
-    pub static ref CACTUS_BLOCK: Material = Material::new(
-        ID::Cactus, 99, true, "Cactus Block"
-    );
-    
-    pub static ref ROSE: Material = Material::new(
-        ID::Rose, 99, true, "Rose"
-    );
-    pub static ref TALL_GRASS: Material = Material::new(
-        ID::TallGrass, 99, true, "Tall Grass"
-    );
-    pub static ref DEAD_SHRUB: Material = Material::new(
-        ID::DeadShrub, 99, true, "Dead Shrub"
-    );
-}
+pub static NOTHING: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Nothing, 0, false, "None"
+));
+pub static GRASS_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Grass, 99, true, "Grass Block"
+));
+pub static DIRT_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Dirt, 99, true, "Dirt Block"
+));
+pub static STONE_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Stone, 99, true, "Stone Block"
+));
+pub static OAK_BARK_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::OakBark, 99, true, "Oak Bark Block"
+));
+pub static OAK_LEAF_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::OakLeaf, 99, true, "Oak Leaf Block"
+));
+pub static SAND_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Sand, 99, true, "Sand Block"
+));
+pub static CACTUS_BLOCK: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Cactus, 99, true, "Cactus Block"
+));
+pub static ROSE: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::Rose, 99, true, "Rose"
+));
+pub static TALL_GRASS: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::TallGrass, 99, true, "Tall Grass"
+));
+pub static DEAD_SHRUB: LazyLock<Material> = LazyLock::new(|| Material::new(
+    ID::DeadShrub, 99, true, "Dead Shrub"
+));

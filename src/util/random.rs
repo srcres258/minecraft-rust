@@ -15,8 +15,8 @@
 // limitations under the License.
 
 use std::sync::Mutex;
+use std::sync::LazyLock;
 use std::time::SystemTime;
-use lazy_static::lazy_static;
 use rand::distributions::uniform::{SampleRange, SampleUniform};
 use rand::prelude::StdRng;
 use rand::Rng;
@@ -31,9 +31,7 @@ pub struct Random {
     random_engine: Mutex<StdRng>
 }
 
-lazy_static! {
-    static ref INSTANCE: RandomSingleton = RandomSingleton::new();
-}
+static INSTANCE: LazyLock<RandomSingleton> = LazyLock::new(RandomSingleton::new);
 
 impl RandomSingleton {
     fn new() -> Self {

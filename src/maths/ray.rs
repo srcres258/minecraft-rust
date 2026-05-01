@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern crate nalgebra_glm as glm;
+use nalgebra_glm as glm;
 
 /// @brief Raycasting class associated with player's line of sight.
 pub struct Ray {

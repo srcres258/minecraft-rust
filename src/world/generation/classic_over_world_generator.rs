@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::sync::Mutex;
-use lazy_static::lazy_static;
+use std::sync::{LazyLock, Mutex};
 use sfml::system::Vector3i;
 use crate::maths::general_maths::smooth_interpolation;
 use crate::maths::noise_generator::{NoiseGenerator, NoiseParameters};
@@ -47,13 +46,11 @@ pub struct ClassicOverWorldGenerator {
     light_forest: LightForest
 }
 
-lazy_static! {
-    static ref SEED: i32 = RandomSingleton::get().int_in_range(424..=325322);
+static SEED: LazyLock<i32> = LazyLock::new(|| RandomSingleton::get().int_in_range(424..=325322));
 
-    static ref BIOME_NOISE_GEN: Mutex<NoiseGenerator> = Mutex::new(
-        NoiseGenerator::new(SEED.clone() * 2)
-    );
-}
+static BIOME_NOISE_GEN: LazyLock<Mutex<NoiseGenerator>> = LazyLock::new(|| Mutex::new(
+    NoiseGenerator::new(*SEED * 2)
+));
 
 static mut NOISE_GEN: bool = false;
 
@@ -64,7 +61,7 @@ impl ClassicOverWorldGenerator {
     }
 
     fn set_up_noise() {
-        log::info!("Seed: {}", SEED.clone());
+        log::info!("Seed: {}", *SEED);
         unsafe {
             if !NOISE_GEN {
                 log::info!("making noise");
@@ -234,11 +231,11 @@ impl Default for ClassicOverWorldGenerator {
             height_map: Array2D::new(CHUNK_SIZE),
             biome_map: Array2D::new(CHUNK_SIZE + 1),
             random: Default::default(),
-            grass_biome: GrasslandBiome::new(SEED.clone()),
-            temperate_forest: TemperateForestBiome::new(SEED.clone()),
-            desert_biome: DesertBiome::new(SEED.clone()),
-            ocean_biome: OceanBiome::new(SEED.clone()),
-            light_forest: LightForest::new(SEED.clone())
+             grass_biome: GrasslandBiome::new(*SEED),
+             temperate_forest: TemperateForestBiome::new(*SEED),
+             desert_biome: DesertBiome::new(*SEED),
+             ocean_biome: OceanBiome::new(*SEED),
+             light_forest: LightForest::new(*SEED)
         }
     }
 }
