@@ -57,17 +57,13 @@ impl ChunkMesh {
 
         // Vertex: The current vertex in the "blockFace" vector, 4 vertex in total
         // hence "< 4" Index: X, Y, Z
-        let mut index = 0;
-        for _ in 0..4 {
-            vertices.push(block_face[index] + (chunk_position.x * CHUNK_SIZE as i32
+        for face in block_face.chunks_exact(3) {
+            vertices.push(face[0] + (chunk_position.x * CHUNK_SIZE as i32
                 + block_position.x) as f32);
-            index += 1;
-            vertices.push(block_face[index] + (chunk_position.y * CHUNK_SIZE as i32
+            vertices.push(face[1] + (chunk_position.y * CHUNK_SIZE as i32
                 + block_position.y) as f32);
-            index += 1;
-            vertices.push(block_face[index] + (chunk_position.z * CHUNK_SIZE as i32
+            vertices.push(face[2] + (chunk_position.z * CHUNK_SIZE as i32
                 + block_position.z) as f32);
-            index += 1;
             self.light.push(cardinal_light);
         }
 

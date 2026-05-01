@@ -27,7 +27,7 @@ use crate::world::chunk::chunk_section::ChunkSection;
 use crate::world::world_constants::{CHUNK_SIZE, CHUNK_VOLUME};
 
 pub struct ChunkMeshBuilder<'a> {
-    p_chunk: &'a mut ChunkSection
+    chunk: &'a mut ChunkSection
 }
 
 #[derive(Copy, Clone, Default)]
@@ -60,14 +60,13 @@ impl<'a> ChunkMeshBuilder<'a> {
         chunk: &'a mut ChunkSection
     ) -> Self {
         Self {
-            p_chunk: chunk
+            chunk
         }
     }
 
     pub fn build_mesh(&mut self) {
         let mut directions = AdjacentBlockPositions::default();
-        let mut block_iter = self.p_chunk.blocks.iter();
-        for i in 0..CHUNK_VOLUME {
+        for (i, block) in self.chunk.blocks.iter().enumerate() {
             let x = i % CHUNK_SIZE;
             let y = i / (CHUNK_SIZE * CHUNK_SIZE);
             let z = (i / CHUNK_SIZE) % CHUNK_SIZE;
@@ -75,8 +74,6 @@ impl<'a> ChunkMeshBuilder<'a> {
             if !self.should_make_layer(y as _) {
                 continue;
             }
-
-            let block = block_iter.next().unwrap();
 
             let position = Vector3i::new(x as _, y as _, z as _);
 
@@ -88,16 +85,16 @@ impl<'a> ChunkMeshBuilder<'a> {
             let data = Arc::clone(&p_block_data);
 
             if data.read().unwrap().block_data().mesh_type == BlockMeshType::X {
-                Self::add_x_block_to_mesh(&mut self.p_chunk.meshes, self.p_chunk.location, block, &data.read().unwrap().block_data().tex_top_coord, &position);
+                Self::add_x_block_to_mesh(&mut self.chunk.meshes, self.chunk.location, block, &data.read().unwrap().block_data().tex_top_coord, &position);
                 continue;
             }
 
             directions.update(x as _, y as _, z as _);
 
             // Up/ Down
-            if self.p_chunk.get_location().y != 0 || y != 0 {
+            if self.chunk.get_location().y != 0 || y != 0 {
                 let smf = {
-                    let block = self.p_chunk.get_block(directions.down.x, directions.down.y, directions.down.z);
+                    let block = self.chunk.get_block(directions.down.x, directions.down.y, directions.down.z);
                     let data = block.get_data();
 
                     if block.id == BlockType::default() {
@@ -110,8 +107,8 @@ impl<'a> ChunkMeshBuilder<'a> {
                 };
                 Self::try_add_face_to_mesh(
                     smf,
-                    self.p_chunk.location,
-                    &mut self.p_chunk.meshes,
+                    self.chunk.location,
+                    &mut self.chunk.meshes,
                     block,
                     BOTTOM_FACE,
                     &data.read().unwrap().block_data().tex_bottom_coord,
@@ -119,8 +116,8 @@ impl<'a> ChunkMeshBuilder<'a> {
                     LIGHT_BOT
                 );
             }
-            let smf = {
-                let block = self.p_chunk.get_block(directions.up.x, directions.up.y, directions.up.z);
+                let smf = {
+                    let block = self.chunk.get_block(directions.up.x, directions.up.y, directions.up.z);
                 let data = block.get_data();
 
                 if block.id == BlockType::default() {
@@ -133,8 +130,8 @@ impl<'a> ChunkMeshBuilder<'a> {
             };
             Self::try_add_face_to_mesh(
                 smf,
-                self.p_chunk.location,
-                &mut self.p_chunk.meshes,
+                self.chunk.location,
+                &mut self.chunk.meshes,
                 block,
                 TOP_FACE,
                 &data.read().unwrap().block_data().tex_top_coord,
@@ -144,7 +141,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
             // Left/ Right
             let smf = {
-                let block = self.p_chunk.get_block(directions.left.x, directions.left.y, directions.left.z);
+                let block = self.chunk.get_block(directions.left.x, directions.left.y, directions.left.z);
                 let data = block.get_data();
 
                 if block.id == BlockType::default() {
@@ -157,8 +154,8 @@ impl<'a> ChunkMeshBuilder<'a> {
             };
             Self::try_add_face_to_mesh(
                 smf,
-                self.p_chunk.location,
-                &mut self.p_chunk.meshes,
+                self.chunk.location,
+                &mut self.chunk.meshes,
                 block,
                 LEFT_FACE,
                 &data.read().unwrap().block_data().tex_side_coord,
@@ -166,7 +163,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 LIGHT_X
             );
             let smf = {
-                let block = self.p_chunk.get_block(directions.right.x, directions.right.y, directions.right.z);
+                let block = self.chunk.get_block(directions.right.x, directions.right.y, directions.right.z);
                 let data = block.get_data();
 
                 if block.id == BlockType::default() {
@@ -179,8 +176,8 @@ impl<'a> ChunkMeshBuilder<'a> {
             };
             Self::try_add_face_to_mesh(
                 smf,
-                self.p_chunk.location,
-                &mut self.p_chunk.meshes,
+                self.chunk.location,
+                &mut self.chunk.meshes,
                 block,
                 RIGHT_FACE,
                 &data.read().unwrap().block_data().tex_side_coord,
@@ -190,7 +187,7 @@ impl<'a> ChunkMeshBuilder<'a> {
 
             // Front/ Back
             let smf = {
-                let block = self.p_chunk.get_block(directions.front.x, directions.front.y, directions.front.z);
+                let block = self.chunk.get_block(directions.front.x, directions.front.y, directions.front.z);
                 let data = block.get_data();
 
                 if block.id == BlockType::default() {
@@ -203,8 +200,8 @@ impl<'a> ChunkMeshBuilder<'a> {
             };
             Self::try_add_face_to_mesh(
                 smf,
-                self.p_chunk.location,
-                &mut self.p_chunk.meshes,
+                self.chunk.location,
+                &mut self.chunk.meshes,
                 block,
                 FRONT_FACE,
                 &data.read().unwrap().block_data().tex_side_coord,
@@ -212,7 +209,7 @@ impl<'a> ChunkMeshBuilder<'a> {
                 LIGHT_Z
             );
             let smf = {
-                let block = self.p_chunk.get_block(directions.back.x, directions.back.y, directions.back.z);
+                let block = self.chunk.get_block(directions.back.x, directions.back.y, directions.back.z);
                 let data = block.get_data();
 
                 if block.id == BlockType::default() {
@@ -225,8 +222,8 @@ impl<'a> ChunkMeshBuilder<'a> {
             };
             Self::try_add_face_to_mesh(
                 smf,
-                self.p_chunk.location,
-                &mut self.p_chunk.meshes,
+                self.chunk.location,
+                &mut self.chunk.meshes,
                 block,
                 BACK_FACE,
                 &data.read().unwrap().block_data().tex_side_coord,
@@ -314,13 +311,13 @@ impl<'a> ChunkMeshBuilder<'a> {
 
     fn should_make_layer(&self, y: i32) -> bool {
         let adj_is_solid = |dx, dz| {
-            let sect = self.p_chunk.get_adjacent(dx, dz);
+            let sect = self.chunk.get_adjacent(dx, dz);
             sect.exec_on_layer(y, |it| it.is_all_solid())
         };
         
-        !self.p_chunk.exec_on_layer(y, |it| it.is_all_solid()) ||
-            self.p_chunk.exec_on_layer(y + 1, |it| it.is_all_solid()) ||
-            self.p_chunk.exec_on_layer(y - 1, |it| it.is_all_solid()) ||
+        !self.chunk.exec_on_layer(y, |it| it.is_all_solid()) ||
+            self.chunk.exec_on_layer(y + 1, |it| it.is_all_solid()) ||
+            self.chunk.exec_on_layer(y - 1, |it| it.is_all_solid()) ||
             
             !adj_is_solid(1, 0) ||
             !adj_is_solid(0, 1) ||
