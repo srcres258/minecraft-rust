@@ -111,3 +111,15 @@ fn main() {
         (*app.get()).run_loop();
     }
 }
+
+#[cfg(test)]
+#[path = "test_utils.rs"]
+mod test_utils;
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn smoke_build_works() {
+        assert!(true);
+    }
+}
